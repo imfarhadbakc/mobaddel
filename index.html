@@ -338,13 +338,13 @@
         </div>
       </section>
 
-      <!-- DateTime Page (time.ir via text proxy) -->
+      <!-- DateTime Page (timeapi.io) -->
       <section id="page-datetime" class="hidden space-y-4 md:space-y-5">
         <div class="card p-4 md:p-5">
           <div class="flex items-start justify-between gap-3">
             <div>
-              <h2 class="text-base md:text-lg font-bold">تاریخ و ساعت (مرجع time.ir)</h2>
-              <p class="muted tiny mt-1">این بخش تلاش می‌کند ساعت/تاریخ را از time.ir بخواند (بدون استفاده از ساعت دستگاه). اگر دسترسی محدود شود، پیام خطا نمایش داده می‌شود.</p>
+              <h2 class="text-base md:text-lg font-bold">تاریخ و ساعت (مرجع TimeAPI.io)</h2>
+              <p class="muted tiny mt-1">این بخش برای دقت بیشتر، تاریخ و ساعت را از سرویس رایگان TimeAPI.io می‌گیرد و به ساعت دستگاه وابسته نیست.</p>
             </div>
             <div class="flex gap-2 flex-wrap">
               <button id="timeRefreshBtn" class="btn px-3 py-2 soft focusable">به‌روزرسانی</button>
@@ -356,17 +356,17 @@
             <div class="soft p-3">
               <div class="font-bold">امروز (شمسی)</div>
               <div class="calcDisplay text-2xl font-extrabold mt-2" id="todayJalali">—</div>
-              <div class="muted tiny mt-2">منبع: time.ir</div>
+              <div class="muted tiny mt-2">منبع: TimeAPI.io</div>
             </div>
             <div class="soft p-3">
               <div class="font-bold">امروز (میلادی)</div>
               <div class="calcDisplay text-2xl font-extrabold mt-2" id="todayGreg">—</div>
-              <div class="muted tiny mt-2">منبع: time.ir (در صورت تشخیص)</div>
+              <div class="muted tiny mt-2">منبع: TimeAPI.io</div>
             </div>
             <div class="soft p-3">
               <div class="font-bold">امروز (قمری)</div>
               <div class="calcDisplay text-2xl font-extrabold mt-2" id="todayHijri">—</div>
-              <div class="muted tiny mt-2">منبع: time.ir (در صورت تشخیص)</div>
+              <div class="muted tiny mt-2">منبع: TimeAPI.io</div>
             </div>
           </div>
 
@@ -377,7 +377,7 @@
                 <div class="muted tiny">Asia/Tehran</div>
               </div>
               <div class="calcDisplay text-4xl md:text-5xl font-extrabold mt-3" id="timeIR">—</div>
-              <div class="muted tiny mt-2">آخرین به‌روزرسانی: <span id="timeUpdatedAt">—</span></div>
+              <div class="muted tiny mt-2">آخرین داده دریافتی: <span id="timeUpdatedAt">—</span></div>
             </div>
 
             <div class="soft p-3">
@@ -386,7 +386,7 @@
                 <div class="muted tiny">UTC</div>
               </div>
               <div class="calcDisplay text-4xl md:text-5xl font-extrabold mt-3" id="timeUTC">—</div>
-              <div class="muted tiny mt-2">منبع: time.ir (در صورت تشخیص)</div>
+              <div class="muted tiny mt-2">منبع: TimeAPI.io</div>
             </div>
           </div>
 
@@ -395,7 +395,7 @@
               <div class="tiny muted">وضعیت</div>
               <div id="timeStatusText" class="tiny text-amber-200">در حال تلاش برای دریافت اطلاعات…</div>
             </div>
-            <div class="muted tiny mt-2" id="timeStatusHint">اگر time.ir دسترسی متقاطع را محدود کند، ممکن است خواندن مستقیم ممکن نباشد.</div>
+            <div class="muted tiny mt-2" id="timeStatusHint">اگر اینترنت یا سرویس در دسترس نباشد، این بخش «—» نمایش می‌دهد.</div>
           </div>
         </div>
       </section>
@@ -406,7 +406,7 @@
           <div class="relative flex items-start justify-between gap-3">
             <div>
               <h2 class="text-base md:text-lg font-extrabold">ماشین حساب حرفه‌ای</h2>
-              <p class="muted tiny mt-1">فقط یک نمایشگر (طبق انتخاب شما در تنظیمات: فارسی یا انگلیسی)</p>
+              <p class="muted tiny mt-1">نمایشگر فقط طبق انتخاب شما در تنظیمات: فارسی یا انگلیسی</p>
             </div>
             <div class="flex gap-2">
               <button id="calcCopyBtn" class="btn px-3 py-2 soft focusable">کپی</button>
@@ -645,11 +645,11 @@
           <h2 class="text-base md:text-lg font-bold">راهنما</h2>
           <div class="mt-3 space-y-3 leading-7">
             <div class="soft p-3">
-              <div class="font-bold">تاریخ و ساعت time.ir</div>
+              <div class="font-bold">تاریخ و ساعت (TimeAPI.io)</div>
               <ul class="mt-2 list-disc pr-5 muted">
-                <li>خواندن مستقیم time.ir در مرورگر ممکن است به دلیل محدودیت‌های دسترسی متقاطع (CORS) گاهی انجام نشود.</li>
-                <li>برای اینکه بدون ساعت دستگاه کار کند، این صفحه سعی می‌کند محتوا را از time.ir از طریق یک پراکسی متنی عمومی بخواند.</li>
-                <li>اگر پارس کردن/دسترسی ناموفق باشد، پیام خطا می‌بینید.</li>
+                <li>این بخش ساعت و تاریخ را از سرویس رایگان TimeAPI.io دریافت می‌کند.</li>
+                <li>به ساعت دستگاه وابسته نیست؛ فقط برای نمایش «به‌روزرسانی شد» از داده دریافتی استفاده می‌شود.</li>
+                <li>اگر اینترنت/سرویس در دسترس نباشد، فیلدها «—» می‌شوند.</li>
               </ul>
             </div>
             <div class="soft p-3">
@@ -759,7 +759,7 @@ const defaultConfig = {
   precision:2,
   enable_click_sound:true,
   click_volume:30,
-  calculator_display_lang:"fa" // NEW: fa | en
+  calculator_display_lang:"fa" // fa | en
 };
 
 const elementSdk = (() => {
@@ -1349,19 +1349,16 @@ const calcPush = (k) => {
 };
 const calcClear = () => { playClick(); calcExpr=""; calcEvaluate(); };
 
-/* --------------------------- time.ir fetch (best-effort, via text proxy) --------------------------- */
-/*
-  IMPORTANT:
-  - مرورگر معمولاً اجازه fetch مستقیم time.ir را به خاطر CORS نمی‌دهد.
-  - اینجا از یک پراکسی متنی عمومی استفاده شده تا HTML time.ir به صورت متن قابل خواندن شود.
-  - اگر این پراکسی یا ساختار time.ir تغییر کند، ممکن است پارس کردن ناموفق شود.
-*/
-const TIMEIR_PROXY_URL = "https://r.jina.ai/http://time.ir/";
+/* --------------------------- DateTime via TimeAPI.io (NO device clock) --------------------------- */
+const TIMEAPI_BASE = "https://timeapi.io/api/Time/current/zone";
+const TZ_IR = "Asia/Tehran";
+const TZ_UTC = "Etc/UTC";
 
-let timeIrState = {
-  lastOk: false,
-  // When time.ir provides explicit time strings; otherwise we keep "—"
-  jalali:"—", greg:"—", hijri:"—", timeIR:"—", timeUTC:"—",
+let timeState = {
+  lastOk:false,
+  irISO:null, utcISO:null,
+  timeIR:"—", timeUTC:"—",
+  jalali:"—", greg:"—", hijri:"—",
   updatedAt:"—"
 };
 
@@ -1370,99 +1367,136 @@ const setTimeStatus = (kind, hint="") => {
   const h = document.getElementById("timeStatusHint");
   if(kind==="ok"){
     el.className="tiny text-emerald-200";
-    el.textContent="اطلاعات با موفقیت از time.ir دریافت شد ✅";
+    el.textContent="اطلاعات با موفقیت دریافت شد ✅";
   }else if(kind==="warn"){
     el.className="tiny text-amber-200";
-    el.textContent="هشدار: ساختار داده تشخیص داده نشد. ممکن است نمایش ناقص باشد.";
+    el.textContent="هشدار: برخی داده‌ها قابل نمایش نیستند.";
   }else{
     el.className="tiny text-rose-200";
-    el.textContent="خطا: دریافت اطلاعات از time.ir ناموفق بود.";
+    el.textContent="خطا: دریافت اطلاعات ناموفق بود.";
   }
   h.textContent = hint || "";
 };
 
-const renderTimeIr = () => {
+const fmtMaybeFaDigits = (s) => {
   const cfg = elementSdk.getConfig();
-  const caps=elementSdk.mapToCapabilities(cfg);
-  const fmt = (s) => {
-    if(s==null || s==="—") return "—";
-    return caps.behavior.enablePersianDigits ? toPersianDigits(String(s)) : String(s);
+  if(s==null || s==="—") return "—";
+  return cfg.enable_persian_digits ? toPersianDigits(String(s)) : String(s);
+};
+
+const renderTime = () => {
+  document.getElementById("todayJalali").textContent = fmtMaybeFaDigits(timeState.jalali);
+  document.getElementById("todayGreg").textContent   = fmtMaybeFaDigits(timeState.greg);
+  document.getElementById("todayHijri").textContent  = fmtMaybeFaDigits(timeState.hijri);
+  document.getElementById("timeIR").textContent      = fmtMaybeFaDigits(timeState.timeIR);
+  document.getElementById("timeUTC").textContent     = fmtMaybeFaDigits(timeState.timeUTC);
+  document.getElementById("timeUpdatedAt").textContent = fmtMaybeFaDigits(timeState.updatedAt);
+};
+
+const pad2 = (n) => String(n).padStart(2,"0");
+
+const datePartsForTZ = (dateObj, timeZone, locale="en-GB") => {
+  const fmt = new Intl.DateTimeFormat(locale, {
+    timeZone,
+    year:"numeric", month:"2-digit", day:"2-digit",
+    hour:"2-digit", minute:"2-digit", second:"2-digit",
+    hourCycle:"h23"
+  });
+  const parts = fmt.formatToParts(dateObj);
+  const get = (type) => (parts.find(p=>p.type===type)?.value ?? "");
+  return {
+    year: get("year"),
+    month: get("month"),
+    day: get("day"),
+    hour: get("hour"),
+    minute: get("minute"),
+    second: get("second"),
   };
-  document.getElementById("todayJalali").textContent = fmt(timeIrState.jalali);
-  document.getElementById("todayGreg").textContent   = fmt(timeIrState.greg);
-  document.getElementById("todayHijri").textContent  = fmt(timeIrState.hijri);
-  document.getElementById("timeIR").textContent      = fmt(timeIrState.timeIR);
-  document.getElementById("timeUTC").textContent     = fmt(timeIrState.timeUTC);
-  document.getElementById("timeUpdatedAt").textContent = fmt(timeIrState.updatedAt);
 };
 
-const tryParseTimeIr = (text) => {
-  // Best-effort patterns:
-  // 1) Try to find a HH:MM(:SS) that looks like Iran time.
-  // 2) Try to find date-like patterns in Jalali (e.g. ۱۴۰۲/۰۵/۰۱ or 1402/05/01).
-  // time.ir structure may change; we keep it resilient and non-blocking.
-  const t = String(text||"");
-
-  // time: look for 2 digits : 2 digits (optionally :2)
-  const timeMatch = t.match(/([0-2]?\d)\s*:\s*([0-5]\d)(?:\s*:\s*([0-5]\d))?/);
-  const time = timeMatch ? `${timeMatch[1].padStart(2,'0')}:${timeMatch[2]}${timeMatch[3]?":"+timeMatch[3]:""}` : null;
-
-  // jalali date: try YYYY/MM/DD where YYYY in 13xx-15xx or 1xxx (persian digits also possible)
-  const jal = t.match(/([۰-۹0-9]{4})\s*[/\-]\s*([۰-۹0-9]{1,2})\s*[/\-]\s*([۰-۹0-9]{1,2})/);
-  const jalali = jal ? `${jal[1]}/${jal[2].padStart(2,'0')}/${jal[3].padStart(2,'0')}` : null;
-
-  // Also try Gregorian date (YYYY-MM-DD) in text
-  const greg = t.match(/(20\d{2})\s*[/\-]\s*(0?\d|1[0-2])\s*[/\-]\s*(0?\d|[12]\d|3[01])/);
-  const gregStr = greg ? `${greg[1]}-${String(greg[2]).padStart(2,'0')}-${String(greg[3]).padStart(2,'0')}` : null;
-
-  // Hijri date might appear similarly; try 14xx
-  const hij = t.match(/(14\d{2})\s*[/\-]\s*(0?\d|1[0-2])\s*[/\-]\s*(0?\d|[12]\d|3[01])/);
-  const hijStr = hij ? `${hij[1]}-${String(hij[2]).padStart(2,'0')}-${String(hij[3]).padStart(2,'0')}` : null;
-
-  return { time, jalali, greg: gregStr, hijri: hijStr };
+const formatGregorianYMD = (dateObj, timeZone) => {
+  const p = datePartsForTZ(dateObj, timeZone, "en-CA"); // yyyy-mm-dd
+  // en-CA with formatToParts gives year/month/day; we build ourselves:
+  return `${p.year}-${p.month}-${p.day}`;
 };
 
-const fetchTimeIr = async () => {
+const formatTimeHMS = (dateObj, timeZone) => {
+  const p = datePartsForTZ(dateObj, timeZone, "en-GB");
+  return `${p.hour}:${p.minute}:${p.second}`;
+};
+
+const formatPersianCalendar = (dateObj, timeZone) => {
+  // Persian calendar (شمسی) in fa-IR-u-ca-persian
+  const fmt = new Intl.DateTimeFormat("fa-IR-u-ca-persian", {
+    timeZone,
+    year:"numeric", month:"2-digit", day:"2-digit"
+  });
+  return fmt.format(dateObj);
+};
+
+const formatHijriCalendar = (dateObj, timeZone) => {
+  // Islamic calendar (قمری)
+  const fmt = new Intl.DateTimeFormat("fa-IR-u-ca-islamic", {
+    timeZone,
+    year:"numeric", month:"2-digit", day:"2-digit"
+  });
+  return fmt.format(dateObj);
+};
+
+const fetchTimeApiZone = async (timeZone) => {
+  const url = `${TIMEAPI_BASE}?timeZone=${encodeURIComponent(timeZone)}`;
+  const res = await fetch(url, { cache:"no-store" });
+  if(!res.ok) throw new Error("bad_status");
+  const data = await res.json();
+  // TimeAPI typically returns: { "year":..., "month":..., "day":..., "hour":..., "minute":..., "seconds":..., "dateTime": "2026-..."}
+  // We'll prefer dateTime.
+  const iso = data.dateTime || data.dateTimeString || null;
+  if(!iso) throw new Error("no_datetime");
+  return { iso, data };
+};
+
+const fetchTimeApi = async () => {
   try{
-    setTimeStatus("warn","در حال دریافت…");
-    const res = await fetch(TIMEIR_PROXY_URL, { cache:"no-store" });
-    if(!res.ok) throw new Error("bad_status");
-    const text = await res.text();
+    setTimeStatus("warn","در حال دریافت از TimeAPI.io…");
+    const [ir, utc] = await Promise.all([
+      fetchTimeApiZone(TZ_IR),
+      fetchTimeApiZone(TZ_UTC)
+    ]);
 
-    const parsed = tryParseTimeIr(text);
-    const nowLocal = new Date(); // فقط برای نمایش زمانِ آخرین آپدیت؛ نه ساعت مرجع
-    const updated = `${String(nowLocal.getHours()).padStart(2,'0')}:${String(nowLocal.getMinutes()).padStart(2,'0')}:${String(nowLocal.getSeconds()).padStart(2,'0')}`;
+    timeState.irISO = ir.iso;
+    timeState.utcISO = utc.iso;
 
-    timeIrState.updatedAt = updated;
+    const irDate = new Date(ir.iso);
+    const utcDate = new Date(utc.iso);
+    if(!Number.isFinite(irDate.getTime()) || !Number.isFinite(utcDate.getTime())) throw new Error("bad_date");
 
-    let any = false;
-    if(parsed.jalali){ timeIrState.jalali = parsed.jalali; any = true; }
-    if(parsed.greg){ timeIrState.greg = parsed.greg; any = true; }
-    if(parsed.hijri){ timeIrState.hijri = parsed.hijri; any = true; }
-    if(parsed.time){
-      timeIrState.timeIR = parsed.time;
-      any = true;
-      // We cannot reliably infer UTC without a real timestamp from source.
-      timeIrState.timeUTC = "—";
-    }
+    timeState.timeIR = formatTimeHMS(irDate, TZ_IR);
+    timeState.timeUTC = formatTimeHMS(utcDate, TZ_UTC);
 
-    if(any){
-      timeIrState.lastOk = true;
-      setTimeStatus("ok","اگر برخی فیلدها «—» هستند یعنی در متن time.ir قابل تشخیص نبودند.");
-    }else{
-      timeIrState.lastOk = false;
-      setTimeStatus("warn","محتوای دریافت شد اما الگوها تشخیص داده نشدند. احتمالاً ساختار time.ir تغییر کرده است.");
-    }
+    // تاریخ‌ها را بر اساس زمان ایران نمایش می‌دهیم (مرجع: زمان ایران از API)
+    timeState.greg = formatGregorianYMD(irDate, TZ_IR);
+    timeState.jalali = formatPersianCalendar(irDate, TZ_IR);
+    timeState.hijri = formatHijriCalendar(irDate, TZ_IR);
 
-    renderTimeIr();
+    // updatedAt هم از همان داده دریافتی (نه ساعت دستگاه)
+    timeState.updatedAt = `${timeState.timeIR} (ایران)`;
+
+    timeState.lastOk = true;
+    setTimeStatus("ok","هر ۳۰ ثانیه یک‌بار به‌صورت خودکار به‌روزرسانی می‌شود.");
+    renderTime();
   }catch(e){
-    timeIrState.lastOk = false;
-    setTimeStatus("err","دریافت time.ir ناموفق بود (احتمالاً محدودیت دسترسی یا مشکل شبکه).");
-    renderTimeIr();
+    timeState.lastOk = false;
+    setTimeStatus("err","دریافت از TimeAPI.io ناموفق بود. اینترنت/فیلتر/اختلال سرویس را بررسی کنید.");
+    renderTime();
   }
 };
 
 /* --------------------------- Init (Wiring) --------------------------- */
+const maybePersianForCopy = (txt) => {
+  const cfg=elementSdk.getConfig();
+  return cfg.copy_with_persian_digits ? toPersianDigits(txt) : txt;
+};
+
 (function init(){
   const cfg=elementSdk.getConfig();
   applyConfig(cfg);
@@ -1544,9 +1578,9 @@ const fetchTimeIr = async () => {
     copyText(maybePersianForCopy(txt), "کالری هدف کپی شد ✅");
   });
 
-  // datetime (time.ir)
+  // datetime (TimeAPI.io)
   document.getElementById("timeRefreshBtn").addEventListener("click", ()=>{
-    fetchTimeIr();
+    fetchTimeApi();
     showToast("درخواست به‌روزرسانی ارسال شد.", "info");
   });
   document.getElementById("timeCopyBtn").addEventListener("click", ()=>{
@@ -1556,7 +1590,7 @@ const fetchTimeIr = async () => {
     const ir = toLatinDigits(document.getElementById("timeIR").textContent);
     const utc = toLatinDigits(document.getElementById("timeUTC").textContent);
     const up = toLatinDigits(document.getElementById("timeUpdatedAt").textContent);
-    const txt = `منبع: time.ir\nتاریخ شمسی: ${j}\nتاریخ میلادی: ${g}\nتاریخ قمری: ${h}\nساعت ایران: ${ir}\nساعت UTC: ${utc}\nآخرین بروزرسانی: ${up}`;
+    const txt = `منبع: TimeAPI.io\nتاریخ شمسی: ${j}\nتاریخ میلادی: ${g}\nتاریخ قمری: ${h}\nساعت ایران: ${ir}\nساعت UTC: ${utc}\nآخرین داده دریافتی: ${up}`;
     copyText(maybePersianForCopy(txt), "اطلاعات کپی شد ✅");
   });
 
@@ -1699,7 +1733,7 @@ const fetchTimeIr = async () => {
     computeBMIUI();
     computeCaloriesUI();
     calcEvaluate();
-    renderTimeIr();
+    renderTime();
   });
 
   // initial renders
@@ -1707,11 +1741,11 @@ const fetchTimeIr = async () => {
   computeBMIUI();
   computeCaloriesUI();
   calcEvaluate();
+  renderTime();
 
-  // time.ir initial + periodic refresh
-  renderTimeIr();
-  fetchTimeIr();
-  setInterval(fetchTimeIr, 60 * 1000); // هر ۶۰ ثانیه
+  // fetch time from API
+  fetchTimeApi();
+  setInterval(fetchTimeApi, 30 * 1000); // هر ۳۰ ثانیه
 
   showToast("آماده‌ست! ✅", "ok");
 })();
