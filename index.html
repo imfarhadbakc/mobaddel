@@ -20,30 +20,31 @@
     }
     html,body{height:100%}
     body{background:var(--bg); color:var(--text); font-family:var(--ff); font-size:var(--fs)}
-    .card{background:color-mix(in srgb, var(--surface) 92%, black 8%); border:1px solid color-mix(in srgb, var(--text) 10%, transparent 90%); border-radius:var(--radius); box-shadow:0 10px 30px rgba(0,0,0,.25)}
-    .soft{border:1px solid color-mix(in srgb, var(--text) 12%, transparent 88%); background:color-mix(in srgb, var(--surface) 82%, black 18%); border-radius:14px}
+    .card{
+      background:color-mix(in srgb, var(--surface) 92%, black 8%);
+      border:1px solid color-mix(in srgb, var(--text) 10%, transparent 90%);
+      border-radius:var(--radius);
+      box-shadow:0 10px 30px rgba(0,0,0,.25);
+    }
+    .soft{
+      border:1px solid color-mix(in srgb, var(--text) 12%, transparent 88%);
+      background:color-mix(in srgb, var(--surface) 82%, black 18%);
+      border-radius:14px;
+    }
     .focusable:focus{outline:2px solid color-mix(in srgb, var(--primary) 80%, white 20%); outline-offset:2px}
-    .btn{border-radius:14px; transition:.2s transform,.2s filter,.2s background}
-    .btn:active{transform:translateY(1px)}
+    .btn{border-radius:14px; transition:.18s transform,.18s filter,.18s background,.18s box-shadow}
+    .btn:active{transform:translateY(1px) scale(.99)}
     .glass{
       background:linear-gradient(135deg, color-mix(in srgb, var(--surface) 88%, transparent 12%), color-mix(in srgb, var(--surface) 72%, transparent 28%));
       backdrop-filter: blur(10px);
       border:1px solid color-mix(in srgb, var(--text) 12%, transparent 88%);
       border-radius:var(--radius);
     }
-    .grad{
-      background:linear-gradient(135deg, var(--gradA), var(--gradB));
-    }
+    .grad{background:linear-gradient(135deg, var(--gradA), var(--gradB));}
     .muted{color:color-mix(in srgb, var(--text) 72%, transparent 28%)}
     .tiny{font-size:.85em}
-    .tabActive{
-      background:color-mix(in srgb, var(--primary) 18%, transparent 82%);
-      border:1px solid color-mix(in srgb, var(--primary) 45%, transparent 55%);
-    }
-    .tabIdle{
-      background:color-mix(in srgb, var(--surface) 72%, transparent 28%);
-      border:1px solid color-mix(in srgb, var(--text) 10%, transparent 90%);
-    }
+    .tabActive{background:color-mix(in srgb, var(--primary) 18%, transparent 82%); border:1px solid color-mix(in srgb, var(--primary) 45%, transparent 55%);}
+    .tabIdle{background:color-mix(in srgb, var(--surface) 72%, transparent 28%); border:1px solid color-mix(in srgb, var(--text) 10%, transparent 90%);}
     input,select,textarea{
       background:color-mix(in srgb, var(--surface) 78%, black 22%);
       border:1px solid color-mix(in srgb, var(--text) 14%, transparent 86%);
@@ -53,6 +54,61 @@
     option{background:#0b1220}
     .toast{animation:toastIn .22s ease-out}
     @keyframes toastIn{from{transform:translateY(8px);opacity:0}to{transform:translateY(0);opacity:1}}
+    .calcDisplay{font-variant-numeric: tabular-nums; letter-spacing:.02em; word-break: break-word;}
+
+    /* Calculator */
+    .calcShell{
+      background: radial-gradient(1200px 500px at 80% 0%, color-mix(in srgb, var(--primary) 18%, transparent 82%), transparent 60%),
+                  radial-gradient(900px 400px at 15% 20%, color-mix(in srgb, var(--secondary) 14%, transparent 86%), transparent 55%),
+                  linear-gradient(180deg, color-mix(in srgb, var(--surface) 85%, black 15%), color-mix(in srgb, var(--surface) 75%, black 25%));
+      border:1px solid color-mix(in srgb, var(--text) 10%, transparent 90%);
+      border-radius: calc(var(--radius) + 6px);
+      box-shadow: 0 18px 60px rgba(0,0,0,.35);
+      position: relative;
+      overflow: hidden;
+    }
+    .calcShell::before{
+      content:"";
+      position:absolute; inset:-2px;
+      background:linear-gradient(135deg, color-mix(in srgb, var(--gradA) 55%, transparent 45%), color-mix(in srgb, var(--gradB) 55%, transparent 45%));
+      opacity:.10;
+      filter: blur(18px);
+      pointer-events:none;
+    }
+    .calcTop{
+      position:relative;
+      background:linear-gradient(135deg, color-mix(in srgb, var(--surface) 85%, transparent 15%), color-mix(in srgb, var(--surface) 70%, transparent 30%));
+      border:1px solid color-mix(in srgb, var(--text) 12%, transparent 88%);
+      border-radius: 22px;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.05);
+    }
+    .calcKey{
+      min-height:52px;
+      border-radius: 18px;
+      background: linear-gradient(180deg, color-mix(in srgb, var(--surface) 90%, transparent 10%), color-mix(in srgb, var(--surface) 75%, black 25%));
+      border:1px solid color-mix(in srgb, var(--text) 10%, transparent 90%);
+      box-shadow: 0 10px 18px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.06);
+      transition: transform .12s ease, filter .12s ease, box-shadow .12s ease;
+    }
+    .calcKey:hover{filter:brightness(1.06)}
+    .calcKey:active{
+      transform: translateY(1px) scale(.99);
+      box-shadow: 0 6px 12px rgba(0,0,0,.24), inset 0 1px 0 rgba(255,255,255,.04);
+    }
+    .calcKeyOp{
+      background: linear-gradient(135deg, color-mix(in srgb, var(--gradA) 80%, white 20%), color-mix(in srgb, var(--gradB) 80%, white 20%));
+      color:#06101f;
+      border:none;
+      box-shadow: 0 12px 22px rgba(0,0,0,.28), 0 0 24px color-mix(in srgb, var(--primary) 35%, transparent 65%);
+    }
+    .calcKeyDanger{
+      background: linear-gradient(135deg, color-mix(in srgb, #fb7185 70%, white 30%), color-mix(in srgb, #f97316 70%, white 30%));
+      color:#14070a;
+      border:none;
+    }
+    .calcKeyUtil{
+      background: linear-gradient(180deg, color-mix(in srgb, var(--surface) 92%, transparent 8%), color-mix(in srgb, var(--surface) 72%, black 28%));
+    }
   </style>
 </head>
 
@@ -61,18 +117,18 @@
     <!-- Header -->
     <header class="glass p-4 md:p-5 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
       <div class="flex items-center gap-3">
-        <div id="logoBadge" class="grad w-12 h-12 rounded-2xl flex items-center justify-center text-xl shadow">
-          🔄
-        </div>
+        <div id="logoBadge" class="grad w-12 h-12 rounded-2xl flex items-center justify-center text-xl shadow">🔄</div>
         <div>
           <h1 class="text-lg md:text-xl font-bold">مبدل واحد حرفه‌ای</h1>
-          <p class="muted tiny">تبدیل دقیق واحدها + محاسبات سلامتی</p>
+          <p class="muted tiny">تبدیل دقیق واحدها + ابزارهای کاربردی</p>
         </div>
       </div>
 
       <nav class="flex flex-wrap gap-2">
         <button data-nav="converter" class="navBtn btn px-3.5 py-2 tabActive focusable">تبدیل واحدها</button>
         <button data-nav="health" class="navBtn btn px-3.5 py-2 tabIdle focusable">محاسبات سلامتی</button>
+        <button data-nav="datetime" class="navBtn btn px-3.5 py-2 tabIdle focusable">تاریخ و ساعت</button>
+        <button data-nav="calculator" class="navBtn btn px-3.5 py-2 tabIdle focusable">ماشین حساب</button>
         <button data-nav="settings" class="navBtn btn px-3.5 py-2 tabIdle focusable">تنظیمات</button>
         <button data-nav="help" class="navBtn btn px-3.5 py-2 tabIdle focusable">راهنما</button>
       </nav>
@@ -282,13 +338,156 @@
         </div>
       </section>
 
+      <!-- DateTime Page (Browser/Device time) -->
+      <section id="page-datetime" class="hidden space-y-4 md:space-y-5">
+        <div class="card p-4 md:p-5">
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <h2 class="text-base md:text-lg font-bold">تاریخ و ساعت (از دستگاه)</h2>
+              <p class="muted tiny mt-1">این بخش از ساعت و منطقه زمانی مرورگر/دستگاه شما استفاده می‌کند (بدون API).</p>
+            </div>
+            <div class="flex gap-2 flex-wrap">
+              <button id="timeCopyBtn" class="btn px-3 py-2 soft focusable">کپی اطلاعات</button>
+            </div>
+          </div>
+
+          <div class="mt-4 grid lg:grid-cols-3 gap-3">
+            <div class="soft p-3">
+              <div class="font-bold">امروز (میلادی)</div>
+              <div class="calcDisplay text-2xl font-extrabold mt-2" id="todayGreg">—</div>
+              <div class="muted tiny mt-2">بر اساس منطقه زمانی دستگاه</div>
+            </div>
+            <div class="soft p-3">
+              <div class="font-bold">امروز (شمسی)</div>
+              <div class="calcDisplay text-2xl font-extrabold mt-2" id="todayJalali">—</div>
+              <div class="muted tiny mt-2">تبدیل محاسباتی</div>
+            </div>
+            <div class="soft p-3">
+              <div class="font-bold">امروز (قمری)</div>
+              <div class="calcDisplay text-2xl font-extrabold mt-2" id="todayHijri">—</div>
+              <div class="muted tiny mt-2">قمری مدنی (ممکن است با رؤیت هلال اختلاف جزئی داشته باشد)</div>
+            </div>
+          </div>
+
+          <div class="mt-3 grid lg:grid-cols-2 gap-3">
+            <div class="soft p-3">
+              <div class="flex items-center justify-between gap-2">
+                <div class="font-bold">ساعت محلی شما</div>
+                <div class="muted tiny" id="tzName">—</div>
+              </div>
+              <div class="calcDisplay text-4xl md:text-5xl font-extrabold mt-3" id="timeLocal">—</div>
+              <div class="muted tiny mt-2">UTC Offset: <span id="localOffset">—</span></div>
+            </div>
+
+            <div class="soft p-3">
+              <div class="flex items-center justify-between gap-2">
+                <div class="font-bold">ساعت جهانی</div>
+                <div class="muted tiny">UTC</div>
+              </div>
+              <div class="calcDisplay text-4xl md:text-5xl font-extrabold mt-3" id="timeUTC">—</div>
+              <div class="muted tiny mt-2">منبع: ساعت دستگاه</div>
+            </div>
+          </div>
+
+          <div id="timeStatus" class="mt-3 soft p-3">
+            <div class="flex items-center justify-between gap-2">
+              <div class="tiny muted">وضعیت</div>
+              <div class="tiny text-emerald-200">نمایش بر اساس ساعت دستگاه ✅</div>
+            </div>
+            <div class="muted tiny mt-2">اگر ساعت دستگاه شما اشتباه باشد، این صفحه هم اشتباه نمایش می‌دهد.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Calculator Page -->
+      <section id="page-calculator" class="hidden space-y-4 md:space-y-5">
+        <div class="calcShell p-4 md:p-6">
+          <div class="relative flex items-start justify-between gap-3">
+            <div>
+              <h2 class="text-base md:text-lg font-extrabold">ماشین حساب حرفه‌ای</h2>
+              <p class="muted tiny mt-1">نمایش همزمان عدد فارسی و انگلیسی + تغییر زبان کلیدها از تنظیمات</p>
+            </div>
+            <div class="flex gap-2">
+              <button id="calcCopyBtn" class="btn px-3 py-2 soft focusable">کپی</button>
+              <button id="calcClearBtn" class="btn px-3 py-2 soft focusable">پاک‌کردن</button>
+            </div>
+          </div>
+
+          <div class="mt-4 calcTop p-4 md:p-5">
+            <div class="flex items-center justify-between gap-3">
+              <div class="muted tiny">عبارت</div>
+              <div class="muted tiny">حافظه: <span id="memBadgeFa" class="font-bold">۰</span> / <span id="memBadgeEn" class="font-bold">0</span></div>
+            </div>
+
+            <div class="mt-2 grid md:grid-cols-2 gap-3">
+              <div class="soft p-3">
+                <div class="muted tiny">نمایش فارسی</div>
+                <div id="calcExprFa" class="calcDisplay text-base md:text-lg font-semibold mt-1 min-h-[28px]">—</div>
+                <div class="muted tiny mt-2">نتیجه</div>
+                <div id="calcResultFa" class="calcDisplay text-3xl md:text-4xl font-extrabold mt-1">۰</div>
+              </div>
+              <div class="soft p-3">
+                <div class="muted tiny">نمایش انگلیسی</div>
+                <div id="calcExprEn" class="calcDisplay text-base md:text-lg font-semibold mt-1 min-h-[28px]">—</div>
+                <div class="muted tiny mt-2">Result</div>
+                <div id="calcResultEn" class="calcDisplay text-3xl md:text-4xl font-extrabold mt-1">0</div>
+              </div>
+            </div>
+
+            <div class="mt-3 text-xs muted text-left">
+              <div class="soft inline-flex items-center gap-2 px-3 py-2">
+                <span class="grad w-2.5 h-2.5 rounded-full"></span>
+                <span>Enter = محاسبه</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-4 grid grid-cols-4 gap-2 select-none" id="calcPad">
+            <button class="calcKey calcKeyUtil focusable" data-k="MC">MC</button>
+            <button class="calcKey calcKeyUtil focusable" data-k="MR">MR</button>
+            <button class="calcKey calcKeyUtil focusable" data-k="M+">M+</button>
+            <button class="calcKey calcKeyUtil focusable" data-k="M-">M-</button>
+
+            <button class="calcKey calcKeyUtil focusable" data-k="(">(</button>
+            <button class="calcKey calcKeyUtil focusable" data-k=")">)</button>
+            <button class="calcKey calcKeyUtil focusable" data-k="%">٪</button>
+            <button class="calcKey calcKeyDanger focusable" data-k="DEL">⌫</button>
+
+            <button class="calcKey focusable calcDigit" data-k="7" data-fa="۷" data-en="7">۷</button>
+            <button class="calcKey focusable calcDigit" data-k="8" data-fa="۸" data-en="8">۸</button>
+            <button class="calcKey focusable calcDigit" data-k="9" data-fa="۹" data-en="9">۹</button>
+            <button class="calcKey calcKeyOp focusable" data-k="/">÷</button>
+
+            <button class="calcKey focusable calcDigit" data-k="4" data-fa="۴" data-en="4">۴</button>
+            <button class="calcKey focusable calcDigit" data-k="5" data-fa="۵" data-en="5">۵</button>
+            <button class="calcKey focusable calcDigit" data-k="6" data-fa="۶" data-en="6">۶</button>
+            <button class="calcKey calcKeyOp focusable" data-k="*">×</button>
+
+            <button class="calcKey focusable calcDigit" data-k="1" data-fa="۱" data-en="1">۱</button>
+            <button class="calcKey focusable calcDigit" data-k="2" data-fa="۲" data-en="2">۲</button>
+            <button class="calcKey focusable calcDigit" data-k="3" data-fa="۳" data-en="3">۳</button>
+            <button class="calcKey calcKeyOp focusable" data-k="-">−</button>
+
+            <button class="calcKey focusable calcDigit" data-k="0" data-fa="۰" data-en="0">۰</button>
+            <button class="calcKey focusable" data-k=".">.</button>
+            <button class="calcKey calcKeyOp focusable" data-k="=">=</button>
+            <button class="calcKey calcKeyOp focusable" data-k="+">+</button>
+          </div>
+
+          <div class="mt-4 soft p-3 rounded-xl">
+            <div class="tiny muted">ورود با کیبورد</div>
+            <div class="muted tiny mt-1">۰-۹ یا 0-9، + - * / ( ) . Enter Backspace</div>
+          </div>
+        </div>
+      </section>
+
       <!-- Settings Page -->
       <section id="page-settings" class="hidden space-y-4 md:space-y-5">
         <div class="card p-4 md:p-5">
           <div class="flex items-start justify-between gap-3">
             <div>
               <h2 class="text-base md:text-lg font-bold">تنظیمات و شخصی‌سازی</h2>
-              <p class="muted tiny mt-1">ظاهر برنامه را مطابق سلیقه خود تغییر دهید. تنظیمات در همین مرورگر ذخیره می‌شود.</p>
+              <p class="muted tiny mt-1">ظاهر و رفتار برنامه را مطابق سلیقه خود تغییر دهید. تنظیمات در همین مرورگر ذخیره می‌شود.</p>
             </div>
             <button id="resetBtn" class="btn px-3 py-2 soft focusable">بازنشانی</button>
           </div>
@@ -378,8 +577,8 @@
             <div class="soft p-3 md:col-span-2 lg:col-span-3">
               <div class="flex items-center justify-between gap-2">
                 <div>
-                  <div class="tiny muted">نمایش اعداد فارسی</div>
-                  <div class="muted tiny mt-1">روی نمایش خروجی‌ها اثر می‌گذارد (تبدیل واحد، BMI، کالری).</div>
+                  <div class="tiny muted">نمایش اعداد فارسی (در کل برنامه)</div>
+                  <div class="muted tiny mt-1">برای خروجی‌ها و بیشتر نمایش‌ها.</div>
                 </div>
                 <label class="inline-flex items-center cursor-pointer">
                   <input id="persianDigitsToggle" type="checkbox" class="sr-only">
@@ -401,17 +600,48 @@
                   </span>
                 </label>
               </div>
+
+              <div class="mt-3 flex items-center justify-between gap-2">
+                <div>
+                  <div class="tiny muted">زبان کلیدهای ماشین حساب</div>
+                  <div class="muted tiny mt-1">اعداد روی دکمه‌ها فارسی یا انگلیسی.</div>
+                </div>
+                <select id="calcKeyLang" class="px-3 py-2 rounded-xl focusable">
+                  <option value="fa">فارسی</option>
+                  <option value="en">انگلیسی</option>
+                </select>
+              </div>
+
+              <div class="mt-3 flex items-center justify-between gap-2">
+                <div>
+                  <div class="tiny muted">صدای کلیک ماشین حساب</div>
+                  <div class="muted tiny mt-1">صدای ریز هنگام فشردن کلیدها.</div>
+                </div>
+                <label class="inline-flex items-center cursor-pointer">
+                  <input id="soundToggle" type="checkbox" class="sr-only">
+                  <span class="w-12 h-7 rounded-full relative soft">
+                    <span id="soundDot" class="absolute top-1 right-1 w-5 h-5 rounded-full grad transition-all"></span>
+                  </span>
+                </label>
+              </div>
+
+              <div class="mt-3">
+                <div class="tiny muted">شدت صدا</div>
+                <div class="mt-2 flex items-center gap-3">
+                  <input id="soundVolume" type="range" min="0" max="100" step="1" class="w-full" />
+                  <div id="soundVolumeLabel" class="soft px-3 py-2 rounded-xl text-sm w-16 text-center">30</div>
+                </div>
+              </div>
             </div>
           </div>
 
           <div class="mt-4 soft p-3">
             <div class="font-bold">سیستم پیکربندی (Config)</div>
-            <p class="muted tiny mt-1">این برنامه از یک پیکربندی مشابه سیستم‌های Embed استفاده می‌کند (defaultConfig + onConfigChange + mapToCapabilities).</p>
+            <p class="muted tiny mt-1">پیکربندی مشابه سیستم‌های Embed (defaultConfig + onConfigChange + mapToCapabilities).</p>
             <div class="mt-2 grid md:grid-cols-2 gap-2">
               <button id="exportConfig" class="btn px-3 py-2 soft focusable">کپی پیکربندی</button>
               <button id="importConfig" class="btn px-3 py-2 soft focusable">وارد کردن پیکربندی</button>
             </div>
-            <div class="muted tiny mt-2">توجه: متن فوتر ثابت است و قابل تغییر نیست.</div>
           </div>
         </div>
       </section>
@@ -422,24 +652,18 @@
           <h2 class="text-base md:text-lg font-bold">راهنما</h2>
           <div class="mt-3 space-y-3 leading-7">
             <div class="soft p-3">
-              <div class="font-bold">تبدیل واحدها</div>
+              <div class="font-bold">تاریخ و ساعت</div>
               <ul class="mt-2 list-disc pr-5 muted">
-                <li>دسته‌بندی را انتخاب کنید، مقدار را وارد کنید، سپس واحد مبدا و مقصد را تعیین کنید.</li>
-                <li>دقت اعشار از طریق اسلایدر قابل تنظیم است.</li>
-                <li>دکمه «جابجایی» برای عوض کردن واحد مبدا/مقصد است و «کپی» خروجی را در کلیپ‌بورد قرار می‌دهد.</li>
+                <li>این بخش از ساعت و منطقه زمانی مرورگر/دستگاه شما استفاده می‌کند.</li>
+                <li>اگر تاریخ/ساعت گوشی یا سیستم شما درست باشد، اینجا هم درست نمایش داده می‌شود.</li>
               </ul>
             </div>
             <div class="soft p-3">
-              <div class="font-bold">محاسبات سلامتی</div>
+              <div class="font-bold">ماشین حساب</div>
               <ul class="mt-2 list-disc pr-5 muted">
-                <li>BMI با وزن (کیلوگرم) و قد (سانتی‌متر) محاسبه می‌شود.</li>
-                <li>کالری روزانه شامل BMR، کالری نگهداری (TDEE) و کالری هدف است.</li>
-                <li>برای داده‌های غیرواقعی هشدار نمایش داده می‌شود.</li>
+                <li>همزمان نتیجه فارسی و انگلیسی را می‌بینید.</li>
+                <li>زبان دکمه‌های عددی را از تنظیمات عوض کنید.</li>
               </ul>
-            </div>
-            <div class="soft p-3">
-              <div class="font-bold">شخصی‌سازی</div>
-              <p class="muted mt-2">از بخش تنظیمات می‌توانید رنگ‌ها، فونت، گرادیان و نمایش اعداد فارسی را تغییر دهید. متن فوتر ثابت است.</p>
             </div>
           </div>
         </div>
@@ -448,7 +672,10 @@
 
     <!-- Footer -->
     <footer class="mt-6 md:mt-8 pb-6 text-center muted tiny">
-      <span id="footerOut">طراحی شده توسط FARHAD 🎨</span>
+      <div class="flex flex-col gap-2 items-center">
+        <span id="footerOut">طراحی شده توسط FARHAD 🎨</span>
+        <a class="text-sky-300 underline underline-offset-4" href="https://t.me/ShadowPsychologist" target="_blank" rel="noopener">ارتباط با سازنده</a>
+      </div>
     </footer>
   </div>
 
@@ -458,17 +685,30 @@
 <script>
 /* --------------------------- Utilities --------------------------- */
 const clamp=(n,min,max)=>Math.min(max,Math.max(min,n));
+const escapeHtml=(s)=>String(s).replace(/[&<>"']/g, m=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[m]));
+
+const toLatinDigits = (str) => {
+  const map = {
+    '۰':'0','۱':'1','۲':'2','۳':'3','۴':'4','۵':'5','۶':'6','۷':'7','۸':'8','۹':'9',
+    '٠':'0','١':'1','٢':'2','٣':'3','٤':'4','٥':'5','٦':'6','٧':'7','٨':'8','٩':'9',
+    '−':'-','–':'-','—':'-','٫':'.','٬':'',',':''
+  };
+  return String(str ?? '').replace(/[۰-۹٠-٩−–—٫٬,]/g, ch => map[ch] ?? ch);
+};
+
 const safeNum=(v)=> {
   if (typeof v === "number") return Number.isFinite(v) ? v : NaN;
-  const s=(v??"").toString().trim().replace(/,/g,"");
+  const s=toLatinDigits((v??"").toString().trim());
   if(!s) return NaN;
   const x=Number(s);
   return Number.isFinite(x) ? x : NaN;
 };
+
 const toPersianDigits=(str)=>{
   const map = {'0':'۰','1':'۱','2':'۲','3':'۳','4':'۴','5':'۵','6':'۶','7':'۷','8':'۸','9':'۹','-':'−'};
   return String(str).replace(/[0-9-]/g, ch => map[ch] ?? ch);
 };
+
 const formatNumber=(n, precision)=>{
   if(!Number.isFinite(n)) return "—";
   const p=clamp(precision,0,12);
@@ -477,6 +717,7 @@ const formatNumber=(n, precision)=>{
   if(p===0) return String(Number(cleaned));
   return cleaned.replace(/(\.\d*?)0+$/,'$1').replace(/\.$/,'');
 };
+
 const showToast=(msg,type="info")=>{
   const host=document.getElementById("toastHost");
   const el=document.createElement("div");
@@ -495,10 +736,17 @@ const showToast=(msg,type="info")=>{
   setTimeout(()=>{ el.style.opacity="0"; el.style.transform="translateY(6px)"; el.style.transition="250ms"; }, 2400);
   setTimeout(()=>el.remove(), 2750);
 };
-const escapeHtml=(s)=>String(s).replace(/[&<>"']/g, m=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[m]));
+
+const copyText = async (text, okMsg="کپی شد ✅") => {
+  try{
+    await navigator.clipboard.writeText(text);
+    showToast(okMsg, "ok");
+  }catch{
+    showToast("امکان کپی وجود ندارد. لطفاً مجوز کلیپ‌بورد را بررسی کنید.", "err");
+  }
+};
 
 /* --------------------------- Config System --------------------------- */
-// فوتر ثابت است و در تنظیمات/کانفیگ قرار نمی‌گیرد.
 const FIXED_FOOTER_TEXT = "طراحی شده توسط FARHAD 🎨";
 
 const defaultConfig = {
@@ -514,20 +762,20 @@ const defaultConfig = {
   app_logo_emoji:"🔄",
   enable_persian_digits:true,
   copy_with_persian_digits:false,
-  precision:2
+  precision:2,
+  enable_click_sound:true,
+  click_volume:30,
+  calculator_keypad_lang:"fa" // NEW: fa | en
 };
 
 const elementSdk = (() => {
   const listeners = new Set();
   let config = loadConfig();
-
   function sanitize(partial){
     const p = {...(partial||{})};
-    // جلوگیری از تغییر متن فوتر از طریق کانفیگ‌های قدیمی/واردشده
     if ("footer_text" in p) delete p.footer_text;
     return p;
   }
-
   function loadConfig(){
     try{
       const raw=localStorage.getItem("proUnitConverter.config");
@@ -569,8 +817,13 @@ const elementSdk = (() => {
         copyWithPersianDigits: !!cfg.copy_with_persian_digits,
         precision: clamp(Number(cfg.precision ?? 2),0,8)
       },
-      branding:{
-        logoEmoji: cfg.app_logo_emoji
+      branding:{ logoEmoji: cfg.app_logo_emoji },
+      sound:{
+        enabled: !!cfg.enable_click_sound,
+        volume: clamp(Number(cfg.click_volume ?? 30),0,100)
+      },
+      calculator:{
+        keypadLang: (cfg.calculator_keypad_lang==="en" ? "en" : "fa")
       }
     };
   }
@@ -582,30 +835,6 @@ const elementSdk = (() => {
   attachExternal();
   return api;
 })();
-
-const applyConfig = (cfg) => {
-  const caps = elementSdk.mapToCapabilities(cfg);
-  const r = document.documentElement.style;
-  r.setProperty("--bg", caps.theme.background);
-  r.setProperty("--surface", caps.theme.surface);
-  r.setProperty("--text", caps.theme.text);
-  r.setProperty("--primary", caps.theme.primary);
-  r.setProperty("--secondary", caps.theme.secondary);
-  r.setProperty("--gradA", caps.theme.gradA);
-  r.setProperty("--gradB", caps.theme.gradB);
-  r.setProperty("--ff", caps.typography.fontFamily);
-  r.setProperty("--fs", `${caps.typography.fontSize}px`);
-  document.getElementById("footerOut").textContent = FIXED_FOOTER_TEXT; // ثابت
-  document.getElementById("logoBadge").textContent = caps.branding.logoEmoji || defaultConfig.app_logo_emoji;
-
-  setToggleUI(document.getElementById("persianDigitsToggle"), document.getElementById("persianDigitsDot"), caps.behavior.enablePersianDigits);
-  setToggleUI(document.getElementById("uiPersianDigitsToggle"), document.getElementById("uiPersianDigitsDot"), caps.behavior.enablePersianDigits);
-  setToggleUI(document.getElementById("copyPersianToggle"), document.getElementById("copyPersianDot"), caps.behavior.copyWithPersianDigits);
-
-  const pr = caps.behavior.precision;
-  document.getElementById("precisionRange").value = pr;
-  document.getElementById("precisionLabel").textContent = displayNum(pr);
-};
 
 const displayNum = (x) => {
   const cfg = elementSdk.getConfig();
@@ -619,11 +848,45 @@ const setToggleUI = (input, dot, on) => {
   dot.style.left = "auto";
 };
 
+const applyConfig = (cfg) => {
+  const caps = elementSdk.mapToCapabilities(cfg);
+  const r = document.documentElement.style;
+  r.setProperty("--bg", caps.theme.background);
+  r.setProperty("--surface", caps.theme.surface);
+  r.setProperty("--text", caps.theme.text);
+  r.setProperty("--primary", caps.theme.primary);
+  r.setProperty("--secondary", caps.theme.secondary);
+  r.setProperty("--gradA", caps.theme.gradA);
+  r.setProperty("--gradB", caps.theme.gradB);
+  r.setProperty("--ff", caps.typography.fontFamily);
+  r.setProperty("--fs", `${caps.typography.fontSize}px`);
+
+  document.getElementById("footerOut").textContent = FIXED_FOOTER_TEXT;
+  document.getElementById("logoBadge").textContent = caps.branding.logoEmoji || defaultConfig.app_logo_emoji;
+
+  setToggleUI(document.getElementById("persianDigitsToggle"), document.getElementById("persianDigitsDot"), caps.behavior.enablePersianDigits);
+  setToggleUI(document.getElementById("uiPersianDigitsToggle"), document.getElementById("uiPersianDigitsDot"), caps.behavior.enablePersianDigits);
+  setToggleUI(document.getElementById("copyPersianToggle"), document.getElementById("copyPersianDot"), caps.behavior.copyWithPersianDigits);
+
+  setToggleUI(document.getElementById("soundToggle"), document.getElementById("soundDot"), caps.sound.enabled);
+  document.getElementById("soundVolume").value = caps.sound.volume;
+  document.getElementById("soundVolumeLabel").textContent = displayNum(caps.sound.volume);
+
+  // precision
+  document.getElementById("precisionRange").value = caps.behavior.precision;
+  document.getElementById("precisionLabel").textContent = displayNum(caps.behavior.precision);
+
+  // calculator keypad language selector
+  document.getElementById("calcKeyLang").value = caps.calculator.keypadLang;
+  updateCalculatorKeypadLabels(caps.calculator.keypadLang);
+};
+
 /* --------------------------- Navigation --------------------------- */
-const pages = ["converter","health","settings","help"];
+const pages = ["converter","health","datetime","calculator","settings","help"];
 const showPage = (id) => {
   for(const p of pages){
-    document.getElementById(`page-${p}`).classList.toggle("hidden", p!==id);
+    const el=document.getElementById(`page-${p}`);
+    if(el) el.classList.toggle("hidden", p!==id);
   }
   document.querySelectorAll(".navBtn").forEach(btn=>{
     const active = btn.dataset.nav===id;
@@ -744,7 +1007,7 @@ const CATEGORIES = [
       UNIT("ثانیه","s", v=>v, v=>v),
       UNIT("دقیقه","min", v=>v*60, v=>v/60),
       UNIT("ساعت","h", v=>v*3600, v=>v/3600),
-      UNIT("روز","day", v=>v*86400, v=>v/86400),
+      UNIT("روز","day", v=>v*86400, v=>v/3600/24),
       UNIT("هفته","week", v=>v*604800, v=>v/604800),
     ]),
     quick:[
@@ -841,26 +1104,6 @@ const convertValue = (cat, value, fromUnit, toUnit) => {
   return toUnit.fromBase(base);
 };
 
-const setUnitsForCategory = (catId) => {
-  const cat=getCategory(catId);
-  const fromSel=document.getElementById("fromUnitSel");
-  const toSel=document.getElementById("toUnitSel");
-  fromSel.innerHTML=""; toSel.innerHTML="";
-  cat.def.units.forEach(u=>{
-    const o1=document.createElement("option"); o1.value=u.label; o1.textContent=`${u.label} (${u.symbol})`;
-    const o2=document.createElement("option"); o2.value=u.label; o2.textContent=`${u.label} (${u.symbol})`;
-    fromSel.appendChild(o1); toSel.appendChild(o2);
-  });
-  const fromKeep = state.fromLabel && cat.def.units.some(u=>u.label===state.fromLabel) ? state.fromLabel : cat.def.units[0].label;
-  const toKeep   = state.toLabel   && cat.def.units.some(u=>u.label===state.toLabel)   ? state.toLabel   : cat.def.units[Math.min(1,cat.def.units.length-1)].label;
-  fromSel.value = fromKeep;
-  toSel.value = toKeep;
-  state.fromLabel = fromKeep;
-  state.toLabel = toKeep;
-  renderQuick(cat);
-  computeConverter();
-};
-
 const renderQuick = (cat) => {
   const grid=document.getElementById("quickGrid");
   grid.innerHTML="";
@@ -887,6 +1130,26 @@ const renderQuick = (cat) => {
   }
 };
 
+const setUnitsForCategory = (catId) => {
+  const cat=getCategory(catId);
+  const fromSel=document.getElementById("fromUnitSel");
+  const toSel=document.getElementById("toUnitSel");
+  fromSel.innerHTML=""; toSel.innerHTML="";
+  cat.def.units.forEach(u=>{
+    const o1=document.createElement("option"); o1.value=u.label; o1.textContent=`${u.label} (${u.symbol})`;
+    const o2=document.createElement("option"); o2.value=u.label; o2.textContent=`${u.label} (${u.symbol})`;
+    fromSel.appendChild(o1); toSel.appendChild(o2);
+  });
+  const fromKeep = state.fromLabel && cat.def.units.some(u=>u.label===state.fromLabel) ? state.fromLabel : cat.def.units[0].label;
+  const toKeep   = state.toLabel   && cat.def.units.some(u=>u.label===state.toLabel)   ? state.toLabel   : cat.def.units[Math.min(1,cat.def.units.length-1)].label;
+  fromSel.value = fromKeep;
+  toSel.value = toKeep;
+  state.fromLabel = fromKeep;
+  state.toLabel = toKeep;
+  renderQuick(cat);
+  computeConverter();
+};
+
 const computeConverter = () => {
   const cfg = elementSdk.getConfig();
   const cat = getCategory(document.getElementById("categorySel").value);
@@ -902,8 +1165,7 @@ const computeConverter = () => {
   document.getElementById("resultValue").textContent = (Number.isFinite(result) ? shown : "—");
   document.getElementById("resultUnit").textContent = `${toUnit.label} (${toUnit.symbol})`;
 
-  const noteEl=document.getElementById("converterNote");
-  noteEl.textContent = Number.isFinite(inputVal) ? "" : "برای دیدن نتیجه، یک مقدار عددی معتبر وارد کنید.";
+  document.getElementById("converterNote").textContent = Number.isFinite(inputVal) ? "" : "برای دیدن نتیجه، یک مقدار عددی معتبر وارد کنید.";
 };
 
 const swapUnits = () => {
@@ -1028,65 +1290,352 @@ const computeCaloriesUI = () => {
   }
 };
 
-/* --------------------------- Clipboard --------------------------- */
-const copyText = async (text, okMsg="کپی شد ✅") => {
-  try{
-    await navigator.clipboard.writeText(text);
-    showToast(okMsg, "ok");
-  }catch{
-    showToast("امکان کپی وجود ندارد. لطفاً مجوز کلیپ‌بورد را بررسی کنید.", "err");
-  }
-};
-
+/* --------------------------- Clipboard digits --------------------------- */
 const maybePersianForCopy = (txt) => {
   const cfg=elementSdk.getConfig();
   return cfg.copy_with_persian_digits ? toPersianDigits(txt) : txt;
 };
 
-/* --------------------------- Settings UI Wiring --------------------------- */
-const bindColorPair = (colorInput, textInput, key) => {
-  const syncFromColor = () => {
-    textInput.value = colorInput.value;
-    elementSdk.setConfig({[key]: colorInput.value});
-  };
-  const syncFromText = () => {
-    const v=textInput.value.trim();
-    if(/^#([0-9a-fA-F]{6})$/.test(v)){
-      colorInput.value=v;
-      elementSdk.setConfig({[key]: v});
+/* --------------------------- Sound (Calculator click) --------------------------- */
+let audioCtx = null;
+const ensureAudio = () => {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (audioCtx.state === "suspended") audioCtx.resume().catch(()=>{});
+};
+const playClick = () => {
+  const cfg = elementSdk.getConfig();
+  if (!cfg.enable_click_sound) return;
+  ensureAudio();
+  const vol = clamp(Number(cfg.click_volume ?? 30),0,100) / 100;
+
+  try{
+    const t = audioCtx.currentTime;
+    const osc = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+
+    osc.type = "square";
+    osc.frequency.setValueAtTime(1200, t);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(Math.max(0.0001, vol*0.05), t + 0.005);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.03);
+
+    osc.connect(g);
+    g.connect(audioCtx.destination);
+    osc.start(t);
+    osc.stop(t + 0.035);
+  }catch{}
+};
+
+/* --------------------------- Calculator Keypad Labels (fa/en) --------------------------- */
+const updateCalculatorKeypadLabels = (lang) => {
+  document.querySelectorAll(".calcDigit").forEach(btn=>{
+    const fa = btn.getAttribute("data-fa");
+    const en = btn.getAttribute("data-en");
+    btn.textContent = (lang==="en") ? en : fa;
+  });
+};
+
+/* --------------------------- Calculator (safe expression) --------------------------- */
+let calcExpr = "";
+let calcMem = 0;
+
+const normalizeCalcInput = (s) => {
+  const latin = toLatinDigits(s)
+    .replace(/×/g,'*').replace(/÷/g,'/')
+    .replace(/٪/g,'%');
+  return latin;
+};
+
+const isOperator = (t) => ["+","-","*","/"].includes(t);
+const precedence = (op) => (op==="+"||op==="-"?1:2);
+
+const tokenize = (expr) => {
+  const s = normalizeCalcInput(expr).replace(/\s+/g,'');
+  const tokens = [];
+  let i=0;
+  while(i<s.length){
+    const ch=s[i];
+    if(/[0-9.]/.test(ch)){
+      let j=i+1;
+      while(j<s.length && /[0-9.]/.test(s[j])) j++;
+      tokens.push({type:"num", value:s.slice(i,j)});
+      i=j; continue;
     }
-  };
-  colorInput.addEventListener("input", syncFromColor);
-  textInput.addEventListener("change", syncFromText);
+    if(ch==="("||ch===")"){ tokens.push({type:"paren", value:ch}); i++; continue; }
+    if(isOperator(ch)){ tokens.push({type:"op", value:ch}); i++; continue; }
+    if(ch==="%"){ tokens.push({type:"pct", value:"%"}); i++; continue; }
+    i++;
+  }
+  return tokens;
 };
 
-const syncSettingsForm = (cfg) => {
-  const setPair=(cId,tId,val)=>{
-    const c=document.getElementById(cId), t=document.getElementById(tId);
-    c.value = val; t.value = val;
-  };
-  setPair("bgColor","bgColorText", cfg.background_color);
-  setPair("surfaceColor","surfaceColorText", cfg.surface_color);
-  setPair("textColor","textColorText", cfg.text_color);
-  setPair("primaryColor","primaryColorText", cfg.primary_action);
-  setPair("secondaryColor","secondaryColorText", cfg.secondary_action);
-  setPair("gradA","gradAText", cfg.accent_gradient_start);
-  setPair("gradB","gradBText", cfg.accent_gradient_end);
+const toRPN = (tokens) => {
+  const out=[], st=[];
+  for(let idx=0; idx<tokens.length; idx++){
+    const t=tokens[idx];
+    if(t.type==="num"){ out.push(t); continue; }
+    if(t.type==="pct"){ out.push(t); continue; }
 
-  document.getElementById("fontFamily").value = cfg.font_family;
-  document.getElementById("fontSize").value = cfg.font_size;
-  document.getElementById("fontSizeLabel").textContent = displayNum(cfg.font_size);
-
-  document.getElementById("logoEmoji").value = cfg.app_logo_emoji;
-
-  setToggleUI(document.getElementById("persianDigitsToggle"), document.getElementById("persianDigitsDot"), !!cfg.enable_persian_digits);
-  setToggleUI(document.getElementById("copyPersianToggle"), document.getElementById("copyPersianDot"), !!cfg.copy_with_persian_digits);
-
-  document.getElementById("precisionRange").value = clamp(Number(cfg.precision ?? 2),0,8);
-  document.getElementById("precisionLabel").textContent = displayNum(clamp(Number(cfg.precision ?? 2),0,8));
+    if(t.type==="op"){
+      if(t.value==="-" && (idx===0 || (tokens[idx-1].type==="op") || (tokens[idx-1].type==="paren" && tokens[idx-1].value==="("))){
+        out.push({type:"num", value:"0"});
+      }
+      while(st.length){
+        const top=st[st.length-1];
+        if(top.type==="op" && precedence(top.value) >= precedence(t.value)){
+          out.push(st.pop());
+        }else break;
+      }
+      st.push(t);
+      continue;
+    }
+    if(t.type==="paren" && t.value==="("){ st.push(t); continue; }
+    if(t.type==="paren" && t.value===")"){
+      while(st.length && !(st[st.length-1].type==="paren" && st[st.length-1].value==="(")){
+        out.push(st.pop());
+      }
+      if(st.length && st[st.length-1].type==="paren") st.pop();
+      continue;
+    }
+  }
+  while(st.length) out.push(st.pop());
+  return out;
 };
 
-/* --------------------------- Init --------------------------- */
+const evalRPN = (rpn) => {
+  const st=[];
+  for(const t of rpn){
+    if(t.type==="num"){
+      const v=Number(t.value);
+      if(!Number.isFinite(v)) return NaN;
+      st.push(v);
+      continue;
+    }
+    if(t.type==="pct"){
+      if(st.length<1) return NaN;
+      const a=st.pop();
+      st.push(a/100);
+      continue;
+    }
+    if(t.type==="op"){
+      if(st.length<2) return NaN;
+      const b=st.pop(), a=st.pop();
+      let r=NaN;
+      if(t.value==="+") r=a+b;
+      else if(t.value==="-") r=a-b;
+      else if(t.value==="*") r=a*b;
+      else if(t.value==="/") r=b===0 ? NaN : a/b;
+      st.push(r);
+      continue;
+    }
+  }
+  return st.length===1 ? st[0] : NaN;
+};
+
+const calcEvaluate = () => {
+  const cfg=elementSdk.getConfig();
+  const p=clamp(Number(cfg.precision ?? 2),0,8);
+
+  const exprShown = calcExpr.trim() ? calcExpr : "—";
+
+  // Always show both variants
+  document.getElementById("calcExprFa").textContent = toPersianDigits(exprShown);
+  document.getElementById("calcExprEn").textContent = toLatinDigits(exprShown);
+
+  const memFa = toPersianDigits(String(formatNumber(calcMem, 2)).replace(/\.0+$/,''));
+  const memEn = toLatinDigits(String(formatNumber(calcMem, 2)).replace(/\.0+$/,''));
+  document.getElementById("memBadgeFa").textContent = memFa;
+  document.getElementById("memBadgeEn").textContent = memEn;
+
+  if(!calcExpr.trim()){
+    document.getElementById("calcResultFa").textContent = "۰";
+    document.getElementById("calcResultEn").textContent = "0";
+    return;
+  }
+
+  const tokens=tokenize(calcExpr);
+  const rpn=toRPN(tokens);
+  const val=evalRPN(rpn);
+  const out = Number.isFinite(val) ? formatNumber(val, p) : "—";
+
+  document.getElementById("calcResultFa").textContent = toPersianDigits(out);
+  document.getElementById("calcResultEn").textContent = toLatinDigits(out);
+};
+
+const calcPush = (k) => {
+  playClick();
+  const mapped = (k==="÷")?"/":(k==="×")?"*":(k==="٪")?"%":k;
+
+  if(mapped==="="){
+    const tokens=tokenize(calcExpr);
+    const val=evalRPN(toRPN(tokens));
+    if(!Number.isFinite(val)){
+      showToast("عبارت نامعتبر است.", "warn");
+      return;
+    }
+    const cfg=elementSdk.getConfig();
+    const p=clamp(Number(cfg.precision ?? 2),0,8);
+    calcExpr = formatNumber(val, p);
+    calcEvaluate();
+    return;
+  }
+
+  if(mapped==="DEL"){
+    calcExpr = calcExpr.slice(0, -1);
+    calcEvaluate();
+    return;
+  }
+
+  if(mapped==="MC"){ calcMem=0; calcEvaluate(); showToast("حافظه پاک شد.", "info"); return; }
+  if(mapped==="MR"){ calcExpr += String(calcMem); calcEvaluate(); return; }
+  if(mapped==="M+" || mapped==="M-"){
+    const tokens=tokenize(calcExpr);
+    const val=evalRPN(toRPN(tokens));
+    if(!Number.isFinite(val)){ showToast("برای حافظه، ابتدا یک عبارت معتبر وارد کنید.", "warn"); return; }
+    calcMem += (mapped==="M+") ? val : -val;
+    calcEvaluate();
+    showToast("حافظه به‌روزرسانی شد.", "ok");
+    return;
+  }
+
+  const norm = toLatinDigits(mapped);
+  const allowed = /[0-9+\-*/().%]/;
+  if(norm.length===1 && allowed.test(norm)){
+    calcExpr += norm;
+    calcEvaluate();
+  }
+};
+const calcClear = () => { playClick(); calcExpr=""; calcEvaluate(); };
+
+/* --------------------------- Date conversion (Jalali + Hijri) --------------------------- */
+const div = (a,b)=>Math.floor(a/b);
+const jalCal = (jy) => {
+  const breaks=[-61,9,38,199,426,686,756,818,1111,1181,1210,1635,2060,2097,2192,2262,2324,2394,2456,3178];
+  let bl=breaks.length, gy=jy+621, leapJ=-14, jp=breaks[0], jm=0, jump=0, leap=0, n=0, i=1;
+  if(jy<jp || jy>=breaks[bl-1]) return {leap:0, gy:gy, march:0};
+  for(; i<bl; i++){
+    jm=breaks[i];
+    jump=jm-jp;
+    if(jy<jm) break;
+    leapJ += div(jump,33)*8 + div((jump%33),4);
+    jp=jm;
+  }
+  n=jy-jp;
+  leapJ += div(n,33)*8 + div((n%33)+3,4);
+  if((jump%33)===4 && (jump-n)===4) leapJ++;
+  const leapG = div(gy,4) - div((div(gy,100)+1)*3,4) - 150;
+  const march = 20 + leapJ - leapG;
+  if((jump-n)<6) n = n - jump + div(jump+4,33)*33;
+  leap = ((n+1)%33 - 1)%4;
+  if(leap===-1) leap=4;
+  return {leap:leap, gy:gy, march:march};
+};
+
+const g2d = (gy,gm,gd) => {
+  let d = div((gy + div(gm - 8, 6) + 100100) * 1461, 4)
+      + div(153 * ((gm + 9) % 12) + 2, 5)
+      + gd - 34840408;
+  d = d - div(div(gy + 100100 + div(gm - 8, 6), 100) * 3, 4) + 752;
+  return d;
+};
+const d2g = (jdn) => {
+  let j = 4 * jdn + 139361631;
+  j = j + div(div(4 * jdn + 183187720, 146097) * 3, 4) * 4 - 3908;
+  const i = div((j % 1461), 4) * 5 + 308;
+  const gd = div((i % 153), 5) + 1;
+  const gm = div(i, 153) % 12 + 1;
+  const gy = div(j, 1461) - 100100 + div(8 - gm, 6);
+  return {gy,gm,gd};
+};
+
+const d2j = (jdn) => {
+  const g = d2g(jdn);
+  let jy = g.gy - 621;
+  const r = jalCal(jy);
+  const jdn1f = g2d(g.gy,3,r.march);
+  let k = jdn - jdn1f;
+  let jm, jd;
+  if(k>=0){
+    if(k<=185){
+      jm = 1 + div(k,31);
+      jd = (k%31) + 1;
+      return {jy,jm,jd};
+    }else k -= 186;
+  }else{
+    jy -= 1;
+    k += 179;
+    if(r.leap===1) k += 1;
+  }
+  jm = 7 + div(k,30);
+  jd = (k%30) + 1;
+  return {jy,jm,jd};
+};
+
+/* Hijri civil (tabular) */
+const hijriToJDN = (hy, hm, hd) => {
+  return (hd + Math.ceil(29.5*(hm-1)) + (hy-1)*354 + Math.floor((3 + 11*hy)/30) + 1948439.5) | 0;
+};
+const jdnToHijri = (jdn) => {
+  let hy = Math.floor((30*(jdn - 1948439.5) + 10646)/10631);
+  let first = hijriToJDN(hy,1,1);
+  let dayOfYear = jdn - first + 1;
+  let hm = Math.min(12, Math.ceil(dayOfYear/29.5));
+  let startMonth = hijriToJDN(hy,hm,1);
+  while(startMonth>jdn){ hm--; startMonth=hijriToJDN(hy,hm,1); }
+  let hd = jdn - startMonth + 1;
+  return {hy,hm,hd};
+};
+
+const pad2 = (n)=>String(n).padStart(2,'0');
+const ymdString = (y,m,d) => `${y}-${pad2(m)}-${pad2(d)}`;
+
+/* --------------------------- DateTime (Device clock) --------------------------- */
+const formatOffset = (mins) => {
+  const sign = mins<=0 ? "+" : "-"; // getTimezoneOffset: minutes behind UTC (positive west)
+  const abs = Math.abs(mins);
+  const hh = pad2(Math.floor(abs/60));
+  const mm = pad2(abs%60);
+  return `UTC${sign}${hh}:${mm}`;
+};
+
+const tickDeviceClock = () => {
+  const cfg=elementSdk.getConfig();
+  const now = new Date();
+
+  // timezone info
+  const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || "نامشخص";
+  document.getElementById("tzName").textContent = tz;
+  const off = formatOffset(now.getTimezoneOffset());
+  document.getElementById("localOffset").textContent = cfg.enable_persian_digits ? toPersianDigits(off) : off;
+
+  // Local time & UTC time (always show based on device)
+  const localHHMMSS = `${pad2(now.getHours())}:${pad2(now.getMinutes())}:${pad2(now.getSeconds())}`;
+  const utcHHMMSS = `${pad2(now.getUTCHours())}:${pad2(now.getUTCMinutes())}:${pad2(now.getUTCSeconds())}`;
+  document.getElementById("timeLocal").textContent = cfg.enable_persian_digits ? toPersianDigits(localHHMMSS) : localHHMMSS;
+  document.getElementById("timeUTC").textContent = cfg.enable_persian_digits ? toPersianDigits(utcHHMMSS) : utcHHMMSS;
+
+  // Gregorian date from local device
+  const gy = now.getFullYear(), gm = now.getMonth()+1, gd = now.getDate();
+  const jdn = g2d(gy, gm, gd);
+  const j = d2j(jdn);
+  const h = jdnToHijri(jdn);
+
+  const gStr = ymdString(gy, gm, gd);
+  const jStr = ymdString(j.jy, j.jm, j.jd);
+  const hStr = ymdString(h.hy, h.hm, h.hd);
+
+  document.getElementById("todayGreg").textContent = cfg.enable_persian_digits ? toPersianDigits(gStr) : gStr;
+  document.getElementById("todayJalali").textContent = cfg.enable_persian_digits ? toPersianDigits(jStr) : jStr;
+  document.getElementById("todayHijri").textContent = cfg.enable_persian_digits ? toPersianDigits(hStr) : hStr;
+};
+
+/* --------------------------- Calculator: keypad language persistence --------------------------- */
+const setCalculatorKeypadLang = (lang) => {
+  const v = (lang==="en") ? "en" : "fa";
+  elementSdk.setConfig({calculator_keypad_lang: v});
+};
+
+/* --------------------------- Init (Wiring) --------------------------- */
 (function init(){
   const cfg=elementSdk.getConfig();
   applyConfig(cfg);
@@ -1094,30 +1643,30 @@ const syncSettingsForm = (cfg) => {
   const hash=(location.hash||"").replace("#","");
   showPage(pages.includes(hash)?hash:"converter");
 
+  // categories
   const catSel=document.getElementById("categorySel");
   CATEGORIES.forEach(c=>{
     const o=document.createElement("option");
     o.value=c.id; o.textContent=c.name;
     catSel.appendChild(o);
   });
-  catSel.value = state.categoryId;
+  catSel.value = CATEGORIES[0].id;
 
-  const precisionRange=document.getElementById("precisionRange");
-  precisionRange.value = clamp(Number(cfg.precision ?? 2),0,8);
-  document.getElementById("precisionLabel").textContent = displayNum(precisionRange.value);
-
-  document.getElementById("uiPersianDigitsToggle").checked = !!cfg.enable_persian_digits;
-  setToggleUI(document.getElementById("uiPersianDigitsToggle"), document.getElementById("uiPersianDigitsDot"), !!cfg.enable_persian_digits);
-
+  // converter init
   setUnitsForCategory(catSel.value);
-
-  catSel.addEventListener("change", ()=>{ state.categoryId=catSel.value; setUnitsForCategory(catSel.value); showToast("دسته‌بندی تغییر کرد.", "info"); });
   document.getElementById("valueInput").addEventListener("input", computeConverter);
   document.getElementById("fromUnitSel").addEventListener("change", ()=>{ state.fromLabel = document.getElementById("fromUnitSel").value; computeConverter(); });
   document.getElementById("toUnitSel").addEventListener("change", ()=>{ state.toLabel = document.getElementById("toUnitSel").value; computeConverter(); });
   document.getElementById("swapBtn").addEventListener("click", swapUnits);
-  precisionRange.addEventListener("input", ()=>{
-    const v=clamp(Number(precisionRange.value),0,8);
+
+  catSel.addEventListener("change", ()=>{
+    state.categoryId=catSel.value;
+    setUnitsForCategory(catSel.value);
+    showToast("دسته‌بندی تغییر کرد.", "info");
+  });
+
+  document.getElementById("precisionRange").addEventListener("input", (e)=>{
+    const v=clamp(Number(e.target.value),0,8);
     document.getElementById("precisionLabel").textContent = displayNum(v);
     elementSdk.setConfig({precision:v});
   });
@@ -1126,11 +1675,10 @@ const syncSettingsForm = (cfg) => {
     const cfg=elementSdk.getConfig();
     const cat=getCategory(catSel.value);
     const toUnit=findUnitByLabel(cat, document.getElementById("toUnitSel").value);
-    const raw = document.getElementById("resultValue").textContent;
-    if(raw==="—"){ showToast("چیزی برای کپی وجود ندارد.", "warn"); return; }
     const inputVal=safeNum(document.getElementById("valueInput").value);
     const fromUnit=findUnitByLabel(cat, document.getElementById("fromUnitSel").value);
     const toVal=convertValue(cat, inputVal, fromUnit, toUnit);
+    if(!Number.isFinite(toVal)){ showToast("چیزی برای کپی وجود ندارد.", "warn"); return; }
     const txt = `${formatNumber(toVal, clamp(Number(cfg.precision??2),0,8))} ${toUnit.symbol}`;
     copyText(maybePersianForCopy(txt), "نتیجه کپی شد ✅");
   });
@@ -1140,6 +1688,7 @@ const syncSettingsForm = (cfg) => {
     showToast(e.target.checked ? "نمایش اعداد فارسی فعال شد." : "نمایش اعداد فارسی غیرفعال شد.", "info");
   });
 
+  // health live
   ["bmiWeight","bmiHeight","idealWeightToggle"].forEach(id=>document.getElementById(id).addEventListener("input", computeBMIUI));
   ["sexSel","ageInput","calHeight","calWeight","activitySel","goalSel"].forEach(id=>document.getElementById(id).addEventListener("input", computeCaloriesUI));
 
@@ -1169,6 +1718,83 @@ const syncSettingsForm = (cfg) => {
     copyText(maybePersianForCopy(txt), "کالری هدف کپی شد ✅");
   });
 
+  // datetime page (device)
+  document.getElementById("timeCopyBtn").addEventListener("click", ()=>{
+    const g = toLatinDigits(document.getElementById("todayGreg").textContent);
+    const j = toLatinDigits(document.getElementById("todayJalali").textContent);
+    const h = toLatinDigits(document.getElementById("todayHijri").textContent);
+    const tl = toLatinDigits(document.getElementById("timeLocal").textContent);
+    const tu = toLatinDigits(document.getElementById("timeUTC").textContent);
+    const tz = document.getElementById("tzName").textContent;
+    const off = toLatinDigits(document.getElementById("localOffset").textContent);
+    const txt = `تاریخ میلادی: ${g}\nتاریخ شمسی: ${j}\nتاریخ قمری: ${h}\nساعت محلی: ${tl}\nساعت UTC: ${tu}\nمنطقه زمانی: ${tz}\n${off}`;
+    copyText(maybePersianForCopy(txt), "اطلاعات کپی شد ✅");
+  });
+
+  // calculator
+  document.getElementById("calcPad").addEventListener("click", (e)=>{
+    const btn=e.target.closest("[data-k]");
+    if(!btn) return;
+    calcPush(btn.dataset.k);
+  });
+  document.getElementById("calcClearBtn").addEventListener("click", calcClear);
+  document.getElementById("calcCopyBtn").addEventListener("click", ()=>{
+    const out = document.getElementById("calcResultEn").textContent;
+    const raw = toLatinDigits(out);
+    if(raw==="—"){ showToast("چیزی برای کپی وجود ندارد.", "warn"); return; }
+    copyText(maybePersianForCopy(raw), "نتیجه ماشین حساب کپی شد ✅");
+  });
+
+  window.addEventListener("keydown", (e)=>{
+    const onCalc = !document.getElementById("page-calculator").classList.contains("hidden");
+    if(!onCalc) return;
+    const key=e.key;
+    if(key==="Enter"){ e.preventDefault(); calcPush("="); return; }
+    if(key==="Backspace"){ calcPush("DEL"); return; }
+    const allowed = "0123456789+-*/().%";
+    if(allowed.includes(key)){ calcPush(key); return; }
+  });
+
+  // settings bindings (minimal - same as before but keeping footer locked)
+  const bindColorPair = (colorInput, textInput, key) => {
+    const syncFromColor = () => { textInput.value = colorInput.value; elementSdk.setConfig({[key]: colorInput.value}); };
+    const syncFromText = () => {
+      const v=textInput.value.trim();
+      if(/^#([0-9a-fA-F]{6})$/.test(v)){ colorInput.value=v; elementSdk.setConfig({[key]: v}); }
+    };
+    colorInput.addEventListener("input", syncFromColor);
+    textInput.addEventListener("change", syncFromText);
+  };
+
+  const syncSettingsForm = (cfg) => {
+    const setPair=(cId,tId,val)=>{
+      const c=document.getElementById(cId), t=document.getElementById(tId);
+      c.value = val; t.value = val;
+    };
+    setPair("bgColor","bgColorText", cfg.background_color);
+    setPair("surfaceColor","surfaceColorText", cfg.surface_color);
+    setPair("textColor","textColorText", cfg.text_color);
+    setPair("primaryColor","primaryColorText", cfg.primary_action);
+    setPair("secondaryColor","secondaryColorText", cfg.secondary_action);
+    setPair("gradA","gradAText", cfg.accent_gradient_start);
+    setPair("gradB","gradBText", cfg.accent_gradient_end);
+
+    document.getElementById("fontFamily").value = cfg.font_family;
+    document.getElementById("fontSize").value = cfg.font_size;
+    document.getElementById("fontSizeLabel").textContent = displayNum(cfg.font_size);
+    document.getElementById("logoEmoji").value = cfg.app_logo_emoji;
+
+    setToggleUI(document.getElementById("persianDigitsToggle"), document.getElementById("persianDigitsDot"), !!cfg.enable_persian_digits);
+    setToggleUI(document.getElementById("copyPersianToggle"), document.getElementById("copyPersianDot"), !!cfg.copy_with_persian_digits);
+
+    setToggleUI(document.getElementById("soundToggle"), document.getElementById("soundDot"), !!cfg.enable_click_sound);
+    document.getElementById("soundVolume").value = clamp(Number(cfg.click_volume ?? 30),0,100);
+    document.getElementById("soundVolumeLabel").textContent = displayNum(clamp(Number(cfg.click_volume ?? 30),0,100));
+
+    document.getElementById("calcKeyLang").value = (cfg.calculator_keypad_lang==="en" ? "en" : "fa");
+    updateCalculatorKeypadLabels(document.getElementById("calcKeyLang").value);
+  };
+
   syncSettingsForm(cfg);
   bindColorPair(document.getElementById("bgColor"), document.getElementById("bgColorText"), "background_color");
   bindColorPair(document.getElementById("surfaceColor"), document.getElementById("surfaceColorText"), "surface_color");
@@ -1195,6 +1821,23 @@ const syncSettingsForm = (cfg) => {
   document.getElementById("copyPersianToggle").addEventListener("change", (e)=>{
     elementSdk.setConfig({copy_with_persian_digits: e.target.checked});
     showToast(e.target.checked ? "کپی با اعداد فارسی فعال شد." : "کپی با اعداد فارسی غیرفعال شد.", "info");
+  });
+
+  document.getElementById("soundToggle").addEventListener("change", (e)=>{
+    elementSdk.setConfig({enable_click_sound: e.target.checked});
+    showToast(e.target.checked ? "صدای کلیک فعال شد." : "صدای کلیک غیرفعال شد.", "info");
+    if(e.target.checked){ ensureAudio(); playClick(); }
+  });
+
+  document.getElementById("soundVolume").addEventListener("input", (e)=>{
+    const v=clamp(Number(e.target.value),0,100);
+    document.getElementById("soundVolumeLabel").textContent = displayNum(v);
+    elementSdk.setConfig({click_volume:v});
+  });
+
+  document.getElementById("calcKeyLang").addEventListener("change", (e)=>{
+    setCalculatorKeypadLang(e.target.value);
+    showToast(e.target.value==="en" ? "کلیدهای ماشین حساب: انگلیسی" : "کلیدهای ماشین حساب: فارسی", "info");
   });
 
   document.getElementById("resetBtn").addEventListener("click", ()=>{
@@ -1226,14 +1869,23 @@ const syncSettingsForm = (cfg) => {
     computeConverter();
     computeBMIUI();
     computeCaloriesUI();
+    calcEvaluate();
+    tickDeviceClock();
   });
 
+  // initial renders
   computeConverter();
   computeBMIUI();
   computeCaloriesUI();
+  calcEvaluate();
+
+  // device clock ticking
+  tickDeviceClock();
+  setInterval(tickDeviceClock, 250);
 
   showToast("آماده‌ست! ✅", "ok");
 })();
 </script>
 </body>
 </html>
+```0
