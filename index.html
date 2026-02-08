@@ -338,45 +338,46 @@
         </div>
       </section>
 
-      <!-- DateTime Page (Browser/Device time) -->
+      <!-- DateTime Page (time.ir via text proxy) -->
       <section id="page-datetime" class="hidden space-y-4 md:space-y-5">
         <div class="card p-4 md:p-5">
           <div class="flex items-start justify-between gap-3">
             <div>
-              <h2 class="text-base md:text-lg font-bold">تاریخ و ساعت (از دستگاه)</h2>
-              <p class="muted tiny mt-1">این بخش از ساعت و منطقه زمانی مرورگر/دستگاه شما استفاده می‌کند (بدون API).</p>
+              <h2 class="text-base md:text-lg font-bold">تاریخ و ساعت (مرجع time.ir)</h2>
+              <p class="muted tiny mt-1">این بخش تلاش می‌کند ساعت/تاریخ را از time.ir بخواند (بدون استفاده از ساعت دستگاه). اگر دسترسی محدود شود، پیام خطا نمایش داده می‌شود.</p>
             </div>
             <div class="flex gap-2 flex-wrap">
+              <button id="timeRefreshBtn" class="btn px-3 py-2 soft focusable">به‌روزرسانی</button>
               <button id="timeCopyBtn" class="btn px-3 py-2 soft focusable">کپی اطلاعات</button>
             </div>
           </div>
 
           <div class="mt-4 grid lg:grid-cols-3 gap-3">
             <div class="soft p-3">
-              <div class="font-bold">امروز (میلادی)</div>
-              <div class="calcDisplay text-2xl font-extrabold mt-2" id="todayGreg">—</div>
-              <div class="muted tiny mt-2">بر اساس منطقه زمانی دستگاه</div>
-            </div>
-            <div class="soft p-3">
               <div class="font-bold">امروز (شمسی)</div>
               <div class="calcDisplay text-2xl font-extrabold mt-2" id="todayJalali">—</div>
-              <div class="muted tiny mt-2">تبدیل محاسباتی</div>
+              <div class="muted tiny mt-2">منبع: time.ir</div>
+            </div>
+            <div class="soft p-3">
+              <div class="font-bold">امروز (میلادی)</div>
+              <div class="calcDisplay text-2xl font-extrabold mt-2" id="todayGreg">—</div>
+              <div class="muted tiny mt-2">منبع: time.ir (در صورت تشخیص)</div>
             </div>
             <div class="soft p-3">
               <div class="font-bold">امروز (قمری)</div>
               <div class="calcDisplay text-2xl font-extrabold mt-2" id="todayHijri">—</div>
-              <div class="muted tiny mt-2">قمری مدنی (ممکن است با رؤیت هلال اختلاف جزئی داشته باشد)</div>
+              <div class="muted tiny mt-2">منبع: time.ir (در صورت تشخیص)</div>
             </div>
           </div>
 
           <div class="mt-3 grid lg:grid-cols-2 gap-3">
             <div class="soft p-3">
               <div class="flex items-center justify-between gap-2">
-                <div class="font-bold">ساعت محلی شما</div>
-                <div class="muted tiny" id="tzName">—</div>
+                <div class="font-bold">ساعت ایران</div>
+                <div class="muted tiny">Asia/Tehran</div>
               </div>
-              <div class="calcDisplay text-4xl md:text-5xl font-extrabold mt-3" id="timeLocal">—</div>
-              <div class="muted tiny mt-2">UTC Offset: <span id="localOffset">—</span></div>
+              <div class="calcDisplay text-4xl md:text-5xl font-extrabold mt-3" id="timeIR">—</div>
+              <div class="muted tiny mt-2">آخرین به‌روزرسانی: <span id="timeUpdatedAt">—</span></div>
             </div>
 
             <div class="soft p-3">
@@ -385,16 +386,16 @@
                 <div class="muted tiny">UTC</div>
               </div>
               <div class="calcDisplay text-4xl md:text-5xl font-extrabold mt-3" id="timeUTC">—</div>
-              <div class="muted tiny mt-2">منبع: ساعت دستگاه</div>
+              <div class="muted tiny mt-2">منبع: time.ir (در صورت تشخیص)</div>
             </div>
           </div>
 
           <div id="timeStatus" class="mt-3 soft p-3">
             <div class="flex items-center justify-between gap-2">
               <div class="tiny muted">وضعیت</div>
-              <div class="tiny text-emerald-200">نمایش بر اساس ساعت دستگاه ✅</div>
+              <div id="timeStatusText" class="tiny text-amber-200">در حال تلاش برای دریافت اطلاعات…</div>
             </div>
-            <div class="muted tiny mt-2">اگر ساعت دستگاه شما اشتباه باشد، این صفحه هم اشتباه نمایش می‌دهد.</div>
+            <div class="muted tiny mt-2" id="timeStatusHint">اگر time.ir دسترسی متقاطع را محدود کند، ممکن است خواندن مستقیم ممکن نباشد.</div>
           </div>
         </div>
       </section>
@@ -405,7 +406,7 @@
           <div class="relative flex items-start justify-between gap-3">
             <div>
               <h2 class="text-base md:text-lg font-extrabold">ماشین حساب حرفه‌ای</h2>
-              <p class="muted tiny mt-1">نمایش همزمان عدد فارسی و انگلیسی + تغییر زبان کلیدها از تنظیمات</p>
+              <p class="muted tiny mt-1">فقط یک نمایشگر (طبق انتخاب شما در تنظیمات: فارسی یا انگلیسی)</p>
             </div>
             <div class="flex gap-2">
               <button id="calcCopyBtn" class="btn px-3 py-2 soft focusable">کپی</button>
@@ -416,22 +417,13 @@
           <div class="mt-4 calcTop p-4 md:p-5">
             <div class="flex items-center justify-between gap-3">
               <div class="muted tiny">عبارت</div>
-              <div class="muted tiny">حافظه: <span id="memBadgeFa" class="font-bold">۰</span> / <span id="memBadgeEn" class="font-bold">0</span></div>
+              <div class="muted tiny">حافظه: <span id="memBadge" class="font-bold">0</span></div>
             </div>
 
-            <div class="mt-2 grid md:grid-cols-2 gap-3">
-              <div class="soft p-3">
-                <div class="muted tiny">نمایش فارسی</div>
-                <div id="calcExprFa" class="calcDisplay text-base md:text-lg font-semibold mt-1 min-h-[28px]">—</div>
-                <div class="muted tiny mt-2">نتیجه</div>
-                <div id="calcResultFa" class="calcDisplay text-3xl md:text-4xl font-extrabold mt-1">۰</div>
-              </div>
-              <div class="soft p-3">
-                <div class="muted tiny">نمایش انگلیسی</div>
-                <div id="calcExprEn" class="calcDisplay text-base md:text-lg font-semibold mt-1 min-h-[28px]">—</div>
-                <div class="muted tiny mt-2">Result</div>
-                <div id="calcResultEn" class="calcDisplay text-3xl md:text-4xl font-extrabold mt-1">0</div>
-              </div>
+            <div class="mt-2 soft p-3">
+              <div id="calcExpr" class="calcDisplay text-base md:text-lg font-semibold min-h-[28px]">—</div>
+              <div class="muted tiny mt-2">نتیجه</div>
+              <div id="calcResult" class="calcDisplay text-3xl md:text-5xl font-extrabold mt-1">0</div>
             </div>
 
             <div class="mt-3 text-xs muted text-left">
@@ -603,10 +595,10 @@
 
               <div class="mt-3 flex items-center justify-between gap-2">
                 <div>
-                  <div class="tiny muted">زبان کلیدهای ماشین حساب</div>
-                  <div class="muted tiny mt-1">اعداد روی دکمه‌ها فارسی یا انگلیسی.</div>
+                  <div class="tiny muted">نمایشگر ماشین حساب</div>
+                  <div class="muted tiny mt-1">عددها و نمایشگر ماشین حساب فارسی یا انگلیسی.</div>
                 </div>
-                <select id="calcKeyLang" class="px-3 py-2 rounded-xl focusable">
+                <select id="calcDisplayLang" class="px-3 py-2 rounded-xl focusable">
                   <option value="fa">فارسی</option>
                   <option value="en">انگلیسی</option>
                 </select>
@@ -632,15 +624,16 @@
                   <div id="soundVolumeLabel" class="soft px-3 py-2 rounded-xl text-sm w-16 text-center">30</div>
                 </div>
               </div>
-            </div>
-          </div>
 
-          <div class="mt-4 soft p-3">
-            <div class="font-bold">سیستم پیکربندی (Config)</div>
-            <p class="muted tiny mt-1">پیکربندی مشابه سیستم‌های Embed (defaultConfig + onConfigChange + mapToCapabilities).</p>
-            <div class="mt-2 grid md:grid-cols-2 gap-2">
-              <button id="exportConfig" class="btn px-3 py-2 soft focusable">کپی پیکربندی</button>
-              <button id="importConfig" class="btn px-3 py-2 soft focusable">وارد کردن پیکربندی</button>
+              <div class="mt-4 soft p-3">
+                <div class="font-bold">پیکربندی (Config)</div>
+                <p class="muted tiny mt-1">کپی/وارد کردن پیکربندی برای بکاپ گرفتن از تنظیمات.</p>
+                <div class="mt-2 grid md:grid-cols-2 gap-2">
+                  <button id="exportConfig" class="btn px-3 py-2 soft focusable">کپی پیکربندی</button>
+                  <button id="importConfig" class="btn px-3 py-2 soft focusable">وارد کردن پیکربندی</button>
+                </div>
+              </div>
+
             </div>
           </div>
         </div>
@@ -652,17 +645,18 @@
           <h2 class="text-base md:text-lg font-bold">راهنما</h2>
           <div class="mt-3 space-y-3 leading-7">
             <div class="soft p-3">
-              <div class="font-bold">تاریخ و ساعت</div>
+              <div class="font-bold">تاریخ و ساعت time.ir</div>
               <ul class="mt-2 list-disc pr-5 muted">
-                <li>این بخش از ساعت و منطقه زمانی مرورگر/دستگاه شما استفاده می‌کند.</li>
-                <li>اگر تاریخ/ساعت گوشی یا سیستم شما درست باشد، اینجا هم درست نمایش داده می‌شود.</li>
+                <li>خواندن مستقیم time.ir در مرورگر ممکن است به دلیل محدودیت‌های دسترسی متقاطع (CORS) گاهی انجام نشود.</li>
+                <li>برای اینکه بدون ساعت دستگاه کار کند، این صفحه سعی می‌کند محتوا را از time.ir از طریق یک پراکسی متنی عمومی بخواند.</li>
+                <li>اگر پارس کردن/دسترسی ناموفق باشد، پیام خطا می‌بینید.</li>
               </ul>
             </div>
             <div class="soft p-3">
               <div class="font-bold">ماشین حساب</div>
               <ul class="mt-2 list-disc pr-5 muted">
-                <li>همزمان نتیجه فارسی و انگلیسی را می‌بینید.</li>
-                <li>زبان دکمه‌های عددی را از تنظیمات عوض کنید.</li>
+                <li>نمایشگر فقط یک حالت دارد (فارسی یا انگلیسی) و از تنظیمات قابل انتخاب است.</li>
+                <li>می‌توانید با کیبورد هم وارد کنید.</li>
               </ul>
             </div>
           </div>
@@ -765,7 +759,7 @@ const defaultConfig = {
   precision:2,
   enable_click_sound:true,
   click_volume:30,
-  calculator_keypad_lang:"fa" // NEW: fa | en
+  calculator_display_lang:"fa" // NEW: fa | en
 };
 
 const elementSdk = (() => {
@@ -823,7 +817,7 @@ const elementSdk = (() => {
         volume: clamp(Number(cfg.click_volume ?? 30),0,100)
       },
       calculator:{
-        keypadLang: (cfg.calculator_keypad_lang==="en" ? "en" : "fa")
+        displayLang: (cfg.calculator_display_lang==="en" ? "en" : "fa")
       }
     };
   }
@@ -872,13 +866,11 @@ const applyConfig = (cfg) => {
   document.getElementById("soundVolume").value = caps.sound.volume;
   document.getElementById("soundVolumeLabel").textContent = displayNum(caps.sound.volume);
 
-  // precision
   document.getElementById("precisionRange").value = caps.behavior.precision;
   document.getElementById("precisionLabel").textContent = displayNum(caps.behavior.precision);
 
-  // calculator keypad language selector
-  document.getElementById("calcKeyLang").value = caps.calculator.keypadLang;
-  updateCalculatorKeypadLabels(caps.calculator.keypadLang);
+  document.getElementById("calcDisplayLang").value = caps.calculator.displayLang;
+  updateCalculatorDigitLabels(caps.calculator.displayLang);
 };
 
 /* --------------------------- Navigation --------------------------- */
@@ -955,148 +947,11 @@ const CATEGORIES = [
       {title:"۲۷۳.۱۵K → °C", value:273.15, from:"کلوین", to:"سلسیوس"},
     ]
   },
-  { id:"area", name:"مساحت",
-    def: linearUnits("متر مربع","m²",[
-      UNIT("سانتی‌متر مربع","cm²", v=>v/10000, v=>v*10000),
-      UNIT("متر مربع","m²", v=>v, v=>v),
-      UNIT("کیلومتر مربع","km²", v=>v*1e6, v=>v/1e6),
-      UNIT("هکتار","ha", v=>v*10000, v=>v/10000),
-      UNIT("جریب (acre)","ac", v=>v*4046.8564224, v=>v/4046.8564224),
-      UNIT("فوت مربع","ft²", v=>v*0.09290304, v=>v/0.09290304),
-    ]),
-    quick:[
-      {title:"۱ هکتار → متر مربع", value:1, from:"هکتار", to:"متر مربع"},
-      {title:"۱ acre → متر مربع", value:1, from:"جریب (acre)", to:"متر مربع"},
-      {title:"۱۰۰۰ متر مربع → هکتار", value:1000, from:"متر مربع", to:"هکتار"},
-      {title:"۵۰ متر مربع → فوت مربع", value:50, from:"متر مربع", to:"فوت مربع"},
-    ]
-  },
-  { id:"volume", name:"حجم",
-    def: linearUnits("لیتر","L",[
-      UNIT("میلی‌لیتر","mL", v=>v/1000, v=>v*1000),
-      UNIT("لیتر","L", v=>v, v=>v),
-      UNIT("متر مکعب","m³", v=>v*1000, v=>v/1000),
-      UNIT("گالن (US)","gal", v=>v*3.785411784, v=>v/3.785411784),
-      UNIT("پینت (US)","pt", v=>v*0.473176473, v=>v/0.473176473),
-      UNIT("فوت مکعب","ft³", v=>v*28.316846592, v=>v/28.316846592),
-    ]),
-    quick:[
-      {title:"۱ لیتر → میلی‌لیتر", value:1, from:"لیتر", to:"میلی‌لیتر"},
-      {title:"۱ گالن → لیتر", value:1, from:"گالن (US)", to:"لیتر"},
-      {title:"۲ لیتر → گالن", value:2, from:"لیتر", to:"گالن (US)"},
-      {title:"۱ متر مکعب → لیتر", value:1, from:"متر مکعب", to:"لیتر"},
-    ]
-  },
-  { id:"speed", name:"سرعت",
-    def: linearUnits("متر بر ثانیه","m/s",[
-      UNIT("متر بر ثانیه","m/s", v=>v, v=>v),
-      UNIT("کیلومتر بر ساعت","km/h", v=>v/3.6, v=>v*3.6),
-      UNIT("مایل بر ساعت","mph", v=>v*0.44704, v=>v/0.44704),
-      UNIT("گره دریایی","knot", v=>v*0.514444, v=>v/0.514444),
-    ]),
-    quick:[
-      {title:"۹۰ km/h → m/s", value:90, from:"کیلومتر بر ساعت", to:"متر بر ثانیه"},
-      {title:"۱۰۰ km/h → mph", value:100, from:"کیلومتر بر ساعت", to:"مایل بر ساعت"},
-      {title:"۶۰ mph → km/h", value:60, from:"مایل بر ساعت", to:"کیلومتر بر ساعت"},
-      {title:"۱۰ knot → km/h", value:10, from:"گره دریایی", to:"کیلومتر بر ساعت"},
-    ]
-  },
-  { id:"time", name:"زمان",
-    def: linearUnits("ثانیه","s",[
-      UNIT("میلی‌ثانیه","ms", v=>v/1000, v=>v*1000),
-      UNIT("ثانیه","s", v=>v, v=>v),
-      UNIT("دقیقه","min", v=>v*60, v=>v/60),
-      UNIT("ساعت","h", v=>v*3600, v=>v/3600),
-      UNIT("روز","day", v=>v*86400, v=>v/3600/24),
-      UNIT("هفته","week", v=>v*604800, v=>v/604800),
-    ]),
-    quick:[
-      {title:"۱ ساعت → دقیقه", value:1, from:"ساعت", to:"دقیقه"},
-      {title:"۲ روز → ساعت", value:2, from:"روز", to:"ساعت"},
-      {title:"۹۰ دقیقه → ساعت", value:90, from:"دقیقه", to:"ساعت"},
-      {title:"۱ هفته → روز", value:1, from:"هفته", to:"روز"},
-    ]
-  },
-  { id:"pressure", name:"فشار",
-    def: linearUnits("پاسکال","Pa",[
-      UNIT("پاسکال","Pa", v=>v, v=>v),
-      UNIT("کیلوپاسکال","kPa", v=>v*1000, v=>v/1000),
-      UNIT("بار","bar", v=>v*100000, v=>v/100000),
-      UNIT("اتمسفر","atm", v=>v*101325, v=>v/101325),
-      UNIT("میلی‌متر جیوه","mmHg", v=>v*133.322368, v=>v/133.322368),
-      UNIT("psi","psi", v=>v*6894.757293168, v=>v/6894.757293168),
-    ]),
-    quick:[
-      {title:"۱ atm → kPa", value:1, from:"اتمسفر", to:"کیلوپاسکال"},
-      {title:"۲ bar → psi", value:2, from:"بار", to:"psi"},
-      {title:"۷۶۰ mmHg → atm", value:760, from:"میلی‌متر جیوه", to:"اتمسفر"},
-      {title:"۲۰۰ kPa → bar", value:200, from:"کیلوپاسکال", to:"بار"},
-    ]
-  },
-  { id:"energy", name:"انرژی",
-    def: linearUnits("ژول","J",[
-      UNIT("ژول","J", v=>v, v=>v),
-      UNIT("کیلوژول","kJ", v=>v*1000, v=>v/1000),
-      UNIT("کالری","cal", v=>v*4.184, v=>v/4.184),
-      UNIT("کیلوکالری","kcal", v=>v*4184, v=>v/4184),
-      UNIT("وات‌ساعت","Wh", v=>v*3600, v=>v/3600),
-      UNIT("کیلووات‌ساعت","kWh", v=>v*3.6e6, v=>v/3.6e6),
-    ]),
-    quick:[
-      {title:"۱ kWh → kJ", value:1, from:"کیلووات‌ساعت", to:"کیلوژول"},
-      {title:"۵۰۰ kcal → kJ", value:500, from:"کیلوکالری", to:"کیلوژول"},
-      {title:"۱۰۰۰۰ J → kJ", value:10000, from:"ژول", to:"کیلوژول"},
-      {title:"۲۰۰ Wh → kWh", value:200, from:"وات‌ساعت", to:"کیلووات‌ساعت"},
-    ]
-  },
-  { id:"power", name:"توان",
-    def: linearUnits("وات","W",[
-      UNIT("وات","W", v=>v, v=>v),
-      UNIT("کیلووات","kW", v=>v*1000, v=>v/1000),
-      UNIT("اسب بخار (hp)","hp", v=>v*745.6998715822702, v=>v/745.6998715822702),
-    ]),
-    quick:[
-      {title:"۱ kW → W", value:1, from:"کیلووات", to:"وات"},
-      {title:"۱ hp → W", value:1, from:"اسب بخار (hp)", to:"وات"},
-      {title:"۵۰۰ W → kW", value:500, from:"وات", to:"کیلووات"},
-      {title:"۲ kW → hp", value:2, from:"کیلووات", to:"اسب بخار (hp)"},
-    ]
-  },
-  { id:"data", name:"داده (دیجیتال)",
-    def: linearUnits("بایت","B",[
-      UNIT("بیت","b", v=>v/8, v=>v*8),
-      UNIT("بایت","B", v=>v, v=>v),
-      UNIT("کیلوبایت","KB", v=>v*1024, v=>v/1024),
-      UNIT("مگابایت","MB", v=>v*1024**2, v=>v/(1024**2)),
-      UNIT("گیگابایت","GB", v=>v*1024**3, v=>v/(1024**3)),
-      UNIT("ترابایت","TB", v=>v*1024**4, v=>v/(1024**4)),
-    ]),
-    quick:[
-      {title:"۱ MB → KB", value:1, from:"مگابایت", to:"کیلوبایت"},
-      {title:"۱ GB → MB", value:1, from:"گیگابایت", to:"مگابایت"},
-      {title:"۸ b → B", value:8, from:"بیت", to:"بایت"},
-      {title:"۵۰۰ KB → MB", value:500, from:"کیلوبایت", to:"مگابایت"},
-    ]
-  },
-  { id:"angle", name:"زاویه",
-    def: linearUnits("رادیان","rad",[
-      UNIT("درجه","°", v=>v*(Math.PI/180), v=>v*(180/Math.PI)),
-      UNIT("رادیان","rad", v=>v, v=>v),
-      UNIT("گرادیان (gon)","gon", v=>v*(Math.PI/200), v=>v*(200/Math.PI)),
-    ]),
-    quick:[
-      {title:"۱۸۰° → rad", value:180, from:"درجه", to:"رادیان"},
-      {title:"π rad → °", value:Math.PI, from:"رادیان", to:"درجه"},
-      {title:"۹۰° → rad", value:90, from:"درجه", to:"رادیان"},
-      {title:"۱۰۰ gon → °", value:100, from:"گرادیان (gon)", to:"درجه"},
-    ]
-  },
 ];
-
-const getCategory = (id)=>CATEGORIES.find(c=>c.id===id) || CATEGORIES[0];
 
 /* --------------------------- Converter Logic --------------------------- */
 let state = { categoryId: CATEGORIES[0].id, fromLabel: null, toLabel: null };
+const getCategory = (id)=>CATEGORIES.find(c=>c.id===id) || CATEGORIES[0];
 const findUnitByLabel = (cat, label) => cat.def.units.find(u=>u.label===label) || cat.def.units[0];
 const convertValue = (cat, value, fromUnit, toUnit) => {
   if(!Number.isFinite(value)) return NaN;
@@ -1125,9 +980,6 @@ const renderQuick = (cat) => {
     });
     grid.appendChild(b);
   });
-  if(!(cat.quick||[]).length){
-    grid.innerHTML=`<div class="muted tiny">برای این دسته‌بندی پیشنهاد سریعی تعریف نشده است.</div>`;
-  }
 };
 
 const setUnitsForCategory = (catId) => {
@@ -1164,7 +1016,6 @@ const computeConverter = () => {
 
   document.getElementById("resultValue").textContent = (Number.isFinite(result) ? shown : "—");
   document.getElementById("resultUnit").textContent = `${toUnit.label} (${toUnit.symbol})`;
-
   document.getElementById("converterNote").textContent = Number.isFinite(inputVal) ? "" : "برای دیدن نتیجه، یک مقدار عددی معتبر وارد کنید.";
 };
 
@@ -1307,18 +1158,15 @@ const playClick = () => {
   if (!cfg.enable_click_sound) return;
   ensureAudio();
   const vol = clamp(Number(cfg.click_volume ?? 30),0,100) / 100;
-
   try{
     const t = audioCtx.currentTime;
     const osc = audioCtx.createOscillator();
     const g = audioCtx.createGain();
-
     osc.type = "square";
     osc.frequency.setValueAtTime(1200, t);
     g.gain.setValueAtTime(0.0001, t);
     g.gain.exponentialRampToValueAtTime(Math.max(0.0001, vol*0.05), t + 0.005);
     g.gain.exponentialRampToValueAtTime(0.0001, t + 0.03);
-
     osc.connect(g);
     g.connect(audioCtx.destination);
     osc.start(t);
@@ -1326,8 +1174,8 @@ const playClick = () => {
   }catch{}
 };
 
-/* --------------------------- Calculator Keypad Labels (fa/en) --------------------------- */
-const updateCalculatorKeypadLabels = (lang) => {
+/* --------------------------- Calculator digits & rendering --------------------------- */
+const updateCalculatorDigitLabels = (lang) => {
   document.querySelectorAll(".calcDigit").forEach(btn=>{
     const fa = btn.getAttribute("data-fa");
     const en = btn.getAttribute("data-en");
@@ -1335,7 +1183,6 @@ const updateCalculatorKeypadLabels = (lang) => {
   });
 };
 
-/* --------------------------- Calculator (safe expression) --------------------------- */
 let calcExpr = "";
 let calcMem = 0;
 
@@ -1434,22 +1281,18 @@ const evalRPN = (rpn) => {
 
 const calcEvaluate = () => {
   const cfg=elementSdk.getConfig();
+  const caps=elementSdk.mapToCapabilities(cfg);
   const p=clamp(Number(cfg.precision ?? 2),0,8);
 
+  const lang = caps.calculator.displayLang;
   const exprShown = calcExpr.trim() ? calcExpr : "—";
+  const memStr = formatNumber(calcMem, 2).replace(/\.0+$/,'');
 
-  // Always show both variants
-  document.getElementById("calcExprFa").textContent = toPersianDigits(exprShown);
-  document.getElementById("calcExprEn").textContent = toLatinDigits(exprShown);
-
-  const memFa = toPersianDigits(String(formatNumber(calcMem, 2)).replace(/\.0+$/,''));
-  const memEn = toLatinDigits(String(formatNumber(calcMem, 2)).replace(/\.0+$/,''));
-  document.getElementById("memBadgeFa").textContent = memFa;
-  document.getElementById("memBadgeEn").textContent = memEn;
+  document.getElementById("calcExpr").textContent = (lang==="fa" ? toPersianDigits(exprShown) : toLatinDigits(exprShown));
+  document.getElementById("memBadge").textContent = (lang==="fa" ? toPersianDigits(memStr) : toLatinDigits(memStr));
 
   if(!calcExpr.trim()){
-    document.getElementById("calcResultFa").textContent = "۰";
-    document.getElementById("calcResultEn").textContent = "0";
+    document.getElementById("calcResult").textContent = (lang==="fa" ? "۰" : "0");
     return;
   }
 
@@ -1458,8 +1301,7 @@ const calcEvaluate = () => {
   const val=evalRPN(rpn);
   const out = Number.isFinite(val) ? formatNumber(val, p) : "—";
 
-  document.getElementById("calcResultFa").textContent = toPersianDigits(out);
-  document.getElementById("calcResultEn").textContent = toLatinDigits(out);
+  document.getElementById("calcResult").textContent = (lang==="fa" ? toPersianDigits(out) : toLatinDigits(out));
 };
 
 const calcPush = (k) => {
@@ -1507,132 +1349,117 @@ const calcPush = (k) => {
 };
 const calcClear = () => { playClick(); calcExpr=""; calcEvaluate(); };
 
-/* --------------------------- Date conversion (Jalali + Hijri) --------------------------- */
-const div = (a,b)=>Math.floor(a/b);
-const jalCal = (jy) => {
-  const breaks=[-61,9,38,199,426,686,756,818,1111,1181,1210,1635,2060,2097,2192,2262,2324,2394,2456,3178];
-  let bl=breaks.length, gy=jy+621, leapJ=-14, jp=breaks[0], jm=0, jump=0, leap=0, n=0, i=1;
-  if(jy<jp || jy>=breaks[bl-1]) return {leap:0, gy:gy, march:0};
-  for(; i<bl; i++){
-    jm=breaks[i];
-    jump=jm-jp;
-    if(jy<jm) break;
-    leapJ += div(jump,33)*8 + div((jump%33),4);
-    jp=jm;
-  }
-  n=jy-jp;
-  leapJ += div(n,33)*8 + div((n%33)+3,4);
-  if((jump%33)===4 && (jump-n)===4) leapJ++;
-  const leapG = div(gy,4) - div((div(gy,100)+1)*3,4) - 150;
-  const march = 20 + leapJ - leapG;
-  if((jump-n)<6) n = n - jump + div(jump+4,33)*33;
-  leap = ((n+1)%33 - 1)%4;
-  if(leap===-1) leap=4;
-  return {leap:leap, gy:gy, march:march};
+/* --------------------------- time.ir fetch (best-effort, via text proxy) --------------------------- */
+/*
+  IMPORTANT:
+  - مرورگر معمولاً اجازه fetch مستقیم time.ir را به خاطر CORS نمی‌دهد.
+  - اینجا از یک پراکسی متنی عمومی استفاده شده تا HTML time.ir به صورت متن قابل خواندن شود.
+  - اگر این پراکسی یا ساختار time.ir تغییر کند، ممکن است پارس کردن ناموفق شود.
+*/
+const TIMEIR_PROXY_URL = "https://r.jina.ai/http://time.ir/";
+
+let timeIrState = {
+  lastOk: false,
+  // When time.ir provides explicit time strings; otherwise we keep "—"
+  jalali:"—", greg:"—", hijri:"—", timeIR:"—", timeUTC:"—",
+  updatedAt:"—"
 };
 
-const g2d = (gy,gm,gd) => {
-  let d = div((gy + div(gm - 8, 6) + 100100) * 1461, 4)
-      + div(153 * ((gm + 9) % 12) + 2, 5)
-      + gd - 34840408;
-  d = d - div(div(gy + 100100 + div(gm - 8, 6), 100) * 3, 4) + 752;
-  return d;
-};
-const d2g = (jdn) => {
-  let j = 4 * jdn + 139361631;
-  j = j + div(div(4 * jdn + 183187720, 146097) * 3, 4) * 4 - 3908;
-  const i = div((j % 1461), 4) * 5 + 308;
-  const gd = div((i % 153), 5) + 1;
-  const gm = div(i, 153) % 12 + 1;
-  const gy = div(j, 1461) - 100100 + div(8 - gm, 6);
-  return {gy,gm,gd};
-};
-
-const d2j = (jdn) => {
-  const g = d2g(jdn);
-  let jy = g.gy - 621;
-  const r = jalCal(jy);
-  const jdn1f = g2d(g.gy,3,r.march);
-  let k = jdn - jdn1f;
-  let jm, jd;
-  if(k>=0){
-    if(k<=185){
-      jm = 1 + div(k,31);
-      jd = (k%31) + 1;
-      return {jy,jm,jd};
-    }else k -= 186;
+const setTimeStatus = (kind, hint="") => {
+  const el = document.getElementById("timeStatusText");
+  const h = document.getElementById("timeStatusHint");
+  if(kind==="ok"){
+    el.className="tiny text-emerald-200";
+    el.textContent="اطلاعات با موفقیت از time.ir دریافت شد ✅";
+  }else if(kind==="warn"){
+    el.className="tiny text-amber-200";
+    el.textContent="هشدار: ساختار داده تشخیص داده نشد. ممکن است نمایش ناقص باشد.";
   }else{
-    jy -= 1;
-    k += 179;
-    if(r.leap===1) k += 1;
+    el.className="tiny text-rose-200";
+    el.textContent="خطا: دریافت اطلاعات از time.ir ناموفق بود.";
   }
-  jm = 7 + div(k,30);
-  jd = (k%30) + 1;
-  return {jy,jm,jd};
+  h.textContent = hint || "";
 };
 
-/* Hijri civil (tabular) */
-const hijriToJDN = (hy, hm, hd) => {
-  return (hd + Math.ceil(29.5*(hm-1)) + (hy-1)*354 + Math.floor((3 + 11*hy)/30) + 1948439.5) | 0;
-};
-const jdnToHijri = (jdn) => {
-  let hy = Math.floor((30*(jdn - 1948439.5) + 10646)/10631);
-  let first = hijriToJDN(hy,1,1);
-  let dayOfYear = jdn - first + 1;
-  let hm = Math.min(12, Math.ceil(dayOfYear/29.5));
-  let startMonth = hijriToJDN(hy,hm,1);
-  while(startMonth>jdn){ hm--; startMonth=hijriToJDN(hy,hm,1); }
-  let hd = jdn - startMonth + 1;
-  return {hy,hm,hd};
-};
-
-const pad2 = (n)=>String(n).padStart(2,'0');
-const ymdString = (y,m,d) => `${y}-${pad2(m)}-${pad2(d)}`;
-
-/* --------------------------- DateTime (Device clock) --------------------------- */
-const formatOffset = (mins) => {
-  const sign = mins<=0 ? "+" : "-"; // getTimezoneOffset: minutes behind UTC (positive west)
-  const abs = Math.abs(mins);
-  const hh = pad2(Math.floor(abs/60));
-  const mm = pad2(abs%60);
-  return `UTC${sign}${hh}:${mm}`;
+const renderTimeIr = () => {
+  const cfg = elementSdk.getConfig();
+  const caps=elementSdk.mapToCapabilities(cfg);
+  const fmt = (s) => {
+    if(s==null || s==="—") return "—";
+    return caps.behavior.enablePersianDigits ? toPersianDigits(String(s)) : String(s);
+  };
+  document.getElementById("todayJalali").textContent = fmt(timeIrState.jalali);
+  document.getElementById("todayGreg").textContent   = fmt(timeIrState.greg);
+  document.getElementById("todayHijri").textContent  = fmt(timeIrState.hijri);
+  document.getElementById("timeIR").textContent      = fmt(timeIrState.timeIR);
+  document.getElementById("timeUTC").textContent     = fmt(timeIrState.timeUTC);
+  document.getElementById("timeUpdatedAt").textContent = fmt(timeIrState.updatedAt);
 };
 
-const tickDeviceClock = () => {
-  const cfg=elementSdk.getConfig();
-  const now = new Date();
+const tryParseTimeIr = (text) => {
+  // Best-effort patterns:
+  // 1) Try to find a HH:MM(:SS) that looks like Iran time.
+  // 2) Try to find date-like patterns in Jalali (e.g. ۱۴۰۲/۰۵/۰۱ or 1402/05/01).
+  // time.ir structure may change; we keep it resilient and non-blocking.
+  const t = String(text||"");
 
-  // timezone info
-  const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || "نامشخص";
-  document.getElementById("tzName").textContent = tz;
-  const off = formatOffset(now.getTimezoneOffset());
-  document.getElementById("localOffset").textContent = cfg.enable_persian_digits ? toPersianDigits(off) : off;
+  // time: look for 2 digits : 2 digits (optionally :2)
+  const timeMatch = t.match(/([0-2]?\d)\s*:\s*([0-5]\d)(?:\s*:\s*([0-5]\d))?/);
+  const time = timeMatch ? `${timeMatch[1].padStart(2,'0')}:${timeMatch[2]}${timeMatch[3]?":"+timeMatch[3]:""}` : null;
 
-  // Local time & UTC time (always show based on device)
-  const localHHMMSS = `${pad2(now.getHours())}:${pad2(now.getMinutes())}:${pad2(now.getSeconds())}`;
-  const utcHHMMSS = `${pad2(now.getUTCHours())}:${pad2(now.getUTCMinutes())}:${pad2(now.getUTCSeconds())}`;
-  document.getElementById("timeLocal").textContent = cfg.enable_persian_digits ? toPersianDigits(localHHMMSS) : localHHMMSS;
-  document.getElementById("timeUTC").textContent = cfg.enable_persian_digits ? toPersianDigits(utcHHMMSS) : utcHHMMSS;
+  // jalali date: try YYYY/MM/DD where YYYY in 13xx-15xx or 1xxx (persian digits also possible)
+  const jal = t.match(/([۰-۹0-9]{4})\s*[/\-]\s*([۰-۹0-9]{1,2})\s*[/\-]\s*([۰-۹0-9]{1,2})/);
+  const jalali = jal ? `${jal[1]}/${jal[2].padStart(2,'0')}/${jal[3].padStart(2,'0')}` : null;
 
-  // Gregorian date from local device
-  const gy = now.getFullYear(), gm = now.getMonth()+1, gd = now.getDate();
-  const jdn = g2d(gy, gm, gd);
-  const j = d2j(jdn);
-  const h = jdnToHijri(jdn);
+  // Also try Gregorian date (YYYY-MM-DD) in text
+  const greg = t.match(/(20\d{2})\s*[/\-]\s*(0?\d|1[0-2])\s*[/\-]\s*(0?\d|[12]\d|3[01])/);
+  const gregStr = greg ? `${greg[1]}-${String(greg[2]).padStart(2,'0')}-${String(greg[3]).padStart(2,'0')}` : null;
 
-  const gStr = ymdString(gy, gm, gd);
-  const jStr = ymdString(j.jy, j.jm, j.jd);
-  const hStr = ymdString(h.hy, h.hm, h.hd);
+  // Hijri date might appear similarly; try 14xx
+  const hij = t.match(/(14\d{2})\s*[/\-]\s*(0?\d|1[0-2])\s*[/\-]\s*(0?\d|[12]\d|3[01])/);
+  const hijStr = hij ? `${hij[1]}-${String(hij[2]).padStart(2,'0')}-${String(hij[3]).padStart(2,'0')}` : null;
 
-  document.getElementById("todayGreg").textContent = cfg.enable_persian_digits ? toPersianDigits(gStr) : gStr;
-  document.getElementById("todayJalali").textContent = cfg.enable_persian_digits ? toPersianDigits(jStr) : jStr;
-  document.getElementById("todayHijri").textContent = cfg.enable_persian_digits ? toPersianDigits(hStr) : hStr;
+  return { time, jalali, greg: gregStr, hijri: hijStr };
 };
 
-/* --------------------------- Calculator: keypad language persistence --------------------------- */
-const setCalculatorKeypadLang = (lang) => {
-  const v = (lang==="en") ? "en" : "fa";
-  elementSdk.setConfig({calculator_keypad_lang: v});
+const fetchTimeIr = async () => {
+  try{
+    setTimeStatus("warn","در حال دریافت…");
+    const res = await fetch(TIMEIR_PROXY_URL, { cache:"no-store" });
+    if(!res.ok) throw new Error("bad_status");
+    const text = await res.text();
+
+    const parsed = tryParseTimeIr(text);
+    const nowLocal = new Date(); // فقط برای نمایش زمانِ آخرین آپدیت؛ نه ساعت مرجع
+    const updated = `${String(nowLocal.getHours()).padStart(2,'0')}:${String(nowLocal.getMinutes()).padStart(2,'0')}:${String(nowLocal.getSeconds()).padStart(2,'0')}`;
+
+    timeIrState.updatedAt = updated;
+
+    let any = false;
+    if(parsed.jalali){ timeIrState.jalali = parsed.jalali; any = true; }
+    if(parsed.greg){ timeIrState.greg = parsed.greg; any = true; }
+    if(parsed.hijri){ timeIrState.hijri = parsed.hijri; any = true; }
+    if(parsed.time){
+      timeIrState.timeIR = parsed.time;
+      any = true;
+      // We cannot reliably infer UTC without a real timestamp from source.
+      timeIrState.timeUTC = "—";
+    }
+
+    if(any){
+      timeIrState.lastOk = true;
+      setTimeStatus("ok","اگر برخی فیلدها «—» هستند یعنی در متن time.ir قابل تشخیص نبودند.");
+    }else{
+      timeIrState.lastOk = false;
+      setTimeStatus("warn","محتوای دریافت شد اما الگوها تشخیص داده نشدند. احتمالاً ساختار time.ir تغییر کرده است.");
+    }
+
+    renderTimeIr();
+  }catch(e){
+    timeIrState.lastOk = false;
+    setTimeStatus("err","دریافت time.ir ناموفق بود (احتمالاً محدودیت دسترسی یا مشکل شبکه).");
+    renderTimeIr();
+  }
 };
 
 /* --------------------------- Init (Wiring) --------------------------- */
@@ -1652,7 +1479,6 @@ const setCalculatorKeypadLang = (lang) => {
   });
   catSel.value = CATEGORIES[0].id;
 
-  // converter init
   setUnitsForCategory(catSel.value);
   document.getElementById("valueInput").addEventListener("input", computeConverter);
   document.getElementById("fromUnitSel").addEventListener("change", ()=>{ state.fromLabel = document.getElementById("fromUnitSel").value; computeConverter(); });
@@ -1718,16 +1544,19 @@ const setCalculatorKeypadLang = (lang) => {
     copyText(maybePersianForCopy(txt), "کالری هدف کپی شد ✅");
   });
 
-  // datetime page (device)
+  // datetime (time.ir)
+  document.getElementById("timeRefreshBtn").addEventListener("click", ()=>{
+    fetchTimeIr();
+    showToast("درخواست به‌روزرسانی ارسال شد.", "info");
+  });
   document.getElementById("timeCopyBtn").addEventListener("click", ()=>{
-    const g = toLatinDigits(document.getElementById("todayGreg").textContent);
     const j = toLatinDigits(document.getElementById("todayJalali").textContent);
+    const g = toLatinDigits(document.getElementById("todayGreg").textContent);
     const h = toLatinDigits(document.getElementById("todayHijri").textContent);
-    const tl = toLatinDigits(document.getElementById("timeLocal").textContent);
-    const tu = toLatinDigits(document.getElementById("timeUTC").textContent);
-    const tz = document.getElementById("tzName").textContent;
-    const off = toLatinDigits(document.getElementById("localOffset").textContent);
-    const txt = `تاریخ میلادی: ${g}\nتاریخ شمسی: ${j}\nتاریخ قمری: ${h}\nساعت محلی: ${tl}\nساعت UTC: ${tu}\nمنطقه زمانی: ${tz}\n${off}`;
+    const ir = toLatinDigits(document.getElementById("timeIR").textContent);
+    const utc = toLatinDigits(document.getElementById("timeUTC").textContent);
+    const up = toLatinDigits(document.getElementById("timeUpdatedAt").textContent);
+    const txt = `منبع: time.ir\nتاریخ شمسی: ${j}\nتاریخ میلادی: ${g}\nتاریخ قمری: ${h}\nساعت ایران: ${ir}\nساعت UTC: ${utc}\nآخرین بروزرسانی: ${up}`;
     copyText(maybePersianForCopy(txt), "اطلاعات کپی شد ✅");
   });
 
@@ -1739,7 +1568,7 @@ const setCalculatorKeypadLang = (lang) => {
   });
   document.getElementById("calcClearBtn").addEventListener("click", calcClear);
   document.getElementById("calcCopyBtn").addEventListener("click", ()=>{
-    const out = document.getElementById("calcResultEn").textContent;
+    const out = document.getElementById("calcResult").textContent;
     const raw = toLatinDigits(out);
     if(raw==="—"){ showToast("چیزی برای کپی وجود ندارد.", "warn"); return; }
     copyText(maybePersianForCopy(raw), "نتیجه ماشین حساب کپی شد ✅");
@@ -1755,7 +1584,7 @@ const setCalculatorKeypadLang = (lang) => {
     if(allowed.includes(key)){ calcPush(key); return; }
   });
 
-  // settings bindings (minimal - same as before but keeping footer locked)
+  // settings bindings
   const bindColorPair = (colorInput, textInput, key) => {
     const syncFromColor = () => { textInput.value = colorInput.value; elementSdk.setConfig({[key]: colorInput.value}); };
     const syncFromText = () => {
@@ -1791,8 +1620,8 @@ const setCalculatorKeypadLang = (lang) => {
     document.getElementById("soundVolume").value = clamp(Number(cfg.click_volume ?? 30),0,100);
     document.getElementById("soundVolumeLabel").textContent = displayNum(clamp(Number(cfg.click_volume ?? 30),0,100));
 
-    document.getElementById("calcKeyLang").value = (cfg.calculator_keypad_lang==="en" ? "en" : "fa");
-    updateCalculatorKeypadLabels(document.getElementById("calcKeyLang").value);
+    document.getElementById("calcDisplayLang").value = (cfg.calculator_display_lang==="en" ? "en" : "fa");
+    updateCalculatorDigitLabels(document.getElementById("calcDisplayLang").value);
   };
 
   syncSettingsForm(cfg);
@@ -1835,9 +1664,9 @@ const setCalculatorKeypadLang = (lang) => {
     elementSdk.setConfig({click_volume:v});
   });
 
-  document.getElementById("calcKeyLang").addEventListener("change", (e)=>{
-    setCalculatorKeypadLang(e.target.value);
-    showToast(e.target.value==="en" ? "کلیدهای ماشین حساب: انگلیسی" : "کلیدهای ماشین حساب: فارسی", "info");
+  document.getElementById("calcDisplayLang").addEventListener("change", (e)=>{
+    elementSdk.setConfig({calculator_display_lang: e.target.value});
+    showToast(e.target.value==="en" ? "نمایشگر ماشین حساب: انگلیسی" : "نمایشگر ماشین حساب: فارسی", "info");
   });
 
   document.getElementById("resetBtn").addEventListener("click", ()=>{
@@ -1870,7 +1699,7 @@ const setCalculatorKeypadLang = (lang) => {
     computeBMIUI();
     computeCaloriesUI();
     calcEvaluate();
-    tickDeviceClock();
+    renderTimeIr();
   });
 
   // initial renders
@@ -1879,13 +1708,13 @@ const setCalculatorKeypadLang = (lang) => {
   computeCaloriesUI();
   calcEvaluate();
 
-  // device clock ticking
-  tickDeviceClock();
-  setInterval(tickDeviceClock, 250);
+  // time.ir initial + periodic refresh
+  renderTimeIr();
+  fetchTimeIr();
+  setInterval(fetchTimeIr, 60 * 1000); // هر ۶۰ ثانیه
 
   showToast("آماده‌ست! ✅", "ok");
 })();
 </script>
 </body>
 </html>
-```0
