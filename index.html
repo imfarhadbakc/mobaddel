@@ -124,13 +124,13 @@
         </div>
       </div>
 
-      <nav class="flex flex-wrap gap-2">
-        <button data-nav="converter" class="navBtn btn px-3.5 py-2 tabActive focusable">تبدیل واحدها</button>
-        <button data-nav="health" class="navBtn btn px-3.5 py-2 tabIdle focusable">محاسبات سلامتی</button>
-        <button data-nav="datetime" class="navBtn btn px-3.5 py-2 tabIdle focusable">تاریخ و ساعت</button>
-        <button data-nav="calculator" class="navBtn btn px-3.5 py-2 tabIdle focusable">ماشین حساب</button>
-        <button data-nav="settings" class="navBtn btn px-3.5 py-2 tabIdle focusable">تنظیمات</button>
-        <button data-nav="help" class="navBtn btn px-3.5 py-2 tabIdle focusable">راهنما</button>
+      <nav id="topNav" class="flex flex-wrap gap-2">
+        <button type="button" data-nav="converter" class="navBtn btn px-3.5 py-2 tabActive focusable">تبدیل واحدها</button>
+        <button type="button" data-nav="health" class="navBtn btn px-3.5 py-2 tabIdle focusable">محاسبات سلامتی</button>
+        <button type="button" data-nav="datetime" class="navBtn btn px-3.5 py-2 tabIdle focusable">تاریخ و ساعت</button>
+        <button type="button" data-nav="calculator" class="navBtn btn px-3.5 py-2 tabIdle focusable">ماشین حساب</button>
+        <button type="button" data-nav="settings" class="navBtn btn px-3.5 py-2 tabIdle focusable">تنظیمات</button>
+        <button type="button" data-nav="help" class="navBtn btn px-3.5 py-2 tabIdle focusable">راهنما</button>
       </nav>
     </header>
 
@@ -145,7 +145,7 @@
                 <h2 class="text-base md:text-lg font-bold">تبدیل واحد</h2>
                 <p class="muted tiny mt-1">مقدار را وارد کنید، واحد مبدا و مقصد را انتخاب کنید. نتیجه فوری محاسبه می‌شود.</p>
               </div>
-              <button id="swapBtn" class="btn px-3 py-2 soft focusable" title="جابجایی واحدها">
+              <button type="button" id="swapBtn" class="btn px-3 py-2 soft focusable" title="جابجایی واحدها">
                 <span class="inline-flex items-center gap-2"><span>جابجایی</span> <span aria-hidden="true">⇄</span></span>
               </button>
             </div>
@@ -188,7 +188,7 @@
                     <div id="resultUnit" class="muted tiny mt-1">—</div>
                   </div>
                   <div class="flex gap-2">
-                    <button id="copyResultBtn" class="btn px-3 py-2 soft focusable">کپی</button>
+                    <button type="button" id="copyResultBtn" class="btn px-3 py-2 soft focusable">کپی</button>
                   </div>
                 </div>
                 <div id="converterNote" class="muted tiny"></div>
@@ -220,14 +220,13 @@
       <!-- Health Page -->
       <section id="page-health" class="hidden space-y-4 md:space-y-5">
         <div class="grid lg:grid-cols-2 gap-4 md:gap-5">
-          <!-- BMI -->
           <div class="card p-4 md:p-5">
             <div class="flex items-start justify-between gap-3">
               <div>
                 <h2 class="text-base md:text-lg font-bold">شاخص توده بدنی (BMI)</h2>
                 <p class="muted tiny mt-1">BMI = وزن / (قد به متر)^۲</p>
               </div>
-              <button id="copyBmiBtn" class="btn px-3 py-2 soft focusable">کپی</button>
+              <button type="button" id="copyBmiBtn" class="btn px-3 py-2 soft focusable">کپی</button>
             </div>
 
             <div class="mt-4 grid sm:grid-cols-2 gap-3">
@@ -262,14 +261,13 @@
             </div>
           </div>
 
-          <!-- Calories -->
           <div class="card p-4 md:p-5">
             <div class="flex items-start justify-between gap-3">
               <div>
                 <h2 class="text-base md:text-lg font-bold">محاسبه کالری روزانه</h2>
                 <p class="muted tiny mt-1">BMR و TDEE و کالری هدف بر اساس Mifflin–St Jeor</p>
               </div>
-              <button id="copyGoalBtn" class="btn px-3 py-2 soft focusable">کپی کالری هدف</button>
+              <button type="button" id="copyGoalBtn" class="btn px-3 py-2 soft focusable">کپی کالری هدف</button>
             </div>
 
             <div class="mt-4 grid sm:grid-cols-2 gap-3">
@@ -338,17 +336,17 @@
         </div>
       </section>
 
-      <!-- DateTime Page (timeapi.io) -->
+      <!-- DateTime Page -->
       <section id="page-datetime" class="hidden space-y-4 md:space-y-5">
         <div class="card p-4 md:p-5">
           <div class="flex items-start justify-between gap-3">
             <div>
               <h2 class="text-base md:text-lg font-bold">تاریخ و ساعت (مرجع TimeAPI.io)</h2>
-              <p class="muted tiny mt-1">این بخش برای دقت بیشتر، تاریخ و ساعت را از سرویس رایگان TimeAPI.io می‌گیرد و به ساعت دستگاه وابسته نیست.</p>
+              <p class="muted tiny mt-1">این بخش تاریخ و ساعت را از سرویس رایگان TimeAPI.io دریافت می‌کند و به ساعت دستگاه وابسته نیست.</p>
             </div>
             <div class="flex gap-2 flex-wrap">
-              <button id="timeRefreshBtn" class="btn px-3 py-2 soft focusable">به‌روزرسانی</button>
-              <button id="timeCopyBtn" class="btn px-3 py-2 soft focusable">کپی اطلاعات</button>
+              <button type="button" id="timeRefreshBtn" class="btn px-3 py-2 soft focusable">به‌روزرسانی</button>
+              <button type="button" id="timeCopyBtn" class="btn px-3 py-2 soft focusable">کپی اطلاعات</button>
             </div>
           </div>
 
@@ -406,11 +404,11 @@
           <div class="relative flex items-start justify-between gap-3">
             <div>
               <h2 class="text-base md:text-lg font-extrabold">ماشین حساب حرفه‌ای</h2>
-              <p class="muted tiny mt-1">نمایشگر فقط طبق انتخاب شما در تنظیمات: فارسی یا انگلیسی</p>
+              <p class="muted tiny mt-1">نمایشگر طبق انتخاب شما در تنظیمات: فارسی یا انگلیسی</p>
             </div>
             <div class="flex gap-2">
-              <button id="calcCopyBtn" class="btn px-3 py-2 soft focusable">کپی</button>
-              <button id="calcClearBtn" class="btn px-3 py-2 soft focusable">پاک‌کردن</button>
+              <button type="button" id="calcCopyBtn" class="btn px-3 py-2 soft focusable">کپی</button>
+              <button type="button" id="calcClearBtn" class="btn px-3 py-2 soft focusable">پاک‌کردن</button>
             </div>
           </div>
 
@@ -435,35 +433,35 @@
           </div>
 
           <div class="mt-4 grid grid-cols-4 gap-2 select-none" id="calcPad">
-            <button class="calcKey calcKeyUtil focusable" data-k="MC">MC</button>
-            <button class="calcKey calcKeyUtil focusable" data-k="MR">MR</button>
-            <button class="calcKey calcKeyUtil focusable" data-k="M+">M+</button>
-            <button class="calcKey calcKeyUtil focusable" data-k="M-">M-</button>
+            <button type="button" class="calcKey calcKeyUtil focusable" data-k="MC">MC</button>
+            <button type="button" class="calcKey calcKeyUtil focusable" data-k="MR">MR</button>
+            <button type="button" class="calcKey calcKeyUtil focusable" data-k="M+">M+</button>
+            <button type="button" class="calcKey calcKeyUtil focusable" data-k="M-">M-</button>
 
-            <button class="calcKey calcKeyUtil focusable" data-k="(">(</button>
-            <button class="calcKey calcKeyUtil focusable" data-k=")">)</button>
-            <button class="calcKey calcKeyUtil focusable" data-k="%">٪</button>
-            <button class="calcKey calcKeyDanger focusable" data-k="DEL">⌫</button>
+            <button type="button" class="calcKey calcKeyUtil focusable" data-k="(">(</button>
+            <button type="button" class="calcKey calcKeyUtil focusable" data-k=")">)</button>
+            <button type="button" class="calcKey calcKeyUtil focusable" data-k="%">٪</button>
+            <button type="button" class="calcKey calcKeyDanger focusable" data-k="DEL">⌫</button>
 
-            <button class="calcKey focusable calcDigit" data-k="7" data-fa="۷" data-en="7">۷</button>
-            <button class="calcKey focusable calcDigit" data-k="8" data-fa="۸" data-en="8">۸</button>
-            <button class="calcKey focusable calcDigit" data-k="9" data-fa="۹" data-en="9">۹</button>
-            <button class="calcKey calcKeyOp focusable" data-k="/">÷</button>
+            <button type="button" class="calcKey focusable calcDigit" data-k="7" data-fa="۷" data-en="7">۷</button>
+            <button type="button" class="calcKey focusable calcDigit" data-k="8" data-fa="۸" data-en="8">۸</button>
+            <button type="button" class="calcKey focusable calcDigit" data-k="9" data-fa="۹" data-en="9">۹</button>
+            <button type="button" class="calcKey calcKeyOp focusable" data-k="/">÷</button>
 
-            <button class="calcKey focusable calcDigit" data-k="4" data-fa="۴" data-en="4">۴</button>
-            <button class="calcKey focusable calcDigit" data-k="5" data-fa="۵" data-en="5">۵</button>
-            <button class="calcKey focusable calcDigit" data-k="6" data-fa="۶" data-en="6">۶</button>
-            <button class="calcKey calcKeyOp focusable" data-k="*">×</button>
+            <button type="button" class="calcKey focusable calcDigit" data-k="4" data-fa="۴" data-en="4">۴</button>
+            <button type="button" class="calcKey focusable calcDigit" data-k="5" data-fa="۵" data-en="5">۵</button>
+            <button type="button" class="calcKey focusable calcDigit" data-k="6" data-fa="۶" data-en="6">۶</button>
+            <button type="button" class="calcKey calcKeyOp focusable" data-k="*">×</button>
 
-            <button class="calcKey focusable calcDigit" data-k="1" data-fa="۱" data-en="1">۱</button>
-            <button class="calcKey focusable calcDigit" data-k="2" data-fa="۲" data-en="2">۲</button>
-            <button class="calcKey focusable calcDigit" data-k="3" data-fa="۳" data-en="3">۳</button>
-            <button class="calcKey calcKeyOp focusable" data-k="-">−</button>
+            <button type="button" class="calcKey focusable calcDigit" data-k="1" data-fa="۱" data-en="1">۱</button>
+            <button type="button" class="calcKey focusable calcDigit" data-k="2" data-fa="۲" data-en="2">۲</button>
+            <button type="button" class="calcKey focusable calcDigit" data-k="3" data-fa="۳" data-en="3">۳</button>
+            <button type="button" class="calcKey calcKeyOp focusable" data-k="-">−</button>
 
-            <button class="calcKey focusable calcDigit" data-k="0" data-fa="۰" data-en="0">۰</button>
-            <button class="calcKey focusable" data-k=".">.</button>
-            <button class="calcKey calcKeyOp focusable" data-k="=">=</button>
-            <button class="calcKey calcKeyOp focusable" data-k="+">+</button>
+            <button type="button" class="calcKey focusable calcDigit" data-k="0" data-fa="۰" data-en="0">۰</button>
+            <button type="button" class="calcKey focusable" data-k=".">.</button>
+            <button type="button" class="calcKey calcKeyOp focusable" data-k="=">=</button>
+            <button type="button" class="calcKey calcKeyOp focusable" data-k="+">+</button>
           </div>
 
           <div class="mt-4 soft p-3 rounded-xl">
@@ -481,7 +479,7 @@
               <h2 class="text-base md:text-lg font-bold">تنظیمات و شخصی‌سازی</h2>
               <p class="muted tiny mt-1">ظاهر و رفتار برنامه را مطابق سلیقه خود تغییر دهید. تنظیمات در همین مرورگر ذخیره می‌شود.</p>
             </div>
-            <button id="resetBtn" class="btn px-3 py-2 soft focusable">بازنشانی</button>
+            <button type="button" id="resetBtn" class="btn px-3 py-2 soft focusable">بازنشانی</button>
           </div>
 
           <div class="mt-4 grid md:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -629,8 +627,8 @@
                 <div class="font-bold">پیکربندی (Config)</div>
                 <p class="muted tiny mt-1">کپی/وارد کردن پیکربندی برای بکاپ گرفتن از تنظیمات.</p>
                 <div class="mt-2 grid md:grid-cols-2 gap-2">
-                  <button id="exportConfig" class="btn px-3 py-2 soft focusable">کپی پیکربندی</button>
-                  <button id="importConfig" class="btn px-3 py-2 soft focusable">وارد کردن پیکربندی</button>
+                  <button type="button" id="exportConfig" class="btn px-3 py-2 soft focusable">کپی پیکربندی</button>
+                  <button type="button" id="importConfig" class="btn px-3 py-2 soft focusable">وارد کردن پیکربندی</button>
                 </div>
               </div>
 
@@ -645,11 +643,17 @@
           <h2 class="text-base md:text-lg font-bold">راهنما</h2>
           <div class="mt-3 space-y-3 leading-7">
             <div class="soft p-3">
+              <div class="font-bold">صفحه‌ها</div>
+              <ul class="mt-2 list-disc pr-5 muted">
+                <li>با دکمه‌های بالای صفحه بین بخش‌ها جابجا شوید.</li>
+                <li>آدرس صفحه (هش) هم به‌روز می‌شود، مثل: <span class="font-semibold">#calculator</span></li>
+              </ul>
+            </div>
+            <div class="soft p-3">
               <div class="font-bold">تاریخ و ساعت (TimeAPI.io)</div>
               <ul class="mt-2 list-disc pr-5 muted">
                 <li>این بخش ساعت و تاریخ را از سرویس رایگان TimeAPI.io دریافت می‌کند.</li>
-                <li>به ساعت دستگاه وابسته نیست؛ فقط برای نمایش «به‌روزرسانی شد» از داده دریافتی استفاده می‌شود.</li>
-                <li>اگر اینترنت/سرویس در دسترس نباشد، فیلدها «—» می‌شوند.</li>
+                <li>به ساعت دستگاه وابسته نیست؛ فقط برای نمایش «آخرین داده دریافتی» از خود داده API استفاده می‌شود.</li>
               </ul>
             </div>
             <div class="soft p-3">
@@ -677,6 +681,12 @@
   <div id="toastHost" class="fixed bottom-4 left-4 right-4 md:left-auto md:right-6 md:bottom-6 z-50 space-y-2 w-auto max-w-md"></div>
 
 <script>
+/* ========================= BUGFIX NOTE =========================
+   نسخه قبلی یک خطا داشت: یک تابع با نام تکراری (const maybePersianForCopy)
+   دوباره تعریف شده بود و باعث می‌شد کل JS از کار بیفتد و تب‌ها عمل نکنند.
+   این نسخه آن مشکل را کامل رفع کرده است.
+=============================================================== */
+
 /* --------------------------- Utilities --------------------------- */
 const clamp=(n,min,max)=>Math.min(max,Math.max(min,n));
 const escapeHtml=(s)=>String(s).replace(/[&<>"']/g, m=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[m]));
@@ -842,6 +852,14 @@ const setToggleUI = (input, dot, on) => {
   dot.style.left = "auto";
 };
 
+const updateCalculatorDigitLabels = (lang) => {
+  document.querySelectorAll(".calcDigit").forEach(btn=>{
+    const fa = btn.getAttribute("data-fa");
+    const en = btn.getAttribute("data-en");
+    btn.textContent = (lang==="en") ? en : fa;
+  });
+};
+
 const applyConfig = (cfg) => {
   const caps = elementSdk.mapToCapabilities(cfg);
   const r = document.documentElement.style;
@@ -873,23 +891,37 @@ const applyConfig = (cfg) => {
   updateCalculatorDigitLabels(caps.calculator.displayLang);
 };
 
-/* --------------------------- Navigation --------------------------- */
+/* --------------------------- Navigation (FIXED) --------------------------- */
 const pages = ["converter","health","datetime","calculator","settings","help"];
 const showPage = (id) => {
+  const target = pages.includes(id) ? id : "converter";
   for(const p of pages){
     const el=document.getElementById(`page-${p}`);
-    if(el) el.classList.toggle("hidden", p!==id);
+    if(el) el.classList.toggle("hidden", p!==target);
   }
   document.querySelectorAll(".navBtn").forEach(btn=>{
-    const active = btn.dataset.nav===id;
+    const active = btn.dataset.nav===target;
     btn.classList.toggle("tabActive", active);
     btn.classList.toggle("tabIdle", !active);
   });
-  history.replaceState(null,"",`#${id}`);
+  try{ history.replaceState(null,"",`#${target}`); }catch{}
 };
-document.querySelectorAll(".navBtn").forEach(btn=>{
-  btn.addEventListener("click", ()=>showPage(btn.dataset.nav));
-});
+
+const bindNav = () => {
+  const nav = document.getElementById("topNav");
+  nav.addEventListener("click", (e)=>{
+    const btn = e.target.closest(".navBtn");
+    if(!btn) return;
+    const id = btn.dataset.nav;
+    showPage(id);
+  });
+};
+
+/* --------------------------- Clipboard digits --------------------------- */
+const maybePersianForCopy = (txt) => {
+  const cfg=elementSdk.getConfig();
+  return cfg.copy_with_persian_digits ? toPersianDigits(txt) : txt;
+};
 
 /* --------------------------- Unit Converter Data --------------------------- */
 const UNIT = (label, symbol, toBase, fromBase) => ({label, symbol, toBase, fromBase});
@@ -949,7 +981,6 @@ const CATEGORIES = [
   },
 ];
 
-/* --------------------------- Converter Logic --------------------------- */
 let state = { categoryId: CATEGORIES[0].id, fromLabel: null, toLabel: null };
 const getCategory = (id)=>CATEGORIES.find(c=>c.id===id) || CATEGORIES[0];
 const findUnitByLabel = (cat, label) => cat.def.units.find(u=>u.label===label) || cat.def.units[0];
@@ -964,6 +995,7 @@ const renderQuick = (cat) => {
   grid.innerHTML="";
   (cat.quick||[]).slice(0,6).forEach(q=>{
     const b=document.createElement("button");
+    b.type="button";
     b.className="btn soft px-3 py-2 text-right focusable";
     b.innerHTML=`<div class="font-semibold text-sm">${escapeHtml(q.title)}</div>
                  <div class="muted tiny mt-0.5">تنظیم سریع</div>`;
@@ -1141,12 +1173,6 @@ const computeCaloriesUI = () => {
   }
 };
 
-/* --------------------------- Clipboard digits --------------------------- */
-const maybePersianForCopy = (txt) => {
-  const cfg=elementSdk.getConfig();
-  return cfg.copy_with_persian_digits ? toPersianDigits(txt) : txt;
-};
-
 /* --------------------------- Sound (Calculator click) --------------------------- */
 let audioCtx = null;
 const ensureAudio = () => {
@@ -1174,15 +1200,7 @@ const playClick = () => {
   }catch{}
 };
 
-/* --------------------------- Calculator digits & rendering --------------------------- */
-const updateCalculatorDigitLabels = (lang) => {
-  document.querySelectorAll(".calcDigit").forEach(btn=>{
-    const fa = btn.getAttribute("data-fa");
-    const en = btn.getAttribute("data-en");
-    btn.textContent = (lang==="en") ? en : fa;
-  });
-};
-
+/* --------------------------- Calculator --------------------------- */
 let calcExpr = "";
 let calcMem = 0;
 
@@ -1296,11 +1314,8 @@ const calcEvaluate = () => {
     return;
   }
 
-  const tokens=tokenize(calcExpr);
-  const rpn=toRPN(tokens);
-  const val=evalRPN(rpn);
+  const val=evalRPN(toRPN(tokenize(calcExpr)));
   const out = Number.isFinite(val) ? formatNumber(val, p) : "—";
-
   document.getElementById("calcResult").textContent = (lang==="fa" ? toPersianDigits(out) : toLatinDigits(out));
 };
 
@@ -1309,8 +1324,7 @@ const calcPush = (k) => {
   const mapped = (k==="÷")?"/":(k==="×")?"*":(k==="٪")?"%":k;
 
   if(mapped==="="){
-    const tokens=tokenize(calcExpr);
-    const val=evalRPN(toRPN(tokens));
+    const val=evalRPN(toRPN(tokenize(calcExpr)));
     if(!Number.isFinite(val)){
       showToast("عبارت نامعتبر است.", "warn");
       return;
@@ -1331,8 +1345,7 @@ const calcPush = (k) => {
   if(mapped==="MC"){ calcMem=0; calcEvaluate(); showToast("حافظه پاک شد.", "info"); return; }
   if(mapped==="MR"){ calcExpr += String(calcMem); calcEvaluate(); return; }
   if(mapped==="M+" || mapped==="M-"){
-    const tokens=tokenize(calcExpr);
-    const val=evalRPN(toRPN(tokens));
+    const val=evalRPN(toRPN(tokenize(calcExpr)));
     if(!Number.isFinite(val)){ showToast("برای حافظه، ابتدا یک عبارت معتبر وارد کنید.", "warn"); return; }
     calcMem += (mapped==="M+") ? val : -val;
     calcEvaluate();
@@ -1349,14 +1362,13 @@ const calcPush = (k) => {
 };
 const calcClear = () => { playClick(); calcExpr=""; calcEvaluate(); };
 
-/* --------------------------- DateTime via TimeAPI.io (NO device clock) --------------------------- */
+/* --------------------------- DateTime via TimeAPI.io --------------------------- */
 const TIMEAPI_BASE = "https://timeapi.io/api/Time/current/zone";
 const TZ_IR = "Asia/Tehran";
 const TZ_UTC = "Etc/UTC";
 
 let timeState = {
   lastOk:false,
-  irISO:null, utcISO:null,
   timeIR:"—", timeUTC:"—",
   jalali:"—", greg:"—", hijri:"—",
   updatedAt:"—"
@@ -1393,8 +1405,6 @@ const renderTime = () => {
   document.getElementById("timeUpdatedAt").textContent = fmtMaybeFaDigits(timeState.updatedAt);
 };
 
-const pad2 = (n) => String(n).padStart(2,"0");
-
 const datePartsForTZ = (dateObj, timeZone, locale="en-GB") => {
   const fmt = new Intl.DateTimeFormat(locale, {
     timeZone,
@@ -1415,27 +1425,21 @@ const datePartsForTZ = (dateObj, timeZone, locale="en-GB") => {
 };
 
 const formatGregorianYMD = (dateObj, timeZone) => {
-  const p = datePartsForTZ(dateObj, timeZone, "en-CA"); // yyyy-mm-dd
-  // en-CA with formatToParts gives year/month/day; we build ourselves:
+  const p = datePartsForTZ(dateObj, timeZone, "en-GB");
   return `${p.year}-${p.month}-${p.day}`;
 };
-
 const formatTimeHMS = (dateObj, timeZone) => {
   const p = datePartsForTZ(dateObj, timeZone, "en-GB");
   return `${p.hour}:${p.minute}:${p.second}`;
 };
-
 const formatPersianCalendar = (dateObj, timeZone) => {
-  // Persian calendar (شمسی) in fa-IR-u-ca-persian
   const fmt = new Intl.DateTimeFormat("fa-IR-u-ca-persian", {
     timeZone,
     year:"numeric", month:"2-digit", day:"2-digit"
   });
   return fmt.format(dateObj);
 };
-
 const formatHijriCalendar = (dateObj, timeZone) => {
-  // Islamic calendar (قمری)
   const fmt = new Intl.DateTimeFormat("fa-IR-u-ca-islamic", {
     timeZone,
     year:"numeric", month:"2-digit", day:"2-digit"
@@ -1448,11 +1452,9 @@ const fetchTimeApiZone = async (timeZone) => {
   const res = await fetch(url, { cache:"no-store" });
   if(!res.ok) throw new Error("bad_status");
   const data = await res.json();
-  // TimeAPI typically returns: { "year":..., "month":..., "day":..., "hour":..., "minute":..., "seconds":..., "dateTime": "2026-..."}
-  // We'll prefer dateTime.
   const iso = data.dateTime || data.dateTimeString || null;
   if(!iso) throw new Error("no_datetime");
-  return { iso, data };
+  return { iso };
 };
 
 const fetchTimeApi = async () => {
@@ -1463,9 +1465,6 @@ const fetchTimeApi = async () => {
       fetchTimeApiZone(TZ_UTC)
     ]);
 
-    timeState.irISO = ir.iso;
-    timeState.utcISO = utc.iso;
-
     const irDate = new Date(ir.iso);
     const utcDate = new Date(utc.iso);
     if(!Number.isFinite(irDate.getTime()) || !Number.isFinite(utcDate.getTime())) throw new Error("bad_date");
@@ -1473,33 +1472,68 @@ const fetchTimeApi = async () => {
     timeState.timeIR = formatTimeHMS(irDate, TZ_IR);
     timeState.timeUTC = formatTimeHMS(utcDate, TZ_UTC);
 
-    // تاریخ‌ها را بر اساس زمان ایران نمایش می‌دهیم (مرجع: زمان ایران از API)
     timeState.greg = formatGregorianYMD(irDate, TZ_IR);
     timeState.jalali = formatPersianCalendar(irDate, TZ_IR);
     timeState.hijri = formatHijriCalendar(irDate, TZ_IR);
 
-    // updatedAt هم از همان داده دریافتی (نه ساعت دستگاه)
     timeState.updatedAt = `${timeState.timeIR} (ایران)`;
-
     timeState.lastOk = true;
-    setTimeStatus("ok","هر ۳۰ ثانیه یک‌بار به‌صورت خودکار به‌روزرسانی می‌شود.");
+
+    setTimeStatus("ok","هر ۳۰ ثانیه یک‌بار خودکار به‌روزرسانی می‌شود.");
     renderTime();
-  }catch(e){
+  }catch{
     timeState.lastOk = false;
     setTimeStatus("err","دریافت از TimeAPI.io ناموفق بود. اینترنت/فیلتر/اختلال سرویس را بررسی کنید.");
     renderTime();
   }
 };
 
-/* --------------------------- Init (Wiring) --------------------------- */
-const maybePersianForCopy = (txt) => {
-  const cfg=elementSdk.getConfig();
-  return cfg.copy_with_persian_digits ? toPersianDigits(txt) : txt;
+/* --------------------------- Settings wiring helpers --------------------------- */
+const bindColorPair = (colorInput, textInput, key) => {
+  const syncFromColor = () => { textInput.value = colorInput.value; elementSdk.setConfig({[key]: colorInput.value}); };
+  const syncFromText = () => {
+    const v=textInput.value.trim();
+    if(/^#([0-9a-fA-F]{6})$/.test(v)){ colorInput.value=v; elementSdk.setConfig({[key]: v}); }
+    else showToast("کد رنگ نامعتبر است. مثل: #0b1220", "warn");
+  };
+  colorInput.addEventListener("input", syncFromColor);
+  textInput.addEventListener("change", syncFromText);
 };
 
+const syncSettingsForm = (cfg) => {
+  const setPair=(cId,tId,val)=>{
+    const c=document.getElementById(cId), t=document.getElementById(tId);
+    c.value = val; t.value = val;
+  };
+  setPair("bgColor","bgColorText", cfg.background_color);
+  setPair("surfaceColor","surfaceColorText", cfg.surface_color);
+  setPair("textColor","textColorText", cfg.text_color);
+  setPair("primaryColor","primaryColorText", cfg.primary_action);
+  setPair("secondaryColor","secondaryColorText", cfg.secondary_action);
+  setPair("gradA","gradAText", cfg.accent_gradient_start);
+  setPair("gradB","gradBText", cfg.accent_gradient_end);
+
+  document.getElementById("fontFamily").value = cfg.font_family;
+  document.getElementById("fontSize").value = cfg.font_size;
+  document.getElementById("fontSizeLabel").textContent = displayNum(cfg.font_size);
+  document.getElementById("logoEmoji").value = cfg.app_logo_emoji;
+
+  setToggleUI(document.getElementById("persianDigitsToggle"), document.getElementById("persianDigitsDot"), !!cfg.enable_persian_digits);
+  setToggleUI(document.getElementById("copyPersianToggle"), document.getElementById("copyPersianDot"), !!cfg.copy_with_persian_digits);
+
+  setToggleUI(document.getElementById("soundToggle"), document.getElementById("soundDot"), !!cfg.enable_click_sound);
+  document.getElementById("soundVolume").value = clamp(Number(cfg.click_volume ?? 30),0,100);
+  document.getElementById("soundVolumeLabel").textContent = displayNum(clamp(Number(cfg.click_volume ?? 30),0,100));
+
+  document.getElementById("calcDisplayLang").value = (cfg.calculator_display_lang==="en" ? "en" : "fa");
+  updateCalculatorDigitLabels(document.getElementById("calcDisplayLang").value);
+};
+
+/* --------------------------- INIT --------------------------- */
 (function init(){
   const cfg=elementSdk.getConfig();
   applyConfig(cfg);
+  bindNav();
 
   const hash=(location.hash||"").replace("#","");
   showPage(pages.includes(hash)?hash:"converter");
@@ -1514,11 +1548,12 @@ const maybePersianForCopy = (txt) => {
   catSel.value = CATEGORIES[0].id;
 
   setUnitsForCategory(catSel.value);
+
+  // converter events
   document.getElementById("valueInput").addEventListener("input", computeConverter);
   document.getElementById("fromUnitSel").addEventListener("change", ()=>{ state.fromLabel = document.getElementById("fromUnitSel").value; computeConverter(); });
   document.getElementById("toUnitSel").addEventListener("change", ()=>{ state.toLabel = document.getElementById("toUnitSel").value; computeConverter(); });
   document.getElementById("swapBtn").addEventListener("click", swapUnits);
-
   catSel.addEventListener("change", ()=>{
     state.categoryId=catSel.value;
     setUnitsForCategory(catSel.value);
@@ -1619,46 +1654,6 @@ const maybePersianForCopy = (txt) => {
   });
 
   // settings bindings
-  const bindColorPair = (colorInput, textInput, key) => {
-    const syncFromColor = () => { textInput.value = colorInput.value; elementSdk.setConfig({[key]: colorInput.value}); };
-    const syncFromText = () => {
-      const v=textInput.value.trim();
-      if(/^#([0-9a-fA-F]{6})$/.test(v)){ colorInput.value=v; elementSdk.setConfig({[key]: v}); }
-    };
-    colorInput.addEventListener("input", syncFromColor);
-    textInput.addEventListener("change", syncFromText);
-  };
-
-  const syncSettingsForm = (cfg) => {
-    const setPair=(cId,tId,val)=>{
-      const c=document.getElementById(cId), t=document.getElementById(tId);
-      c.value = val; t.value = val;
-    };
-    setPair("bgColor","bgColorText", cfg.background_color);
-    setPair("surfaceColor","surfaceColorText", cfg.surface_color);
-    setPair("textColor","textColorText", cfg.text_color);
-    setPair("primaryColor","primaryColorText", cfg.primary_action);
-    setPair("secondaryColor","secondaryColorText", cfg.secondary_action);
-    setPair("gradA","gradAText", cfg.accent_gradient_start);
-    setPair("gradB","gradBText", cfg.accent_gradient_end);
-
-    document.getElementById("fontFamily").value = cfg.font_family;
-    document.getElementById("fontSize").value = cfg.font_size;
-    document.getElementById("fontSizeLabel").textContent = displayNum(cfg.font_size);
-    document.getElementById("logoEmoji").value = cfg.app_logo_emoji;
-
-    setToggleUI(document.getElementById("persianDigitsToggle"), document.getElementById("persianDigitsDot"), !!cfg.enable_persian_digits);
-    setToggleUI(document.getElementById("copyPersianToggle"), document.getElementById("copyPersianDot"), !!cfg.copy_with_persian_digits);
-
-    setToggleUI(document.getElementById("soundToggle"), document.getElementById("soundDot"), !!cfg.enable_click_sound);
-    document.getElementById("soundVolume").value = clamp(Number(cfg.click_volume ?? 30),0,100);
-    document.getElementById("soundVolumeLabel").textContent = displayNum(clamp(Number(cfg.click_volume ?? 30),0,100));
-
-    document.getElementById("calcDisplayLang").value = (cfg.calculator_display_lang==="en" ? "en" : "fa");
-    updateCalculatorDigitLabels(document.getElementById("calcDisplayLang").value);
-  };
-
-  syncSettingsForm(cfg);
   bindColorPair(document.getElementById("bgColor"), document.getElementById("bgColorText"), "background_color");
   bindColorPair(document.getElementById("surfaceColor"), document.getElementById("surfaceColorText"), "surface_color");
   bindColorPair(document.getElementById("textColor"), document.getElementById("textColorText"), "text_color");
@@ -1714,7 +1709,7 @@ const maybePersianForCopy = (txt) => {
     copyText(JSON.stringify(cfg, null, 2), "پیکربندی کپی شد ✅");
   });
 
-  document.getElementById("importConfig").addEventListener("click", async ()=>{
+  document.getElementById("importConfig").addEventListener("click", ()=>{
     const raw = prompt("پیکربندی را وارد کنید (JSON):");
     if(!raw) return;
     try{
@@ -1737,6 +1732,7 @@ const maybePersianForCopy = (txt) => {
   });
 
   // initial renders
+  syncSettingsForm(cfg);
   computeConverter();
   computeBMIUI();
   computeCaloriesUI();
@@ -1745,7 +1741,7 @@ const maybePersianForCopy = (txt) => {
 
   // fetch time from API
   fetchTimeApi();
-  setInterval(fetchTimeApi, 30 * 1000); // هر ۳۰ ثانیه
+  setInterval(fetchTimeApi, 30 * 1000);
 
   showToast("آماده‌ست! ✅", "ok");
 })();
