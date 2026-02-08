@@ -1,0 +1,1239 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>مبدل واحد حرفه‌ای</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    :root{
+      --bg:#0b1220;
+      --surface:#0f1b33;
+      --text:#e8eefc;
+      --primary:#38bdf8;
+      --secondary:#a78bfa;
+      --gradA:#22c55e;
+      --gradB:#38bdf8;
+      --radius:18px;
+      --fs:16px;
+      --ff: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji","Segoe UI Emoji";
+    }
+    html,body{height:100%}
+    body{background:var(--bg); color:var(--text); font-family:var(--ff); font-size:var(--fs)}
+    .card{background:color-mix(in srgb, var(--surface) 92%, black 8%); border:1px solid color-mix(in srgb, var(--text) 10%, transparent 90%); border-radius:var(--radius); box-shadow:0 10px 30px rgba(0,0,0,.25)}
+    .soft{border:1px solid color-mix(in srgb, var(--text) 12%, transparent 88%); background:color-mix(in srgb, var(--surface) 82%, black 18%); border-radius:14px}
+    .focusable:focus{outline:2px solid color-mix(in srgb, var(--primary) 80%, white 20%); outline-offset:2px}
+    .btn{border-radius:14px; transition:.2s transform,.2s filter,.2s background}
+    .btn:active{transform:translateY(1px)}
+    .glass{
+      background:linear-gradient(135deg, color-mix(in srgb, var(--surface) 88%, transparent 12%), color-mix(in srgb, var(--surface) 72%, transparent 28%));
+      backdrop-filter: blur(10px);
+      border:1px solid color-mix(in srgb, var(--text) 12%, transparent 88%);
+      border-radius:var(--radius);
+    }
+    .grad{
+      background:linear-gradient(135deg, var(--gradA), var(--gradB));
+    }
+    .muted{color:color-mix(in srgb, var(--text) 72%, transparent 28%)}
+    .tiny{font-size:.85em}
+    .tabActive{
+      background:color-mix(in srgb, var(--primary) 18%, transparent 82%);
+      border:1px solid color-mix(in srgb, var(--primary) 45%, transparent 55%);
+    }
+    .tabIdle{
+      background:color-mix(in srgb, var(--surface) 72%, transparent 28%);
+      border:1px solid color-mix(in srgb, var(--text) 10%, transparent 90%);
+    }
+    input,select,textarea{
+      background:color-mix(in srgb, var(--surface) 78%, black 22%);
+      border:1px solid color-mix(in srgb, var(--text) 14%, transparent 86%);
+      color:var(--text);
+    }
+    input::placeholder,textarea::placeholder{color:color-mix(in srgb, var(--text) 45%, transparent 55%)}
+    option{background:#0b1220}
+    .toast{animation:toastIn .22s ease-out}
+    @keyframes toastIn{from{transform:translateY(8px);opacity:0}to{transform:translateY(0);opacity:1}}
+  </style>
+</head>
+
+<body class="min-h-screen">
+  <div class="max-w-6xl mx-auto px-4 py-5 md:py-7">
+    <!-- Header -->
+    <header class="glass p-4 md:p-5 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <div id="logoBadge" class="grad w-12 h-12 rounded-2xl flex items-center justify-center text-xl shadow">
+          🔄
+        </div>
+        <div>
+          <h1 class="text-lg md:text-xl font-bold">مبدل واحد حرفه‌ای</h1>
+          <p class="muted tiny">تبدیل دقیق واحدها + محاسبات سلامتی</p>
+        </div>
+      </div>
+
+      <nav class="flex flex-wrap gap-2">
+        <button data-nav="converter" class="navBtn btn px-3.5 py-2 tabActive focusable">تبدیل واحدها</button>
+        <button data-nav="health" class="navBtn btn px-3.5 py-2 tabIdle focusable">محاسبات سلامتی</button>
+        <button data-nav="settings" class="navBtn btn px-3.5 py-2 tabIdle focusable">تنظیمات</button>
+        <button data-nav="help" class="navBtn btn px-3.5 py-2 tabIdle focusable">راهنما</button>
+      </nav>
+    </header>
+
+    <!-- Main -->
+    <main class="mt-5 md:mt-7">
+      <!-- Converter Page -->
+      <section id="page-converter" class="space-y-4 md:space-y-5">
+        <div class="grid md:grid-cols-3 gap-4 md:gap-5">
+          <div class="card p-4 md:p-5 md:col-span-2">
+            <div class="flex items-start justify-between gap-3">
+              <div>
+                <h2 class="text-base md:text-lg font-bold">تبدیل واحد</h2>
+                <p class="muted tiny mt-1">مقدار را وارد کنید، واحد مبدا و مقصد را انتخاب کنید. نتیجه فوری محاسبه می‌شود.</p>
+              </div>
+              <button id="swapBtn" class="btn px-3 py-2 soft focusable" title="جابجایی واحدها">
+                <span class="inline-flex items-center gap-2"><span>جابجایی</span> <span aria-hidden="true">⇄</span></span>
+              </button>
+            </div>
+
+            <div class="mt-4 grid sm:grid-cols-2 gap-3">
+              <div class="space-y-2">
+                <label class="tiny muted" for="categorySel">دسته‌بندی</label>
+                <select id="categorySel" class="w-full px-3 py-2.5 rounded-xl focusable"></select>
+              </div>
+
+              <div class="space-y-2">
+                <label class="tiny muted" for="precisionRange">دقت نمایش (اعشار)</label>
+                <div class="flex items-center gap-3">
+                  <input id="precisionRange" type="range" min="0" max="8" step="1" class="w-full" />
+                  <div id="precisionLabel" class="soft px-3 py-2 rounded-xl text-sm w-16 text-center">2</div>
+                </div>
+              </div>
+
+              <div class="space-y-2">
+                <label class="tiny muted" for="valueInput">مقدار</label>
+                <input id="valueInput" inputmode="decimal" autocomplete="off" placeholder="مثلاً 12.5" class="w-full px-3 py-2.5 rounded-xl focusable" />
+                <div id="valueHint" class="muted tiny">نکته: می‌توانید از نقطه برای اعشار استفاده کنید.</div>
+              </div>
+
+              <div class="space-y-2">
+                <label class="tiny muted" for="fromUnitSel">از</label>
+                <select id="fromUnitSel" class="w-full px-3 py-2.5 rounded-xl focusable"></select>
+              </div>
+
+              <div class="space-y-2">
+                <label class="tiny muted" for="toUnitSel">به</label>
+                <select id="toUnitSel" class="w-full px-3 py-2.5 rounded-xl focusable"></select>
+              </div>
+
+              <div class="space-y-2">
+                <label class="tiny muted">نتیجه</label>
+                <div class="soft p-3 rounded-xl flex items-center justify-between gap-2">
+                  <div>
+                    <div id="resultValue" class="text-lg md:text-xl font-bold">—</div>
+                    <div id="resultUnit" class="muted tiny mt-1">—</div>
+                  </div>
+                  <div class="flex gap-2">
+                    <button id="copyResultBtn" class="btn px-3 py-2 soft focusable">کپی</button>
+                  </div>
+                </div>
+                <div id="converterNote" class="muted tiny"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card p-4 md:p-5">
+            <h3 class="font-bold">تبدیل‌های رایج</h3>
+            <p class="muted tiny mt-1">با یک کلیک، مقادیر نمونه را تنظیم کنید.</p>
+            <div id="quickGrid" class="mt-3 grid gap-2"></div>
+
+            <div class="mt-4 soft p-3">
+              <div class="flex items-center justify-between gap-2">
+                <span class="tiny muted">نمایش اعداد فارسی</span>
+                <label class="inline-flex items-center cursor-pointer">
+                  <input id="uiPersianDigitsToggle" type="checkbox" class="sr-only">
+                  <span class="w-12 h-7 rounded-full relative soft">
+                    <span id="uiPersianDigitsDot" class="absolute top-1 right-1 w-5 h-5 rounded-full grad transition-all"></span>
+                  </span>
+                </label>
+              </div>
+              <div class="muted tiny mt-2">کپی معمولاً با اعداد استاندارد انجام می‌شود.</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Health Page -->
+      <section id="page-health" class="hidden space-y-4 md:space-y-5">
+        <div class="grid lg:grid-cols-2 gap-4 md:gap-5">
+          <!-- BMI -->
+          <div class="card p-4 md:p-5">
+            <div class="flex items-start justify-between gap-3">
+              <div>
+                <h2 class="text-base md:text-lg font-bold">شاخص توده بدنی (BMI)</h2>
+                <p class="muted tiny mt-1">BMI = وزن / (قد به متر)^۲</p>
+              </div>
+              <button id="copyBmiBtn" class="btn px-3 py-2 soft focusable">کپی</button>
+            </div>
+
+            <div class="mt-4 grid sm:grid-cols-2 gap-3">
+              <div class="space-y-2">
+                <label class="tiny muted" for="bmiWeight">وزن (کیلوگرم)</label>
+                <input id="bmiWeight" inputmode="decimal" placeholder="مثلاً 72.5" class="w-full px-3 py-2.5 rounded-xl focusable" />
+                <div class="muted tiny">وزن فعلی خود را وارد کنید.</div>
+              </div>
+              <div class="space-y-2">
+                <label class="tiny muted" for="bmiHeight">قد (سانتی‌متر)</label>
+                <input id="bmiHeight" inputmode="decimal" placeholder="مثلاً 175" class="w-full px-3 py-2.5 rounded-xl focusable" />
+                <div class="muted tiny">قد بدون کفش.</div>
+              </div>
+            </div>
+
+            <div class="mt-3 soft p-3 rounded-xl">
+              <div class="flex items-center justify-between gap-2">
+                <div>
+                  <div class="muted tiny">نتیجه</div>
+                  <div class="text-xl font-bold"><span id="bmiValue">—</span></div>
+                  <div class="muted tiny mt-1">وضعیت: <span id="bmiCat" class="font-semibold">—</span></div>
+                </div>
+                <label class="inline-flex items-center gap-2 cursor-pointer">
+                  <input id="idealWeightToggle" type="checkbox" class="w-4 h-4 rounded focusable">
+                  <span class="tiny">نمایش وزن ایده‌آل</span>
+                </label>
+              </div>
+              <div id="idealWeightBox" class="hidden mt-2 muted tiny">
+                محدوده وزن سالم: <span id="idealWeightRange" class="font-semibold"></span> کیلوگرم
+              </div>
+              <div id="bmiWarn" class="mt-2 hidden tiny"></div>
+            </div>
+          </div>
+
+          <!-- Calories -->
+          <div class="card p-4 md:p-5">
+            <div class="flex items-start justify-between gap-3">
+              <div>
+                <h2 class="text-base md:text-lg font-bold">محاسبه کالری روزانه</h2>
+                <p class="muted tiny mt-1">BMR و TDEE و کالری هدف بر اساس Mifflin–St Jeor</p>
+              </div>
+              <button id="copyGoalBtn" class="btn px-3 py-2 soft focusable">کپی کالری هدف</button>
+            </div>
+
+            <div class="mt-4 grid sm:grid-cols-2 gap-3">
+              <div class="space-y-2">
+                <label class="tiny muted" for="sexSel">جنسیت</label>
+                <select id="sexSel" class="w-full px-3 py-2.5 rounded-xl focusable">
+                  <option value="male">مرد</option>
+                  <option value="female">زن</option>
+                </select>
+              </div>
+              <div class="space-y-2">
+                <label class="tiny muted" for="ageInput">سن (سال)</label>
+                <input id="ageInput" inputmode="numeric" placeholder="مثلاً 30" class="w-full px-3 py-2.5 rounded-xl focusable" />
+              </div>
+              <div class="space-y-2">
+                <label class="tiny muted" for="calHeight">قد (سانتی‌متر)</label>
+                <input id="calHeight" inputmode="decimal" placeholder="مثلاً 175" class="w-full px-3 py-2.5 rounded-xl focusable" />
+              </div>
+              <div class="space-y-2">
+                <label class="tiny muted" for="calWeight">وزن (کیلوگرم)</label>
+                <input id="calWeight" inputmode="decimal" placeholder="مثلاً 72.5" class="w-full px-3 py-2.5 rounded-xl focusable" />
+              </div>
+
+              <div class="space-y-2 sm:col-span-2">
+                <label class="tiny muted" for="activitySel">سطح فعالیت</label>
+                <select id="activitySel" class="w-full px-3 py-2.5 rounded-xl focusable">
+                  <option value="1.2">کم‌تحرک (۱.۲)</option>
+                  <option value="1.375">فعالیت سبک (۱.۳۷۵)</option>
+                  <option value="1.55" selected>فعالیت متوسط (۱.۵۵)</option>
+                  <option value="1.725">فعالیت زیاد (۱.۷۲۵)</option>
+                  <option value="1.9">خیلی زیاد (۱.۹)</option>
+                </select>
+              </div>
+
+              <div class="space-y-2 sm:col-span-2">
+                <label class="tiny muted" for="goalSel">هدف</label>
+                <select id="goalSel" class="w-full px-3 py-2.5 rounded-xl focusable">
+                  <option value="0" selected>نگهداری وزن (۰)</option>
+                  <option value="-250">کاهش وزن ملایم (−۲۵۰)</option>
+                  <option value="-500">کاهش وزن (−۵۰۰)</option>
+                  <option value="250">افزایش وزن ملایم (+۲۵۰)</option>
+                  <option value="500">افزایش وزن (+۵۰۰)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="mt-3 soft p-3 rounded-xl">
+              <div id="calError" class="hidden mb-2 text-sm font-semibold"></div>
+              <div class="grid sm:grid-cols-3 gap-2">
+                <div class="soft p-3">
+                  <div class="muted tiny">BMR</div>
+                  <div class="text-lg font-bold"><span id="bmrOut">—</span> <span class="muted tiny">کیلوکالری</span></div>
+                </div>
+                <div class="soft p-3">
+                  <div class="muted tiny">کالری نگهداری (TDEE)</div>
+                  <div class="text-lg font-bold"><span id="tdeeOut">—</span></div>
+                </div>
+                <div class="soft p-3">
+                  <div class="muted tiny">کالری هدف</div>
+                  <div class="text-lg font-bold"><span id="goalOut">—</span></div>
+                </div>
+              </div>
+              <div id="calWarn" class="mt-2 hidden tiny"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Settings Page -->
+      <section id="page-settings" class="hidden space-y-4 md:space-y-5">
+        <div class="card p-4 md:p-5">
+          <div class="flex items-start justify-between gap-3">
+            <div>
+              <h2 class="text-base md:text-lg font-bold">تنظیمات و شخصی‌سازی</h2>
+              <p class="muted tiny mt-1">ظاهر برنامه را مطابق سلیقه خود تغییر دهید. تنظیمات در همین مرورگر ذخیره می‌شود.</p>
+            </div>
+            <button id="resetBtn" class="btn px-3 py-2 soft focusable">بازنشانی</button>
+          </div>
+
+          <div class="mt-4 grid md:grid-cols-2 lg:grid-cols-3 gap-3">
+            <div class="soft p-3">
+              <label class="tiny muted">رنگ پس‌زمینه</label>
+              <div class="mt-2 flex items-center gap-3">
+                <input id="bgColor" type="color" class="w-12 h-10 rounded-xl focusable" />
+                <input id="bgColorText" class="flex-1 px-3 py-2 rounded-xl focusable" placeholder="#0b1220" />
+              </div>
+            </div>
+
+            <div class="soft p-3">
+              <label class="tiny muted">رنگ کارت‌ها</label>
+              <div class="mt-2 flex items-center gap-3">
+                <input id="surfaceColor" type="color" class="w-12 h-10 rounded-xl focusable" />
+                <input id="surfaceColorText" class="flex-1 px-3 py-2 rounded-xl focusable" placeholder="#0f1b33" />
+              </div>
+            </div>
+
+            <div class="soft p-3">
+              <label class="tiny muted">رنگ متن</label>
+              <div class="mt-2 flex items-center gap-3">
+                <input id="textColor" type="color" class="w-12 h-10 rounded-xl focusable" />
+                <input id="textColorText" class="flex-1 px-3 py-2 rounded-xl focusable" placeholder="#e8eefc" />
+              </div>
+            </div>
+
+            <div class="soft p-3">
+              <label class="tiny muted">رنگ اقدام اصلی</label>
+              <div class="mt-2 flex items-center gap-3">
+                <input id="primaryColor" type="color" class="w-12 h-10 rounded-xl focusable" />
+                <input id="primaryColorText" class="flex-1 px-3 py-2 rounded-xl focusable" placeholder="#38bdf8" />
+              </div>
+            </div>
+
+            <div class="soft p-3">
+              <label class="tiny muted">رنگ اقدام ثانویه</label>
+              <div class="mt-2 flex items-center gap-3">
+                <input id="secondaryColor" type="color" class="w-12 h-10 rounded-xl focusable" />
+                <input id="secondaryColorText" class="flex-1 px-3 py-2 rounded-xl focusable" placeholder="#a78bfa" />
+              </div>
+            </div>
+
+            <div class="soft p-3">
+              <label class="tiny muted">فونت</label>
+              <select id="fontFamily" class="mt-2 w-full px-3 py-2.5 rounded-xl focusable">
+                <option value='ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans"'>پیش‌فرض (سیستمی)</option>
+                <option value='"Vazirmatn", ui-sans-serif, system-ui'>Vazirmatn (اگر نصب باشد)</option>
+                <option value='"IRANSans", ui-sans-serif, system-ui'>IRANSans (اگر نصب باشد)</option>
+                <option value='"Tahoma", ui-sans-serif, system-ui'>Tahoma</option>
+              </select>
+              <div class="muted tiny mt-2">در صورت نبود فونت، به فونت‌های جایگزین می‌رود.</div>
+            </div>
+
+            <div class="soft p-3">
+              <label class="tiny muted">اندازه متن</label>
+              <div class="mt-2 flex items-center gap-3">
+                <input id="fontSize" type="range" min="13" max="20" step="1" class="w-full" />
+                <div id="fontSizeLabel" class="soft px-3 py-2 rounded-xl text-sm w-16 text-center">16</div>
+              </div>
+            </div>
+
+            <div class="soft p-3">
+              <label class="tiny muted">گرادیان برجسته (شروع)</label>
+              <div class="mt-2 flex items-center gap-3">
+                <input id="gradA" type="color" class="w-12 h-10 rounded-xl focusable" />
+                <input id="gradAText" class="flex-1 px-3 py-2 rounded-xl focusable" placeholder="#22c55e" />
+              </div>
+            </div>
+
+            <div class="soft p-3">
+              <label class="tiny muted">گرادیان برجسته (پایان)</label>
+              <div class="mt-2 flex items-center gap-3">
+                <input id="gradB" type="color" class="w-12 h-10 rounded-xl focusable" />
+                <input id="gradBText" class="flex-1 px-3 py-2 rounded-xl focusable" placeholder="#38bdf8" />
+              </div>
+            </div>
+
+            <div class="soft p-3">
+              <label class="tiny muted">ایموجی لوگو</label>
+              <input id="logoEmoji" class="mt-2 w-full px-3 py-2.5 rounded-xl focusable" placeholder="مثلاً 🔄" />
+              <div class="muted tiny mt-2">برای نمایش در هدر.</div>
+            </div>
+
+            <div class="soft p-3 md:col-span-2 lg:col-span-3">
+              <div class="flex items-center justify-between gap-2">
+                <div>
+                  <div class="tiny muted">نمایش اعداد فارسی</div>
+                  <div class="muted tiny mt-1">روی نمایش خروجی‌ها اثر می‌گذارد (تبدیل واحد، BMI، کالری).</div>
+                </div>
+                <label class="inline-flex items-center cursor-pointer">
+                  <input id="persianDigitsToggle" type="checkbox" class="sr-only">
+                  <span class="w-12 h-7 rounded-full relative soft">
+                    <span id="persianDigitsDot" class="absolute top-1 right-1 w-5 h-5 rounded-full grad transition-all"></span>
+                  </span>
+                </label>
+              </div>
+
+              <div class="mt-3 flex items-center justify-between gap-2">
+                <div>
+                  <div class="tiny muted">کپی با اعداد فارسی</div>
+                  <div class="muted tiny mt-1">اگر روشن باشد، متن کپی‌شده هم فارسی می‌شود.</div>
+                </div>
+                <label class="inline-flex items-center cursor-pointer">
+                  <input id="copyPersianToggle" type="checkbox" class="sr-only">
+                  <span class="w-12 h-7 rounded-full relative soft">
+                    <span id="copyPersianDot" class="absolute top-1 right-1 w-5 h-5 rounded-full grad transition-all"></span>
+                  </span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-4 soft p-3">
+            <div class="font-bold">سیستم پیکربندی (Config)</div>
+            <p class="muted tiny mt-1">این برنامه از یک پیکربندی مشابه سیستم‌های Embed استفاده می‌کند (defaultConfig + onConfigChange + mapToCapabilities).</p>
+            <div class="mt-2 grid md:grid-cols-2 gap-2">
+              <button id="exportConfig" class="btn px-3 py-2 soft focusable">کپی پیکربندی</button>
+              <button id="importConfig" class="btn px-3 py-2 soft focusable">وارد کردن پیکربندی</button>
+            </div>
+            <div class="muted tiny mt-2">توجه: متن فوتر ثابت است و قابل تغییر نیست.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Help Page -->
+      <section id="page-help" class="hidden space-y-4 md:space-y-5">
+        <div class="card p-4 md:p-5">
+          <h2 class="text-base md:text-lg font-bold">راهنما</h2>
+          <div class="mt-3 space-y-3 leading-7">
+            <div class="soft p-3">
+              <div class="font-bold">تبدیل واحدها</div>
+              <ul class="mt-2 list-disc pr-5 muted">
+                <li>دسته‌بندی را انتخاب کنید، مقدار را وارد کنید، سپس واحد مبدا و مقصد را تعیین کنید.</li>
+                <li>دقت اعشار از طریق اسلایدر قابل تنظیم است.</li>
+                <li>دکمه «جابجایی» برای عوض کردن واحد مبدا/مقصد است و «کپی» خروجی را در کلیپ‌بورد قرار می‌دهد.</li>
+              </ul>
+            </div>
+            <div class="soft p-3">
+              <div class="font-bold">محاسبات سلامتی</div>
+              <ul class="mt-2 list-disc pr-5 muted">
+                <li>BMI با وزن (کیلوگرم) و قد (سانتی‌متر) محاسبه می‌شود.</li>
+                <li>کالری روزانه شامل BMR، کالری نگهداری (TDEE) و کالری هدف است.</li>
+                <li>برای داده‌های غیرواقعی هشدار نمایش داده می‌شود.</li>
+              </ul>
+            </div>
+            <div class="soft p-3">
+              <div class="font-bold">شخصی‌سازی</div>
+              <p class="muted mt-2">از بخش تنظیمات می‌توانید رنگ‌ها، فونت، گرادیان و نمایش اعداد فارسی را تغییر دهید. متن فوتر ثابت است.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="mt-6 md:mt-8 pb-6 text-center muted tiny">
+      <span id="footerOut">طراحی شده توسط FARHAD 🎨</span>
+    </footer>
+  </div>
+
+  <!-- Toasts -->
+  <div id="toastHost" class="fixed bottom-4 left-4 right-4 md:left-auto md:right-6 md:bottom-6 z-50 space-y-2 w-auto max-w-md"></div>
+
+<script>
+/* --------------------------- Utilities --------------------------- */
+const clamp=(n,min,max)=>Math.min(max,Math.max(min,n));
+const safeNum=(v)=> {
+  if (typeof v === "number") return Number.isFinite(v) ? v : NaN;
+  const s=(v??"").toString().trim().replace(/,/g,"");
+  if(!s) return NaN;
+  const x=Number(s);
+  return Number.isFinite(x) ? x : NaN;
+};
+const toPersianDigits=(str)=>{
+  const map = {'0':'۰','1':'۱','2':'۲','3':'۳','4':'۴','5':'۵','6':'۶','7':'۷','8':'۸','9':'۹','-':'−'};
+  return String(str).replace(/[0-9-]/g, ch => map[ch] ?? ch);
+};
+const formatNumber=(n, precision)=>{
+  if(!Number.isFinite(n)) return "—";
+  const p=clamp(precision,0,12);
+  const fixed = n.toFixed(p);
+  const cleaned = (Math.abs(Number(fixed))===0) ? (0).toFixed(p) : fixed;
+  if(p===0) return String(Number(cleaned));
+  return cleaned.replace(/(\.\d*?)0+$/,'$1').replace(/\.$/,'');
+};
+const showToast=(msg,type="info")=>{
+  const host=document.getElementById("toastHost");
+  const el=document.createElement("div");
+  const tone = {
+    info: "border-sky-400/40 bg-sky-400/10",
+    ok: "border-emerald-400/40 bg-emerald-400/10",
+    warn: "border-amber-400/40 bg-amber-400/10",
+    err: "border-rose-400/40 bg-rose-400/10"
+  }[type] || "border-sky-400/40 bg-sky-400/10";
+  el.className=`toast card p-3 ${tone}`;
+  el.innerHTML = `<div class="flex items-start gap-3">
+    <div class="grad w-9 h-9 rounded-xl flex items-center justify-center shrink-0">✦</div>
+    <div class="text-sm leading-6">${escapeHtml(msg)}</div>
+  </div>`;
+  host.appendChild(el);
+  setTimeout(()=>{ el.style.opacity="0"; el.style.transform="translateY(6px)"; el.style.transition="250ms"; }, 2400);
+  setTimeout(()=>el.remove(), 2750);
+};
+const escapeHtml=(s)=>String(s).replace(/[&<>"']/g, m=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[m]));
+
+/* --------------------------- Config System --------------------------- */
+// فوتر ثابت است و در تنظیمات/کانفیگ قرار نمی‌گیرد.
+const FIXED_FOOTER_TEXT = "طراحی شده توسط FARHAD 🎨";
+
+const defaultConfig = {
+  background_color:"#0b1220",
+  surface_color:"#0f1b33",
+  text_color:"#e8eefc",
+  primary_action:"#38bdf8",
+  secondary_action:"#a78bfa",
+  font_family:'ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji","Segoe UI Emoji"',
+  font_size:16,
+  accent_gradient_start:"#22c55e",
+  accent_gradient_end:"#38bdf8",
+  app_logo_emoji:"🔄",
+  enable_persian_digits:true,
+  copy_with_persian_digits:false,
+  precision:2
+};
+
+const elementSdk = (() => {
+  const listeners = new Set();
+  let config = loadConfig();
+
+  function sanitize(partial){
+    const p = {...(partial||{})};
+    // جلوگیری از تغییر متن فوتر از طریق کانفیگ‌های قدیمی/واردشده
+    if ("footer_text" in p) delete p.footer_text;
+    return p;
+  }
+
+  function loadConfig(){
+    try{
+      const raw=localStorage.getItem("proUnitConverter.config");
+      if(!raw) return {...defaultConfig};
+      const parsed=sanitize(JSON.parse(raw));
+      return {...defaultConfig, ...(parsed||{})};
+    }catch{ return {...defaultConfig}; }
+  }
+  function saveConfig(){
+    localStorage.setItem("proUnitConverter.config", JSON.stringify(config));
+  }
+  function setConfig(partial){
+    const clean = sanitize(partial);
+    config = {...config, ...(clean||{})};
+    saveConfig();
+    listeners.forEach(fn=>fn(config));
+  }
+  function onConfigChange(fn){
+    listeners.add(fn);
+    return ()=>listeners.delete(fn);
+  }
+  function mapToCapabilities(cfg){
+    return {
+      theme:{
+        background: cfg.background_color,
+        surface: cfg.surface_color,
+        text: cfg.text_color,
+        primary: cfg.primary_action,
+        secondary: cfg.secondary_action,
+        gradA: cfg.accent_gradient_start,
+        gradB: cfg.accent_gradient_end
+      },
+      typography:{
+        fontFamily: cfg.font_family,
+        fontSize: cfg.font_size
+      },
+      behavior:{
+        enablePersianDigits: !!cfg.enable_persian_digits,
+        copyWithPersianDigits: !!cfg.copy_with_persian_digits,
+        precision: clamp(Number(cfg.precision ?? 2),0,8)
+      },
+      branding:{
+        logoEmoji: cfg.app_logo_emoji
+      }
+    };
+  }
+  function attachExternal(){
+    if (window.elementSdk && window.elementSdk !== api) return;
+    window.elementSdk = api;
+  }
+  const api = { getConfig:()=>({...config}), setConfig, onConfigChange, mapToCapabilities, _attachExternal:attachExternal };
+  attachExternal();
+  return api;
+})();
+
+const applyConfig = (cfg) => {
+  const caps = elementSdk.mapToCapabilities(cfg);
+  const r = document.documentElement.style;
+  r.setProperty("--bg", caps.theme.background);
+  r.setProperty("--surface", caps.theme.surface);
+  r.setProperty("--text", caps.theme.text);
+  r.setProperty("--primary", caps.theme.primary);
+  r.setProperty("--secondary", caps.theme.secondary);
+  r.setProperty("--gradA", caps.theme.gradA);
+  r.setProperty("--gradB", caps.theme.gradB);
+  r.setProperty("--ff", caps.typography.fontFamily);
+  r.setProperty("--fs", `${caps.typography.fontSize}px`);
+  document.getElementById("footerOut").textContent = FIXED_FOOTER_TEXT; // ثابت
+  document.getElementById("logoBadge").textContent = caps.branding.logoEmoji || defaultConfig.app_logo_emoji;
+
+  setToggleUI(document.getElementById("persianDigitsToggle"), document.getElementById("persianDigitsDot"), caps.behavior.enablePersianDigits);
+  setToggleUI(document.getElementById("uiPersianDigitsToggle"), document.getElementById("uiPersianDigitsDot"), caps.behavior.enablePersianDigits);
+  setToggleUI(document.getElementById("copyPersianToggle"), document.getElementById("copyPersianDot"), caps.behavior.copyWithPersianDigits);
+
+  const pr = caps.behavior.precision;
+  document.getElementById("precisionRange").value = pr;
+  document.getElementById("precisionLabel").textContent = displayNum(pr);
+};
+
+const displayNum = (x) => {
+  const cfg = elementSdk.getConfig();
+  const s = String(x);
+  return cfg.enable_persian_digits ? toPersianDigits(s) : s;
+};
+
+const setToggleUI = (input, dot, on) => {
+  input.checked = !!on;
+  dot.style.right = on ? "1.75rem" : "0.25rem";
+  dot.style.left = "auto";
+};
+
+/* --------------------------- Navigation --------------------------- */
+const pages = ["converter","health","settings","help"];
+const showPage = (id) => {
+  for(const p of pages){
+    document.getElementById(`page-${p}`).classList.toggle("hidden", p!==id);
+  }
+  document.querySelectorAll(".navBtn").forEach(btn=>{
+    const active = btn.dataset.nav===id;
+    btn.classList.toggle("tabActive", active);
+    btn.classList.toggle("tabIdle", !active);
+  });
+  history.replaceState(null,"",`#${id}`);
+};
+document.querySelectorAll(".navBtn").forEach(btn=>{
+  btn.addEventListener("click", ()=>showPage(btn.dataset.nav));
+});
+
+/* --------------------------- Unit Converter Data --------------------------- */
+const UNIT = (label, symbol, toBase, fromBase) => ({label, symbol, toBase, fromBase});
+const linearUnits = (baseLabel, baseSymbol, units) => ({type:"linear", baseLabel, baseSymbol, units});
+const tempUnits = () => ({
+  type:"temp",
+  units:[
+    {label:"سلسیوس", symbol:"°C", toBase:(c)=>c, fromBase:(c)=>c},
+    {label:"فارنهایت", symbol:"°F", toBase:(f)=>(f-32)*5/9, fromBase:(c)=>c*9/5+32},
+    {label:"کلوین", symbol:"K", toBase:(k)=>k-273.15, fromBase:(c)=>c+273.15},
+  ]
+});
+
+const CATEGORIES = [
+  { id:"length", name:"طول",
+    def: linearUnits("متر","m",[
+      UNIT("میلی‌متر","mm", v=>v/1000, v=>v*1000),
+      UNIT("سانتی‌متر","cm", v=>v/100, v=>v*100),
+      UNIT("متر","m", v=>v, v=>v),
+      UNIT("کیلومتر","km", v=>v*1000, v=>v/1000),
+      UNIT("اینچ","in", v=>v*0.0254, v=>v/0.0254),
+      UNIT("فوت","ft", v=>v*0.3048, v=>v/0.3048),
+      UNIT("یارد","yd", v=>v*0.9144, v=>v/0.9144),
+      UNIT("مایل","mi", v=>v*1609.344, v=>v/1609.344),
+      UNIT("مایل دریایی","nmi", v=>v*1852, v=>v/1852),
+    ]),
+    quick:[
+      {title:"۱ کیلومتر → متر", value:1, from:"کیلومتر", to:"متر"},
+      {title:"۱ مایل → کیلومتر", value:1, from:"مایل", to:"کیلومتر"},
+      {title:"۳۰ سانتی‌متر → اینچ", value:30, from:"سانتی‌متر", to:"اینچ"},
+      {title:"۶ فوت → سانتی‌متر", value:6, from:"فوت", to:"سانتی‌متر"},
+    ]
+  },
+  { id:"mass", name:"جرم",
+    def: linearUnits("کیلوگرم","kg",[
+      UNIT("میلی‌گرم","mg", v=>v/1e6, v=>v*1e6),
+      UNIT("گرم","g", v=>v/1000, v=>v*1000),
+      UNIT("کیلوگرم","kg", v=>v, v=>v),
+      UNIT("تن","t", v=>v*1000, v=>v/1000),
+      UNIT("اونس","oz", v=>v*0.028349523125, v=>v/0.028349523125),
+      UNIT("پوند","lb", v=>v*0.45359237, v=>v/0.45359237),
+    ]),
+    quick:[
+      {title:"۱ کیلوگرم → گرم", value:1, from:"کیلوگرم", to:"گرم"},
+      {title:"۱ پوند → کیلوگرم", value:1, from:"پوند", to:"کیلوگرم"},
+      {title:"۵۰۰ گرم → پوند", value:500, from:"گرم", to:"پوند"},
+      {title:"۲ اونس → گرم", value:2, from:"اونس", to:"گرم"},
+    ]
+  },
+  { id:"temp", name:"دما", def: tempUnits(),
+    quick:[
+      {title:"۰°C → °F", value:0, from:"سلسیوس", to:"فارنهایت"},
+      {title:"۱۰۰°C → °F", value:100, from:"سلسیوس", to:"فارنهایت"},
+      {title:"۳۷°C → °F", value:37, from:"سلسیوس", to:"فارنهایت"},
+      {title:"۲۷۳.۱۵K → °C", value:273.15, from:"کلوین", to:"سلسیوس"},
+    ]
+  },
+  { id:"area", name:"مساحت",
+    def: linearUnits("متر مربع","m²",[
+      UNIT("سانتی‌متر مربع","cm²", v=>v/10000, v=>v*10000),
+      UNIT("متر مربع","m²", v=>v, v=>v),
+      UNIT("کیلومتر مربع","km²", v=>v*1e6, v=>v/1e6),
+      UNIT("هکتار","ha", v=>v*10000, v=>v/10000),
+      UNIT("جریب (acre)","ac", v=>v*4046.8564224, v=>v/4046.8564224),
+      UNIT("فوت مربع","ft²", v=>v*0.09290304, v=>v/0.09290304),
+    ]),
+    quick:[
+      {title:"۱ هکتار → متر مربع", value:1, from:"هکتار", to:"متر مربع"},
+      {title:"۱ acre → متر مربع", value:1, from:"جریب (acre)", to:"متر مربع"},
+      {title:"۱۰۰۰ متر مربع → هکتار", value:1000, from:"متر مربع", to:"هکتار"},
+      {title:"۵۰ متر مربع → فوت مربع", value:50, from:"متر مربع", to:"فوت مربع"},
+    ]
+  },
+  { id:"volume", name:"حجم",
+    def: linearUnits("لیتر","L",[
+      UNIT("میلی‌لیتر","mL", v=>v/1000, v=>v*1000),
+      UNIT("لیتر","L", v=>v, v=>v),
+      UNIT("متر مکعب","m³", v=>v*1000, v=>v/1000),
+      UNIT("گالن (US)","gal", v=>v*3.785411784, v=>v/3.785411784),
+      UNIT("پینت (US)","pt", v=>v*0.473176473, v=>v/0.473176473),
+      UNIT("فوت مکعب","ft³", v=>v*28.316846592, v=>v/28.316846592),
+    ]),
+    quick:[
+      {title:"۱ لیتر → میلی‌لیتر", value:1, from:"لیتر", to:"میلی‌لیتر"},
+      {title:"۱ گالن → لیتر", value:1, from:"گالن (US)", to:"لیتر"},
+      {title:"۲ لیتر → گالن", value:2, from:"لیتر", to:"گالن (US)"},
+      {title:"۱ متر مکعب → لیتر", value:1, from:"متر مکعب", to:"لیتر"},
+    ]
+  },
+  { id:"speed", name:"سرعت",
+    def: linearUnits("متر بر ثانیه","m/s",[
+      UNIT("متر بر ثانیه","m/s", v=>v, v=>v),
+      UNIT("کیلومتر بر ساعت","km/h", v=>v/3.6, v=>v*3.6),
+      UNIT("مایل بر ساعت","mph", v=>v*0.44704, v=>v/0.44704),
+      UNIT("گره دریایی","knot", v=>v*0.514444, v=>v/0.514444),
+    ]),
+    quick:[
+      {title:"۹۰ km/h → m/s", value:90, from:"کیلومتر بر ساعت", to:"متر بر ثانیه"},
+      {title:"۱۰۰ km/h → mph", value:100, from:"کیلومتر بر ساعت", to:"مایل بر ساعت"},
+      {title:"۶۰ mph → km/h", value:60, from:"مایل بر ساعت", to:"کیلومتر بر ساعت"},
+      {title:"۱۰ knot → km/h", value:10, from:"گره دریایی", to:"کیلومتر بر ساعت"},
+    ]
+  },
+  { id:"time", name:"زمان",
+    def: linearUnits("ثانیه","s",[
+      UNIT("میلی‌ثانیه","ms", v=>v/1000, v=>v*1000),
+      UNIT("ثانیه","s", v=>v, v=>v),
+      UNIT("دقیقه","min", v=>v*60, v=>v/60),
+      UNIT("ساعت","h", v=>v*3600, v=>v/3600),
+      UNIT("روز","day", v=>v*86400, v=>v/86400),
+      UNIT("هفته","week", v=>v*604800, v=>v/604800),
+    ]),
+    quick:[
+      {title:"۱ ساعت → دقیقه", value:1, from:"ساعت", to:"دقیقه"},
+      {title:"۲ روز → ساعت", value:2, from:"روز", to:"ساعت"},
+      {title:"۹۰ دقیقه → ساعت", value:90, from:"دقیقه", to:"ساعت"},
+      {title:"۱ هفته → روز", value:1, from:"هفته", to:"روز"},
+    ]
+  },
+  { id:"pressure", name:"فشار",
+    def: linearUnits("پاسکال","Pa",[
+      UNIT("پاسکال","Pa", v=>v, v=>v),
+      UNIT("کیلوپاسکال","kPa", v=>v*1000, v=>v/1000),
+      UNIT("بار","bar", v=>v*100000, v=>v/100000),
+      UNIT("اتمسفر","atm", v=>v*101325, v=>v/101325),
+      UNIT("میلی‌متر جیوه","mmHg", v=>v*133.322368, v=>v/133.322368),
+      UNIT("psi","psi", v=>v*6894.757293168, v=>v/6894.757293168),
+    ]),
+    quick:[
+      {title:"۱ atm → kPa", value:1, from:"اتمسفر", to:"کیلوپاسکال"},
+      {title:"۲ bar → psi", value:2, from:"بار", to:"psi"},
+      {title:"۷۶۰ mmHg → atm", value:760, from:"میلی‌متر جیوه", to:"اتمسفر"},
+      {title:"۲۰۰ kPa → bar", value:200, from:"کیلوپاسکال", to:"بار"},
+    ]
+  },
+  { id:"energy", name:"انرژی",
+    def: linearUnits("ژول","J",[
+      UNIT("ژول","J", v=>v, v=>v),
+      UNIT("کیلوژول","kJ", v=>v*1000, v=>v/1000),
+      UNIT("کالری","cal", v=>v*4.184, v=>v/4.184),
+      UNIT("کیلوکالری","kcal", v=>v*4184, v=>v/4184),
+      UNIT("وات‌ساعت","Wh", v=>v*3600, v=>v/3600),
+      UNIT("کیلووات‌ساعت","kWh", v=>v*3.6e6, v=>v/3.6e6),
+    ]),
+    quick:[
+      {title:"۱ kWh → kJ", value:1, from:"کیلووات‌ساعت", to:"کیلوژول"},
+      {title:"۵۰۰ kcal → kJ", value:500, from:"کیلوکالری", to:"کیلوژول"},
+      {title:"۱۰۰۰۰ J → kJ", value:10000, from:"ژول", to:"کیلوژول"},
+      {title:"۲۰۰ Wh → kWh", value:200, from:"وات‌ساعت", to:"کیلووات‌ساعت"},
+    ]
+  },
+  { id:"power", name:"توان",
+    def: linearUnits("وات","W",[
+      UNIT("وات","W", v=>v, v=>v),
+      UNIT("کیلووات","kW", v=>v*1000, v=>v/1000),
+      UNIT("اسب بخار (hp)","hp", v=>v*745.6998715822702, v=>v/745.6998715822702),
+    ]),
+    quick:[
+      {title:"۱ kW → W", value:1, from:"کیلووات", to:"وات"},
+      {title:"۱ hp → W", value:1, from:"اسب بخار (hp)", to:"وات"},
+      {title:"۵۰۰ W → kW", value:500, from:"وات", to:"کیلووات"},
+      {title:"۲ kW → hp", value:2, from:"کیلووات", to:"اسب بخار (hp)"},
+    ]
+  },
+  { id:"data", name:"داده (دیجیتال)",
+    def: linearUnits("بایت","B",[
+      UNIT("بیت","b", v=>v/8, v=>v*8),
+      UNIT("بایت","B", v=>v, v=>v),
+      UNIT("کیلوبایت","KB", v=>v*1024, v=>v/1024),
+      UNIT("مگابایت","MB", v=>v*1024**2, v=>v/(1024**2)),
+      UNIT("گیگابایت","GB", v=>v*1024**3, v=>v/(1024**3)),
+      UNIT("ترابایت","TB", v=>v*1024**4, v=>v/(1024**4)),
+    ]),
+    quick:[
+      {title:"۱ MB → KB", value:1, from:"مگابایت", to:"کیلوبایت"},
+      {title:"۱ GB → MB", value:1, from:"گیگابایت", to:"مگابایت"},
+      {title:"۸ b → B", value:8, from:"بیت", to:"بایت"},
+      {title:"۵۰۰ KB → MB", value:500, from:"کیلوبایت", to:"مگابایت"},
+    ]
+  },
+  { id:"angle", name:"زاویه",
+    def: linearUnits("رادیان","rad",[
+      UNIT("درجه","°", v=>v*(Math.PI/180), v=>v*(180/Math.PI)),
+      UNIT("رادیان","rad", v=>v, v=>v),
+      UNIT("گرادیان (gon)","gon", v=>v*(Math.PI/200), v=>v*(200/Math.PI)),
+    ]),
+    quick:[
+      {title:"۱۸۰° → rad", value:180, from:"درجه", to:"رادیان"},
+      {title:"π rad → °", value:Math.PI, from:"رادیان", to:"درجه"},
+      {title:"۹۰° → rad", value:90, from:"درجه", to:"رادیان"},
+      {title:"۱۰۰ gon → °", value:100, from:"گرادیان (gon)", to:"درجه"},
+    ]
+  },
+];
+
+const getCategory = (id)=>CATEGORIES.find(c=>c.id===id) || CATEGORIES[0];
+
+/* --------------------------- Converter Logic --------------------------- */
+let state = { categoryId: CATEGORIES[0].id, fromLabel: null, toLabel: null };
+const findUnitByLabel = (cat, label) => cat.def.units.find(u=>u.label===label) || cat.def.units[0];
+const convertValue = (cat, value, fromUnit, toUnit) => {
+  if(!Number.isFinite(value)) return NaN;
+  const base = fromUnit.toBase(value);
+  return toUnit.fromBase(base);
+};
+
+const setUnitsForCategory = (catId) => {
+  const cat=getCategory(catId);
+  const fromSel=document.getElementById("fromUnitSel");
+  const toSel=document.getElementById("toUnitSel");
+  fromSel.innerHTML=""; toSel.innerHTML="";
+  cat.def.units.forEach(u=>{
+    const o1=document.createElement("option"); o1.value=u.label; o1.textContent=`${u.label} (${u.symbol})`;
+    const o2=document.createElement("option"); o2.value=u.label; o2.textContent=`${u.label} (${u.symbol})`;
+    fromSel.appendChild(o1); toSel.appendChild(o2);
+  });
+  const fromKeep = state.fromLabel && cat.def.units.some(u=>u.label===state.fromLabel) ? state.fromLabel : cat.def.units[0].label;
+  const toKeep   = state.toLabel   && cat.def.units.some(u=>u.label===state.toLabel)   ? state.toLabel   : cat.def.units[Math.min(1,cat.def.units.length-1)].label;
+  fromSel.value = fromKeep;
+  toSel.value = toKeep;
+  state.fromLabel = fromKeep;
+  state.toLabel = toKeep;
+  renderQuick(cat);
+  computeConverter();
+};
+
+const renderQuick = (cat) => {
+  const grid=document.getElementById("quickGrid");
+  grid.innerHTML="";
+  (cat.quick||[]).slice(0,6).forEach(q=>{
+    const b=document.createElement("button");
+    b.className="btn soft px-3 py-2 text-right focusable";
+    b.innerHTML=`<div class="font-semibold text-sm">${escapeHtml(q.title)}</div>
+                 <div class="muted tiny mt-0.5">تنظیم سریع</div>`;
+    b.addEventListener("click", ()=>{
+      document.getElementById("valueInput").value = q.value;
+      const fromSel=document.getElementById("fromUnitSel");
+      const toSel=document.getElementById("toUnitSel");
+      if([...fromSel.options].some(o=>o.value===q.from)) fromSel.value=q.from;
+      if([...toSel.options].some(o=>o.value===q.to)) toSel.value=q.to;
+      state.fromLabel = fromSel.value;
+      state.toLabel = toSel.value;
+      computeConverter();
+      showToast("تنظیم انجام شد ✅", "ok");
+    });
+    grid.appendChild(b);
+  });
+  if(!(cat.quick||[]).length){
+    grid.innerHTML=`<div class="muted tiny">برای این دسته‌بندی پیشنهاد سریعی تعریف نشده است.</div>`;
+  }
+};
+
+const computeConverter = () => {
+  const cfg = elementSdk.getConfig();
+  const cat = getCategory(document.getElementById("categorySel").value);
+  const fromUnit = findUnitByLabel(cat, document.getElementById("fromUnitSel").value);
+  const toUnit = findUnitByLabel(cat, document.getElementById("toUnitSel").value);
+  const inputVal = safeNum(document.getElementById("valueInput").value);
+  const precision = clamp(Number(cfg.precision ?? 2),0,8);
+
+  const result = convertValue(cat, inputVal, fromUnit, toUnit);
+  const rawText = formatNumber(result, precision);
+  const shown = cfg.enable_persian_digits ? toPersianDigits(rawText) : rawText;
+
+  document.getElementById("resultValue").textContent = (Number.isFinite(result) ? shown : "—");
+  document.getElementById("resultUnit").textContent = `${toUnit.label} (${toUnit.symbol})`;
+
+  const noteEl=document.getElementById("converterNote");
+  noteEl.textContent = Number.isFinite(inputVal) ? "" : "برای دیدن نتیجه، یک مقدار عددی معتبر وارد کنید.";
+};
+
+const swapUnits = () => {
+  const fromSel=document.getElementById("fromUnitSel");
+  const toSel=document.getElementById("toUnitSel");
+  const a=fromSel.value, b=toSel.value;
+  fromSel.value=b; toSel.value=a;
+  state.fromLabel = fromSel.value;
+  state.toLabel = toSel.value;
+  computeConverter();
+  showToast("واحدها جابجا شدند.", "info");
+};
+
+/* --------------------------- Health Logic --------------------------- */
+const bmiCategory = (bmi) => {
+  if(!Number.isFinite(bmi)) return "—";
+  if(bmi < 18.5) return "کم‌وزن";
+  if(bmi < 25) return "نرمال";
+  if(bmi < 30) return "اضافه‌وزن";
+  if(bmi < 35) return "چاقی درجه ۱";
+  if(bmi < 40) return "چاقی درجه ۲";
+  return "چاقی درجه ۳";
+};
+
+const calculateBMI = (wKg, hCm) => {
+  const h = hCm / 100;
+  if(!(wKg>0) || !(h>0)) return NaN;
+  return wKg / (h*h);
+};
+
+const healthyWeightRange = (hCm) => {
+  const h = hCm/100;
+  if(!(h>0)) return {min:NaN,max:NaN};
+  return {min:18.5*h*h, max:24.9*h*h};
+};
+
+const calculateBMR = (sex, wKg, hCm, age) => {
+  if(!(wKg>0) || !(hCm>0) || !(age>0)) return NaN;
+  const base = 10*wKg + 6.25*hCm - 5*age;
+  return sex==="male" ? base + 5 : base - 161;
+};
+
+const calculateTDEE = (bmr, activityFactor) => {
+  if(!Number.isFinite(bmr) || !Number.isFinite(activityFactor)) return NaN;
+  return bmr * activityFactor;
+};
+
+const computeBMIUI = () => {
+  const cfg=elementSdk.getConfig();
+  const p=clamp(Number(cfg.precision ?? 2),0,8);
+  const w=safeNum(document.getElementById("bmiWeight").value);
+  const h=safeNum(document.getElementById("bmiHeight").value);
+  const bmi=calculateBMI(w,h);
+
+  const valRaw = formatNumber(bmi, p);
+  document.getElementById("bmiValue").textContent = (Number.isFinite(bmi) ? (cfg.enable_persian_digits ? toPersianDigits(valRaw) : valRaw) : "—");
+  document.getElementById("bmiCat").textContent = (Number.isFinite(bmi) ? bmiCategory(bmi) : "—");
+
+  const showIdeal = document.getElementById("idealWeightToggle").checked;
+  const box = document.getElementById("idealWeightBox");
+  box.classList.toggle("hidden", !showIdeal);
+  if(showIdeal && Number.isFinite(h) && h>0){
+    const r=healthyWeightRange(h);
+    const minS = formatNumber(r.min, p);
+    const maxS = formatNumber(r.max, p);
+    const out = cfg.enable_persian_digits ? `${toPersianDigits(minS)} تا ${toPersianDigits(maxS)}` : `${minS} تا ${maxS}`;
+    document.getElementById("idealWeightRange").textContent = out;
+  }else if(showIdeal){
+    document.getElementById("idealWeightRange").textContent = "—";
+  }
+
+  const warn=document.getElementById("bmiWarn");
+  warn.classList.add("hidden");
+  warn.className="mt-2 hidden tiny";
+  if((w && w<25) || (w && w>300) || (h && h<100) || (h && h>230)){
+    warn.classList.remove("hidden");
+    warn.classList.add("text-amber-200");
+    warn.textContent = "هشدار: مقادیر وارد شده کمی غیرمعمول به نظر می‌رسند. لطفاً بررسی کنید.";
+  }
+};
+
+const computeCaloriesUI = () => {
+  const cfg=elementSdk.getConfig();
+  const p=clamp(Number(cfg.precision ?? 2),0,8);
+  const sex=document.getElementById("sexSel").value;
+  const age=safeNum(document.getElementById("ageInput").value);
+  const h=safeNum(document.getElementById("calHeight").value);
+  const w=safeNum(document.getElementById("calWeight").value);
+  const activity=safeNum(document.getElementById("activitySel").value);
+  const goalAdj=safeNum(document.getElementById("goalSel").value);
+
+  const err=document.getElementById("calError");
+  err.classList.add("hidden");
+  err.className="hidden mb-2 text-sm font-semibold";
+
+  if((age && age<=0) || (h && h<=0) || (w && w<=0)){
+    err.classList.remove("hidden");
+    err.classList.add("text-rose-200");
+    err.textContent="خطا: سن، قد و وزن باید بزرگتر از صفر باشند.";
+  }
+
+  const bmr=calculateBMR(sex,w,h,age);
+  const tdee=calculateTDEE(bmr,activity);
+  const goal = Number.isFinite(tdee) ? (tdee + (Number.isFinite(goalAdj)?goalAdj:0)) : NaN;
+
+  const bmrS = Number.isFinite(bmr) ? formatNumber(bmr, p) : "—";
+  const tdeeS = Number.isFinite(tdee) ? formatNumber(tdee, p) : "—";
+  const goalS = Number.isFinite(goal) ? formatNumber(goal, p) : "—";
+
+  document.getElementById("bmrOut").textContent = cfg.enable_persian_digits ? toPersianDigits(bmrS) : bmrS;
+  document.getElementById("tdeeOut").textContent = cfg.enable_persian_digits ? toPersianDigits(tdeeS) : tdeeS;
+  document.getElementById("goalOut").textContent = cfg.enable_persian_digits ? toPersianDigits(goalS) : goalS;
+
+  const warn=document.getElementById("calWarn");
+  warn.classList.add("hidden");
+  warn.className="mt-2 hidden tiny";
+  const odd = (age && (age<10 || age>90)) || (h && (h<120 || h>220)) || (w && (w<35 || w>250));
+  if(odd){
+    warn.classList.remove("hidden");
+    warn.classList.add("text-amber-200");
+    warn.textContent="هشدار: اعداد وارد شده ممکن است خارج از محدوده معمول باشند. نتیجه صرفاً تخمینی است.";
+  }
+};
+
+/* --------------------------- Clipboard --------------------------- */
+const copyText = async (text, okMsg="کپی شد ✅") => {
+  try{
+    await navigator.clipboard.writeText(text);
+    showToast(okMsg, "ok");
+  }catch{
+    showToast("امکان کپی وجود ندارد. لطفاً مجوز کلیپ‌بورد را بررسی کنید.", "err");
+  }
+};
+
+const maybePersianForCopy = (txt) => {
+  const cfg=elementSdk.getConfig();
+  return cfg.copy_with_persian_digits ? toPersianDigits(txt) : txt;
+};
+
+/* --------------------------- Settings UI Wiring --------------------------- */
+const bindColorPair = (colorInput, textInput, key) => {
+  const syncFromColor = () => {
+    textInput.value = colorInput.value;
+    elementSdk.setConfig({[key]: colorInput.value});
+  };
+  const syncFromText = () => {
+    const v=textInput.value.trim();
+    if(/^#([0-9a-fA-F]{6})$/.test(v)){
+      colorInput.value=v;
+      elementSdk.setConfig({[key]: v});
+    }
+  };
+  colorInput.addEventListener("input", syncFromColor);
+  textInput.addEventListener("change", syncFromText);
+};
+
+const syncSettingsForm = (cfg) => {
+  const setPair=(cId,tId,val)=>{
+    const c=document.getElementById(cId), t=document.getElementById(tId);
+    c.value = val; t.value = val;
+  };
+  setPair("bgColor","bgColorText", cfg.background_color);
+  setPair("surfaceColor","surfaceColorText", cfg.surface_color);
+  setPair("textColor","textColorText", cfg.text_color);
+  setPair("primaryColor","primaryColorText", cfg.primary_action);
+  setPair("secondaryColor","secondaryColorText", cfg.secondary_action);
+  setPair("gradA","gradAText", cfg.accent_gradient_start);
+  setPair("gradB","gradBText", cfg.accent_gradient_end);
+
+  document.getElementById("fontFamily").value = cfg.font_family;
+  document.getElementById("fontSize").value = cfg.font_size;
+  document.getElementById("fontSizeLabel").textContent = displayNum(cfg.font_size);
+
+  document.getElementById("logoEmoji").value = cfg.app_logo_emoji;
+
+  setToggleUI(document.getElementById("persianDigitsToggle"), document.getElementById("persianDigitsDot"), !!cfg.enable_persian_digits);
+  setToggleUI(document.getElementById("copyPersianToggle"), document.getElementById("copyPersianDot"), !!cfg.copy_with_persian_digits);
+
+  document.getElementById("precisionRange").value = clamp(Number(cfg.precision ?? 2),0,8);
+  document.getElementById("precisionLabel").textContent = displayNum(clamp(Number(cfg.precision ?? 2),0,8));
+};
+
+/* --------------------------- Init --------------------------- */
+(function init(){
+  const cfg=elementSdk.getConfig();
+  applyConfig(cfg);
+
+  const hash=(location.hash||"").replace("#","");
+  showPage(pages.includes(hash)?hash:"converter");
+
+  const catSel=document.getElementById("categorySel");
+  CATEGORIES.forEach(c=>{
+    const o=document.createElement("option");
+    o.value=c.id; o.textContent=c.name;
+    catSel.appendChild(o);
+  });
+  catSel.value = state.categoryId;
+
+  const precisionRange=document.getElementById("precisionRange");
+  precisionRange.value = clamp(Number(cfg.precision ?? 2),0,8);
+  document.getElementById("precisionLabel").textContent = displayNum(precisionRange.value);
+
+  document.getElementById("uiPersianDigitsToggle").checked = !!cfg.enable_persian_digits;
+  setToggleUI(document.getElementById("uiPersianDigitsToggle"), document.getElementById("uiPersianDigitsDot"), !!cfg.enable_persian_digits);
+
+  setUnitsForCategory(catSel.value);
+
+  catSel.addEventListener("change", ()=>{ state.categoryId=catSel.value; setUnitsForCategory(catSel.value); showToast("دسته‌بندی تغییر کرد.", "info"); });
+  document.getElementById("valueInput").addEventListener("input", computeConverter);
+  document.getElementById("fromUnitSel").addEventListener("change", ()=>{ state.fromLabel = document.getElementById("fromUnitSel").value; computeConverter(); });
+  document.getElementById("toUnitSel").addEventListener("change", ()=>{ state.toLabel = document.getElementById("toUnitSel").value; computeConverter(); });
+  document.getElementById("swapBtn").addEventListener("click", swapUnits);
+  precisionRange.addEventListener("input", ()=>{
+    const v=clamp(Number(precisionRange.value),0,8);
+    document.getElementById("precisionLabel").textContent = displayNum(v);
+    elementSdk.setConfig({precision:v});
+  });
+
+  document.getElementById("copyResultBtn").addEventListener("click", ()=>{
+    const cfg=elementSdk.getConfig();
+    const cat=getCategory(catSel.value);
+    const toUnit=findUnitByLabel(cat, document.getElementById("toUnitSel").value);
+    const raw = document.getElementById("resultValue").textContent;
+    if(raw==="—"){ showToast("چیزی برای کپی وجود ندارد.", "warn"); return; }
+    const inputVal=safeNum(document.getElementById("valueInput").value);
+    const fromUnit=findUnitByLabel(cat, document.getElementById("fromUnitSel").value);
+    const toVal=convertValue(cat, inputVal, fromUnit, toUnit);
+    const txt = `${formatNumber(toVal, clamp(Number(cfg.precision??2),0,8))} ${toUnit.symbol}`;
+    copyText(maybePersianForCopy(txt), "نتیجه کپی شد ✅");
+  });
+
+  document.getElementById("uiPersianDigitsToggle").addEventListener("change", (e)=>{
+    elementSdk.setConfig({enable_persian_digits: e.target.checked});
+    showToast(e.target.checked ? "نمایش اعداد فارسی فعال شد." : "نمایش اعداد فارسی غیرفعال شد.", "info");
+  });
+
+  ["bmiWeight","bmiHeight","idealWeightToggle"].forEach(id=>document.getElementById(id).addEventListener("input", computeBMIUI));
+  ["sexSel","ageInput","calHeight","calWeight","activitySel","goalSel"].forEach(id=>document.getElementById(id).addEventListener("input", computeCaloriesUI));
+
+  document.getElementById("copyBmiBtn").addEventListener("click", ()=>{
+    const cfg=elementSdk.getConfig();
+    const w=safeNum(document.getElementById("bmiWeight").value);
+    const h=safeNum(document.getElementById("bmiHeight").value);
+    const bmi=calculateBMI(w,h);
+    if(!Number.isFinite(bmi)){ showToast("ابتدا وزن و قد معتبر وارد کنید.", "warn"); return; }
+    const txt = `BMI: ${formatNumber(bmi, clamp(Number(cfg.precision??2),0,8))}`;
+    copyText(maybePersianForCopy(txt), "BMI کپی شد ✅");
+  });
+
+  document.getElementById("copyGoalBtn").addEventListener("click", ()=>{
+    const cfg=elementSdk.getConfig();
+    const sex=document.getElementById("sexSel").value;
+    const age=safeNum(document.getElementById("ageInput").value);
+    const h=safeNum(document.getElementById("calHeight").value);
+    const w=safeNum(document.getElementById("calWeight").value);
+    const activity=safeNum(document.getElementById("activitySel").value);
+    const goalAdj=safeNum(document.getElementById("goalSel").value);
+    const bmr=calculateBMR(sex,w,h,age);
+    const tdee=calculateTDEE(bmr,activity);
+    const goal = Number.isFinite(tdee) ? tdee + (Number.isFinite(goalAdj)?goalAdj:0) : NaN;
+    if(!Number.isFinite(goal)){ showToast("ابتدا اطلاعات معتبر وارد کنید.", "warn"); return; }
+    const txt = `کالری هدف: ${formatNumber(goal, clamp(Number(cfg.precision??2),0,8))} کیلوکالری`;
+    copyText(maybePersianForCopy(txt), "کالری هدف کپی شد ✅");
+  });
+
+  syncSettingsForm(cfg);
+  bindColorPair(document.getElementById("bgColor"), document.getElementById("bgColorText"), "background_color");
+  bindColorPair(document.getElementById("surfaceColor"), document.getElementById("surfaceColorText"), "surface_color");
+  bindColorPair(document.getElementById("textColor"), document.getElementById("textColorText"), "text_color");
+  bindColorPair(document.getElementById("primaryColor"), document.getElementById("primaryColorText"), "primary_action");
+  bindColorPair(document.getElementById("secondaryColor"), document.getElementById("secondaryColorText"), "secondary_action");
+  bindColorPair(document.getElementById("gradA"), document.getElementById("gradAText"), "accent_gradient_start");
+  bindColorPair(document.getElementById("gradB"), document.getElementById("gradBText"), "accent_gradient_end");
+
+  document.getElementById("fontFamily").addEventListener("change", (e)=>elementSdk.setConfig({font_family: e.target.value}));
+  document.getElementById("fontSize").addEventListener("input", (e)=>{
+    const v=clamp(Number(e.target.value),13,20);
+    document.getElementById("fontSizeLabel").textContent = displayNum(v);
+    elementSdk.setConfig({font_size:v});
+  });
+
+  document.getElementById("logoEmoji").addEventListener("input", (e)=>elementSdk.setConfig({app_logo_emoji:e.target.value || "🔄"}));
+
+  document.getElementById("persianDigitsToggle").addEventListener("change", (e)=>{
+    elementSdk.setConfig({enable_persian_digits: e.target.checked});
+    showToast(e.target.checked ? "نمایش اعداد فارسی فعال شد." : "نمایش اعداد فارسی غیرفعال شد.", "info");
+  });
+
+  document.getElementById("copyPersianToggle").addEventListener("change", (e)=>{
+    elementSdk.setConfig({copy_with_persian_digits: e.target.checked});
+    showToast(e.target.checked ? "کپی با اعداد فارسی فعال شد." : "کپی با اعداد فارسی غیرفعال شد.", "info");
+  });
+
+  document.getElementById("resetBtn").addEventListener("click", ()=>{
+    localStorage.removeItem("proUnitConverter.config");
+    elementSdk.setConfig({...defaultConfig});
+    showToast("تنظیمات بازنشانی شد.", "ok");
+  });
+
+  document.getElementById("exportConfig").addEventListener("click", ()=>{
+    const cfg = elementSdk.getConfig();
+    copyText(JSON.stringify(cfg, null, 2), "پیکربندی کپی شد ✅");
+  });
+
+  document.getElementById("importConfig").addEventListener("click", async ()=>{
+    const raw = prompt("پیکربندی را وارد کنید (JSON):");
+    if(!raw) return;
+    try{
+      const parsed = JSON.parse(raw);
+      elementSdk.setConfig(parsed);
+      showToast("پیکربندی اعمال شد ✅", "ok");
+    }catch{
+      showToast("فرمت JSON نامعتبر است.", "err");
+    }
+  });
+
+  elementSdk.onConfigChange((newCfg)=>{
+    applyConfig(newCfg);
+    syncSettingsForm(newCfg);
+    computeConverter();
+    computeBMIUI();
+    computeCaloriesUI();
+  });
+
+  computeConverter();
+  computeBMIUI();
+  computeCaloriesUI();
+
+  showToast("آماده‌ست! ✅", "ok");
+})();
+</script>
+</body>
+</html>
