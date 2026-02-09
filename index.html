@@ -185,7 +185,8 @@
         <button type="button" data-nav="datetime" class="navBtn btn px-3.5 py-2 tabIdle focusable">تاریخ و ساعت</button>
         <button type="button" data-nav="crypto" class="navBtn btn px-3.5 py-2 tabIdle focusable">رمزارزها</button>
         <button type="button" data-nav="calculator" class="navBtn btn px-3.5 py-2 tabIdle focusable">ماشین حساب</button>
-        <button type="button" data-nav="settings" class="navBtn btn px-3.5 py-2 tabIdle focusable">تنظیمات</button>
+        <button type="button" data-nav="weather" class="navBtn btn px-3.5 py-2 tabIdle focusable">آب و هوا</button>
+        <button data-nav="settings" class="navBtn btn px-3.5 py-2 tabIdle focusable">تنظیمات</button>
         <button type="button" data-nav="help" class="navBtn btn px-3.5 py-2 tabIdle focusable">راهنما</button>
       </nav>
     </header>
@@ -677,7 +678,110 @@
       </section>
 
       <!-- Settings Page -->
-      <section id="page-settings" class="hidden space-y-4 md:space-y-5">
+      
+<section id="page-weather" class="page hidden">
+  <div class="grid gap-4">
+    <div class="card p-4">
+      <div class="flex items-center justify-between gap-3 flex-wrap">
+        <div class="flex items-center gap-2">
+          <div class="logoDot"></div>
+          <div>
+            <div class="font-extrabold">آب و هوا</div>
+            <div class="muted tiny" id="wx_subtitle">برای نمایش آب‌وهوا، اجازه موقعیت مکانی لازم است.</div>
+          </div>
+        </div>
+        <div class="flex items-center gap-2 flex-wrap">
+          <div class="soft px-3 py-2 rounded-xl tiny" id="wx_locBadge">📍 مکان: —</div>
+          <button class="btn px-3 py-2 focusable" id="wx_refreshBtn">🔄 رفرش (دوباره مکان)</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-4">
+      <div class="card p-4">
+        <div class="flex items-center justify-between mb-2">
+          <div class="font-bold">وضعیت فعلی</div>
+          <div class="muted tiny" id="wx_updatedAt">—</div>
+        </div>
+        <div id="wx_currentState" class="muted text-center py-6">در حال دریافت موقعیت کاربر…</div>
+      </div>
+
+      <div class="card p-4">
+        <div class="flex items-center justify-between mb-2">
+          <div class="font-bold">جزئیات</div>
+          <div class="muted tiny">روز/شب + کیفیت هوا</div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div class="soft p-3 rounded-xl">
+            <div class="muted tiny">طول روز</div>
+            <div class="font-extrabold mt-1" id="wx_dayLen">—</div>
+            <div class="muted tiny mt-1" id="wx_sunrise">طلوع: —</div>
+          </div>
+          <div class="soft p-3 rounded-xl">
+            <div class="muted tiny">طول شب</div>
+            <div class="font-extrabold mt-1" id="wx_nightLen">—</div>
+            <div class="muted tiny mt-1" id="wx_sunset">غروب: —</div>
+          </div>
+          <div class="soft p-3 rounded-xl">
+            <div class="muted tiny">کیفیت هوا (AQI)</div>
+            <div class="font-extrabold mt-1" id="wx_aqiVal">—</div>
+            <div class="muted tiny mt-1" id="wx_aqiLabel">—</div>
+          </div>
+          <div class="soft p-3 rounded-xl">
+            <div class="muted tiny">دمای دقیق</div>
+            <div class="font-extrabold mt-1" id="wx_preciseTemp">—</div>
+            <div class="muted tiny mt-1" id="wx_feelsLike">* Open‑Meteo (current)</div>
+          </div>
+        </div>
+        <div class="muted tiny mt-3">نکته: این صفحه فقط هنگام ورود به همین بخش، درخواست GPS می‌دهد.</div>
+      </div>
+
+      <div class="card p-4 md:col-span-2">
+        <div class="flex items-center justify-between mb-2">
+          <div class="font-bold">۲۴ ساعت آینده</div>
+          <div class="muted tiny">ساعت‌به‌ساعت</div>
+        </div>
+        <div id="wx_hourlyWrap" class="muted text-center py-4">—</div>
+      </div>
+
+      <div class="card p-4 md:col-span-2">
+        <div class="flex items-center justify-between mb-2">
+          <div class="font-bold">۷ روز آینده</div>
+          <div class="muted tiny">پیش‌بینی هفتگی</div>
+        </div>
+        <div id="wx_dailyWrap" class="muted text-center py-4">—</div>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    /* --- Weather: small animated icons (scoped) --- */
+    #page-weather .wxico{width:66px;height:66px;position:relative;filter:drop-shadow(0 8px 16px rgba(0,0,0,.35));flex:0 0 auto}
+    #page-weather .sun,#page-weather .moon{position:absolute;inset:0;margin:auto;width:32px;height:32px;border-radius:50%}
+    #page-weather .sun{background:radial-gradient(circle at 30% 30%,#fff2b2,#fbbf24 60%,#f59e0b 100%);animation:wxspin 10s linear infinite}
+    #page-weather .sun:before{content:"";position:absolute;inset:-10px;border-radius:50%;
+      background:conic-gradient(from 0deg,rgba(251,191,36,0) 0 12%,rgba(251,191,36,.55) 12% 14%,rgba(251,191,36,0) 14% 25%,rgba(251,191,36,.55) 25% 27%,rgba(251,191,36,0) 27% 38%,rgba(251,191,36,.55) 38% 40%,rgba(251,191,36,0) 40% 51%,rgba(251,191,36,.55) 51% 53%,rgba(251,191,36,0) 53% 64%,rgba(251,191,36,.55) 64% 66%,rgba(251,191,36,0) 66% 77%,rgba(251,191,36,.55) 77% 79%,rgba(251,191,36,0) 79% 90%,rgba(251,191,36,.55) 90% 92%,rgba(251,191,36,0) 92% 100%);
+      filter:blur(.2px)}
+    #page-weather .moon{background:radial-gradient(circle at 30% 30%,#e6f0ff,#9fb3c8 70%,#6b7280 100%);animation:wxfloat 3.6s ease-in-out infinite}
+    #page-weather .moon:after{content:"";position:absolute;width:28px;height:28px;border-radius:50%;right:-6px;top:4px;background:rgba(0,0,0,.25)}
+    #page-weather .cloud{position:absolute;left:18px;top:30px;width:46px;height:18px;background:linear-gradient(180deg,rgba(231,240,255,.95),rgba(159,179,200,.95));border-radius:999px;animation:wxfloat 4.2s ease-in-out infinite}
+    #page-weather .cloud:before,#page-weather .cloud:after{content:"";position:absolute;background:inherit;border-radius:999px}
+    #page-weather .cloud:before{width:20px;height:20px;left:6px;top:-10px}
+    #page-weather .cloud:after{width:26px;height:26px;left:20px;top:-16px}
+    #page-weather .rain .drop{position:absolute;left:28px;top:54px;width:4px;height:10px;border-radius:99px;background:rgba(96,165,250,.95);animation:wxrain 1.1s linear infinite}
+    #page-weather .rain .drop:nth-child(2){left:38px;animation-delay:.2s;opacity:.85}
+    #page-weather .rain .drop:nth-child(3){left:48px;animation-delay:.4s;opacity:.7}
+    #page-weather .snow .flake{position:absolute;left:30px;top:54px;width:6px;height:6px;border-radius:50%;background:rgba(231,240,255,.95);animation:wxsnow 1.4s linear infinite}
+    #page-weather .snow .flake:nth-child(2){left:42px;animation-delay:.25s;opacity:.85}
+    #page-weather .snow .flake:nth-child(3){left:52px;animation-delay:.5s;opacity:.7}
+    @keyframes wxspin{to{transform:rotate(360deg)}}
+    @keyframes wxfloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+    @keyframes wxrain{0%{transform:translateY(0);opacity:0}20%{opacity:1}100%{transform:translateY(14px);opacity:0}}
+    @keyframes wxsnow{0%{transform:translateY(0) scale(.9);opacity:0}20%{opacity:1}100%{transform:translateY(14px) scale(1.1);opacity:0}}
+  </style>
+</section>
+
+<section id="page-settings" class="hidden space-y-4 md:space-y-5">
         <div class="card p-4 md:p-5">
           <div class="flex items-start justify-between gap-3">
             <div>
@@ -1115,9 +1219,10 @@ const applyConfig = (cfg) => {
 };
 
 /* ========================= Navigation ========================= */
-const pages = ["converter","health","datetime","crypto","calculator","settings","help"];
+const pages = ["converter","health","datetime","weather","crypto","calculator","settings","help"];
 const showPage = (id) => {
   const target = pages.includes(id) ? id : "converter";
+  if(target==="weather") initWeatherPage();
   for(const p of pages){
     const el=document.getElementById(`page-${p}`);
     if(el) el.classList.toggle("hidden", p!==target);
@@ -1900,77 +2005,69 @@ const TZ_IR = "Asia/Tehran";
 const TZ_UTC = "Etc/UTC";
 
 
-const HOLIDAY_API = (jy,jm,jd)=>`https://holidayapi.ir/jalali/${jy}/${jm}/${jd}`;
+const HOLIDAY_API_TODAY = "https://persianholiday.site/api/v1/today";
 
-
-const setOccStatus = (state) => {
-  const hint = document.getElementById("occHint");
-  if(!hint) return;
-  if(state==="loading"){
-    hint.textContent = "در حال دریافت مناسبت‌های امروز…";
-    hint.className = "muted leading-7";
-  }else if(state==="ok"){
-    hint.textContent = "به‌روزرسانی شد ✅";
-    hint.className = "text-emerald-200 leading-7";
-  }else{
-    hint.textContent = "امکان دریافت مناسبت‌ها وجود ندارد.";
-    hint.className = "text-amber-200 leading-7";
-  }
+const fetchOccasions = async () => {
+  const res = await fetch(HOLIDAY_API_TODAY, { cache:"no-store" });
+  if(!res.ok) throw new Error("holiday_status");
+  const data = await res.json();
+  if(!data) throw new Error("holiday_payload");
+  return data;
 };
 
+const renderOccasions = (data) => {
+  const box = document.getElementById("ocsBox");
+  if(!box) return;
 
+  const isHoliday = !!(data.is_holiday ?? data.isHoliday);
+  const events = Array.isArray(data.events) ? data.events
+              : Array.isArray(data.occasions) ? data.occasions
+              : Array.isArray(data.items) ? data.items
+              : [];
 
+  const dateFa = data.date?.jalali || data.date?.jalali_date || data.date?.jalaliDate || "";
+  const titleLine = isHoliday
+    ? `<div class="text-rose-300 font-extrabold">امروز تعطیل است ✅</div>`
+    : `<div class="text-emerald-300 font-extrabold">امروز تعطیل نیست</div>`;
 
-const renderOccasions = (events, dayHoliday) => {
-  const listEl = document.getElementById("occList");
-  const badge = document.getElementById("occHolidayBadge");
-  if(!listEl) return;
+  const list = events.length
+    ? events.map((ev)=>{
+        const t = (typeof ev === "string") ? ev : (ev.title || ev.text || ev.name || JSON.stringify(ev));
+        const isOff = isHoliday && (String(t).includes("تعطیل") || String(t).includes("تعطیلی") || String(t).includes("تعطیل رسمی"));
+        return `<div class="soft p-2 rounded-lg ${isOff ? "border border-rose-500/30" : ""}">
+          <span class="${isOff ? "text-rose-200 font-bold" : ""}">${escapeHtml(String(t))}</span>
+          ${isOff ? ` <span class="tiny text-rose-300">(تعطیل)</span>` : ""}
+        </div>`;
+      }).join("")
+    : `<div class="muted tiny">مناسبتی برای امروز ثبت نشده.</div>`;
 
-  if(badge){
-    badge.classList.toggle("hidden", !dayHoliday);
-    if(dayHoliday) badge.textContent = "تعطیل";
-  }
-
-  if(!events || events.length===0){
-    listEl.innerHTML = `<div class="muted leading-7">مناسبتی برای امروز ثبت نشده است.</div>`;
-    return;
-  }
-
-  const ul = document.createElement("ul");
-  ul.className = "space-y-2 leading-7";
-  events.forEach(ev=>{
-    const isH = !!ev.isHoliday;
-    const li = document.createElement("li");
-    li.className = `soft p-3 flex items-start justify-between gap-3 ${isH ? "border border-rose-400/30" : ""}`;
-    li.innerHTML = `
-      <div class="${isH ? "text-rose-200 font-semibold" : ""}">${escapeHtml(ev.title)}</div>
-      ${isH ? `<span class="text-rose-200 tiny font-bold">تعطیل</span>` : ``}
-    `;
-    ul.appendChild(li);
-  });
-
-  listEl.innerHTML = "";
-  listEl.appendChild(ul);
+  box.innerHTML = `
+    <div class="flex items-center justify-between gap-2 flex-wrap">
+      <div>${titleLine}</div>
+      <div class="muted tiny">${dateFa ? escapeHtml(dateFa) : ""}</div>
+    </div>
+    <div class="mt-2 grid gap-2">${list}</div>
+    <div class="muted tiny mt-2">منبع: PersianHoliday.site</div>
+  `;
 };
 
+let occLastKey = "";
+const updateOccasionsMaybe = async (jalaliKey) => {
+  if(jalaliKey === occLastKey) return;
+  occLastKey = jalaliKey;
 
+  const box = document.getElementById("ocsBox");
+  if(box){
+    box.innerHTML = `<div class="muted">در حال دریافت مناسبت‌های امروز…</div>`;
+  }
 
-let occCacheKey = "";
-const fetchOccasions = async (jy,jm,jd) => {
-  const key = `${jy}/${jm}/${jd}`;
-  if(key===occCacheKey) return;
-  occCacheKey = key;
   try{
-    const res = await fetch(HOLIDAY_API(jy,jm,jd), { cache:"no-store" });
-    if(!res.ok) throw new Error("bad_status");
-    const data = await res.json();
+    const data = await fetchOccasions();
     renderOccasions(data);
-  }catch{
-    // در صورت خطا، این بخش خالی می‌ماند
-    const list = document.getElementById("occList");
-    if(list) list.innerHTML = `<div class="muted tiny">امکان دریافت مناسبت‌ها وجود ندارد.</div>`;
-    const badge = document.getElementById("occHolidayBadge");
-    if(badge) badge.classList.add("hidden");
+  }catch(e){
+    if(box){
+      box.innerHTML = `<div class="text-rose-200 tiny">خطا در دریافت مناسبت‌ها. اینترنت یا محدودیت سرویس را بررسی کنید.</div>`;
+    }
   }
 };
 
@@ -2203,306 +2300,640 @@ const tickTime = () => {
   if(utcEl) utcEl.textContent = fmtMaybeFaDigits(utcText);
 };
 
-/* ========================= بازار لحظه‌ای (رمزارز + طلا/ارز) =========================
-   منابع:
-   - رمزارزها: Nobitex (قیمت لحظه‌ای + تاریخچه ۷ روزه)
-   - طلا/سکه/ارز: TGJU (داده جدول خلاصه از api2.tgju.org)
-   نکته: قیمت‌های Nobitex و TGJU معمولاً «ریال» هستند؛ نمایش «تومان» با تقسیم بر ۱۰ انجام می‌شود.
+/* ========================= Markets & Crypto (CORS-friendly) =========================
+   ✅ Crypto: CoinGecko (public, CORS-enabled)
+   ✅ FX: open.er-api.com (public, CORS-enabled) -> تبدیل به تومان
+   ✅ Iran Gold/Coin/Silver: محاسبات تقریبی بر اساس PAXG (طلا) و KAG (نقره) از CoinGecko
+   نکته: «سکه» در ایران همیشه پرمیوم/کارمزد دارد؛ اینجا ارزش تقریبی بر اساس طلای خالص نمایش داده می‌شود.
 */
-const TOMAN_DIV = 10;
+const CG_SIMPLE = "https://api.coingecko.com/api/v3/simple/price";
+const CG_CHART  = "https://api.coingecko.com/api/v3/coins";
+const ER_API    = "https://open.er-api.com/v6/latest/USD"; // نرخ‌های ارز با پایه USD
 
+// Crypto (CoinGecko ids)
 const CRYPTO_ASSETS = [
-  { key:"BTC", label:"بیت‌کوین", symbol:"BTC", market:"btc-rls", nobSymbol:"BTCIRT", badge:"₿" },
-  { key:"ETH", label:"اتریوم",  symbol:"ETH", market:"eth-rls", nobSymbol:"ETHIRT", badge:"Ξ" },
-  { key:"USDT",label:"تتر",    symbol:"USDT",market:"usdt-rls",nobSymbol:"USDTIRT", badge:"₮" },
-  { key:"TON", label:"تون",     symbol:"TON", market:"ton-rls", nobSymbol:"TONIRT", badge:"◎" },
-  { key:"TRX", label:"ترون",    symbol:"TRX", market:"trx-rls", nobSymbol:"TRXIRT", badge:"▲" },
-  { key:"PAXG",label:"طلای دیجیتال", symbol:"PAXG", market:"paxg-rls", nobSymbol:"PAXGIRT", badge:"🪙" },
+  { key:"btc",  name:"Bitcoin",   fa:"بیت‌کوین",   cg:"bitcoin",        symbol:"BTC",  icon:"₿" },
+  { key:"eth",  name:"Ethereum",  fa:"اتریوم",     cg:"ethereum",       symbol:"ETH",  icon:"Ξ" },
+  { key:"usdt", name:"Tether",    fa:"تتر",        cg:"tether",         symbol:"USDT", icon:"💵" },
+  { key:"ton",  name:"Toncoin",   fa:"تون",        cg:"the-open-network", symbol:"TON", icon:"🟦" },
+  { key:"trx",  name:"TRON",      fa:"ترون",       cg:"tron",           symbol:"TRX",  icon:"🔺" },
+  { key:"paxg", name:"PAX Gold",  fa:"طلای دیجیتال", cg:"pax-gold",      symbol:"PAXG", icon:"🪙" },
+  { key:"kag",  name:"Kinesis Silver", fa:"نقره دیجیتال", cg:"kinesis-silver", symbol:"KAG", icon:"🥈" },
 ];
 
+// Iran/FX assets (computed)
 const IR_ASSETS = [
-  { key:"G18", label:"طلا ۱۸ عیار", unit:"تومان", tgju:"geram18", badge:"Au" },
-  { key:"COIN", label:"سکه (امامی)", unit:"تومان", tgju:"sekee_down", badge:"🪙" },
-  { key:"SILVER", label:"نقره ۹۹۹", unit:"تومان", tgju:"silver_999", badge:"Ag" },
-  { key:"EUR", label:"یورو", unit:"تومان", tgju:"price_eur", badge:"€" },
-  { key:"GBP", label:"پوند انگلیس", unit:"تومان", tgju:"price_gbp", badge:"£" },
-  { key:"TRY", label:"لیر ترکیه", unit:"تومان", tgju:"price_try", badge:"₺" },
-  { key:"AED", label:"درهم امارات", unit:"تومان", tgju:"price_aed", badge:"د" },
+  { key:"gold18",  fa:"طلا ۱۸ عیار (تقریبی)",  unit:"تومان", icon:"🥇" },
+  { key:"coin",    fa:"سکه (تقریبی)",         unit:"تومان", icon:"🪙" },
+  { key:"silver",  fa:"نقره (تقریبی)",        unit:"تومان", icon:"🥈" },
+  { key:"eur",     fa:"یورو",                 unit:"تومان", icon:"€" },
+  { key:"gbp",     fa:"پوند انگلیس",          unit:"تومان", icon:"£" },
+  { key:"try",     fa:"لیر ترکیه",            unit:"تومان", icon:"₺" },
+  { key:"aed",     fa:"درهم امارات",          unit:"تومان", icon:"د.إ" },
 ];
 
-const CRYPTO_REFRESH_MS = 20 * 1000;
-const HISTORY_REFRESH_MS = 10 * 60 * 1000; // تاریخچه دیرتر آپدیت شود
-
-const nobitex = {
-  baseV2: "https://api.nobitex.ir",
-  baseV2Alt: "https://apiv2.nobitex.ir",
-  async fetchOrderbook(markets){
-    const url = `${this.baseV2}/v3/orderbook/all?markets=${encodeURIComponent(markets.join(','))}`;
-    const res = await fetch(url, { cache:"no-store" });
-    if(!res.ok) throw new Error("nobitex_orderbook_bad_status");
-    const data = await res.json();
-    if(!data || !data.status || !data.orderbooks) throw new Error("nobitex_orderbook_bad_payload");
-    return data.orderbooks;
-  },
-  async fetchHistory(symbol, days=7){
-    // UDF history: daily candles
-    const now = Math.floor(Date.now()/1000);
-    const from = now - (days * 24 * 60 * 60);
-    const url = `${this.baseV2Alt}/market/udf/history?symbol=${encodeURIComponent(symbol)}&resolution=D&from=${from}&to=${now}`;
-    const res = await fetch(url, { cache:"no-store" });
-    if(!res.ok) throw new Error("nobitex_hist_bad_status");
-    const data = await res.json();
-    if(!data || data.s !== "ok" || !Array.isArray(data.c)) throw new Error("nobitex_hist_bad_payload");
-    // close prices in IRR (ریال) for IRT markets
-    return data.c.slice(-days);
-  }
+// State
+let marketState = {
+  lastCryptoOk:false,
+  lastIrOk:false,
+  usdIrr:null,           // IRR per 1 USD
+  updatedAtCrypto:"—",
+  updatedAtIr:"—",
+  crypto:{},             // key -> {usd, toman, change24, high24, low24, spark7d:[]}
+  ir:{},                 // key -> {toman, note, change24?}
 };
 
-const tgju = {
-  base: "https://api2.tgju.org/v1/market/indicator/summary-table-data/",
-  async fetchTable(grade){
-    const url = `${this.base}${encodeURIComponent(grade)}`;
-    const res = await fetch(url, { cache:"no-store" });
-    if(!res.ok) throw new Error("tgju_bad_status");
-    const data = await res.json();
-    if(!data || !Array.isArray(data.data)) throw new Error("tgju_bad_payload");
-    return data.data;
-  }
-};
-
-const parseTgjuNumber = (s) => {
-  const t = String(s ?? "")
-    .replace(/<[^>]*>/g,"")
-    .replace(/,/g,"")
-    .trim();
-  const n = Number(toLatinDigits(t));
-  return Number.isFinite(n) ? n : NaN;
-};
-
-const fmtPriceToman = (irr) => {
-  if(!Number.isFinite(irr)) return "—";
-  const t = irr / TOMAN_DIV;
-  // بدون اعشار
-  const s = Math.round(t).toLocaleString("en-US");
-  return elementSdk.getConfig().enable_persian_digits ? toPersianDigits(s) : s;
-};
-
-const fmtCompact = (n) => {
+const moneyFmt = (n) => {
   if(!Number.isFinite(n)) return "—";
+  // با توجه به تنظیمات اعداد فارسی/انگلیسی در کل برنامه:
+  const cfg = elementSdk.getConfig();
   const s = Math.round(n).toLocaleString("en-US");
-  return elementSdk.getConfig().enable_persian_digits ? toPersianDigits(s) : s;
+  return cfg.enable_persian_digits ? toPersianDigits(s) : s;
 };
 
-const sparklineSVG = (values, up=true) => {
-  if(!Array.isArray(values) || values.length<2 || values.some(v=>!Number.isFinite(v))) return "";
-  const w=120, h=34, p=3;
-  const min=Math.min(...values), max=Math.max(...values);
-  const span = (max-min) || 1;
-  const pts = values.map((v,i)=>{
-    const x = p + (i*(w-2*p))/(values.length-1);
-    const y = h - p - ((v-min)*(h-2*p))/span;
-    return `${x.toFixed(1)},${y.toFixed(1)}`;
-  }).join(" ");
-  const stroke = up ? "rgba(52,211,153,.95)" : "rgba(251,113,133,.95)";
-  const fill = up ? "rgba(52,211,153,.10)" : "rgba(251,113,133,.10)";
-  return `<svg viewBox="0 0 ${w} ${h}" class="w-[120px] h-[34px] shrink-0">
-    <polyline points="${pts}" fill="none" stroke="${stroke}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-    <polyline points="${pts} ${w-p},${h-p} ${p},${h-p}" fill="${fill}" stroke="none" opacity="0.9"/>
-  </svg>`;
+const pctFmt = (n) => {
+  if(!Number.isFinite(n)) return "—";
+  const cfg = elementSdk.getConfig();
+  const s = `${(n>0?"+":"")}${Number(n).toFixed(2)}%`;
+  return cfg.enable_persian_digits ? toPersianDigits(s) : s;
 };
 
-const arrowBadge = (pct) => {
-  if(!Number.isFinite(pct)) return `<span class="text-xs muted">—</span>`;
-  const up = pct >= 0;
-  const color = up ? "text-emerald-300" : "text-rose-300";
-  const sign = up ? "▲" : "▼";
-  const p = Math.abs(pct);
-  const s = `${p.toFixed(2)}%`;
-  const shown = elementSdk.getConfig().enable_persian_digits ? toPersianDigits(s) : s;
-  return `<span class="text-xs font-bold ${color} inline-flex items-center gap-1">${sign} ${shown}</span>`;
+const setCryptoStatus = (kind, msg) => {
+  const el = document.getElementById("cryptoStatusText");
+  if(!el) return;
+  el.className = "tiny " + (kind==="ok" ? "text-emerald-200" : kind==="warn" ? "text-amber-200" : "text-rose-200");
+  el.textContent = msg;
+};
+const setIrStatus = (kind, msg) => {
+  const el = document.getElementById("irStatusText");
+  if(!el) return;
+  el.className = "tiny " + (kind==="ok" ? "text-emerald-200" : kind==="warn" ? "text-amber-200" : "text-rose-200");
+  el.textContent = msg;
 };
 
-const buildAssetCard = ({badge,label,subtitle,priceToman, minToman, maxToman, changePct, spark, extra=""}) => {
-  return `<div class="soft p-3 rounded-2xl hover:scale-[1.01] transition-transform">
-    <div class="flex items-center justify-between gap-2">
-      <div class="flex items-center gap-3 min-w-0">
-        <div class="grad w-10 h-10 rounded-2xl flex items-center justify-center font-extrabold text-[#06101f] shrink-0">${escapeHtml(badge||"")}</div>
-        <div class="min-w-0">
-          <div class="font-bold truncate">${escapeHtml(label)}</div>
-          <div class="tiny muted truncate">${escapeHtml(subtitle||"")}</div>
+// ---- Fetch helpers ----
+async function fetchUsdRates(){
+  const res = await fetch(ER_API, { cache:"no-store" });
+  if(!res.ok) throw new Error("er_status");
+  const data = await res.json();
+  const rates = data && data.rates;
+  if(!rates || typeof rates.IRR !== "number") throw new Error("er_payload");
+  return { rates, time:data.time_last_update_utc || data.time_last_update_unix || null };
+}
+
+async function fetchCryptoSimple(ids){
+  const url = `${CG_SIMPLE}?ids=${encodeURIComponent(ids.join(","))}&vs_currencies=usd&include_24hr_change=true&include_24hr_high=true&include_24hr_low=true`;
+  const res = await fetch(url, { cache:"no-store" });
+  if(!res.ok) throw new Error("cg_simple_status");
+  const data = await res.json();
+  if(!data) throw new Error("cg_simple_payload");
+  return data;
+}
+
+async function fetchCryptoChart(id){
+  const url = `${CG_CHART}/${encodeURIComponent(id)}/market_chart?vs_currency=usd&days=7&interval=hourly`;
+  const res = await fetch(url, { cache:"no-store" });
+  if(!res.ok) throw new Error("cg_chart_status");
+  const data = await res.json();
+  const prices = (data && data.prices) ? data.prices.map(x=>x[1]) : [];
+  return prices.filter(v=>Number.isFinite(v));
+}
+
+// ---- Rendering ----
+function renderMiniSpark(canvasId, values){
+  const c = document.getElementById(canvasId);
+  if(!c) return;
+  const ctx = c.getContext("2d");
+  const w = c.width, h = c.height;
+  ctx.clearRect(0,0,w,h);
+  if(!Array.isArray(values) || values.length < 2) return;
+
+  const min = Math.min(...values);
+  const max = Math.max(...values);
+  const range = (max-min) || 1;
+  ctx.lineWidth = 2;
+
+  ctx.beginPath();
+  values.forEach((v,i)=>{
+    const x = (i/(values.length-1)) * (w-2) + 1;
+    const y = h - ((v-min)/range)*(h-2) - 1;
+    if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+  });
+  ctx.strokeStyle = "rgba(56,189,248,.9)";
+  ctx.stroke();
+
+  // baseline
+  ctx.strokeStyle = "rgba(255,255,255,.10)";
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(0,h-1); ctx.lineTo(w,h-1);
+  ctx.stroke();
+}
+
+function renderCryptoCards(){
+  const host = document.getElementById("cryptoCards");
+  if(!host) return;
+  host.innerHTML = "";
+
+  CRYPTO_ASSETS.slice(0,6).forEach((a, idx)=>{
+    const d = marketState.crypto[a.key] || {};
+    const up = Number(d.change24) >= 0;
+    const arrow = up ? "▲" : "▼";
+    const arrowCls = up ? "text-emerald-300" : "text-rose-300";
+    const changeTxt = pctFmt(d.change24);
+
+    const hi = moneyFmt(d.highToman);
+    const lo = moneyFmt(d.lowToman);
+
+    const el = document.createElement("div");
+    el.className = "soft p-3 rounded-xl hover:brightness-[1.03] transition-all";
+    el.innerHTML = `
+      <div class="flex items-center justify-between gap-2">
+        <div class="flex items-center gap-2">
+          <div class="w-10 h-10 rounded-2xl flex items-center justify-center bg-black/20 border border-white/10 text-xl">${a.icon}</div>
+          <div class="min-w-0">
+            <div class="font-bold truncate">${a.fa}</div>
+            <div class="muted tiny">${a.symbol}</div>
+          </div>
+        </div>
+        <div class="text-left">
+          <div class="font-extrabold text-lg">${moneyFmt(d.toman)}</div>
+          <div class="tiny ${arrowCls} font-bold">${arrow} ${changeTxt}</div>
         </div>
       </div>
-      <div class="text-left">
-        <div class="text-lg font-extrabold calcDisplay">${priceToman}</div>
-        <div class="mt-0.5">${arrowBadge(changePct)}</div>
+
+      <div class="mt-2 grid grid-cols-2 gap-2 tiny">
+        <div class="soft p-2 rounded-lg"><span class="muted">کمینه ۲۴س:</span> <span class="font-bold">${lo}</span></div>
+        <div class="soft p-2 rounded-lg"><span class="muted">بیشینه ۲۴س:</span> <span class="font-bold">${hi}</span></div>
       </div>
-    </div>
-    <div class="mt-2 flex items-center justify-between gap-3">
-      <div class="tiny muted">
-        کمینه: <span class="font-semibold">${minToman}</span> • بیشینه: <span class="font-semibold">${maxToman}</span>
+
+      <div class="mt-2 soft p-2 rounded-lg">
+        <canvas id="spark_${a.key}" width="220" height="48" style="width:100%;height:48px"></canvas>
       </div>
-      ${spark || ""}
-    </div>
-    ${extra ? `<div class="mt-2 tiny muted">${extra}</div>` : ``}
-  </div>`;
-};
+    `;
+    host.appendChild(el);
 
-const cryptoEl = {
-  grid: null,
-  irGrid: null,
-  status: null,
-};
+    // sparkline
+    if(Array.isArray(d.spark7d) && d.spark7d.length>2){
+      renderMiniSpark(`spark_${a.key}`, d.spark7d.slice(-120)); // حدود 120 نقطه
+    }
+  });
 
-let cryptoState = {
-  prices: {},      // key -> {priceIrr, dayLowIrr, dayHighIrr}
-  history: {},     // key -> [closeIrr...]
-  irHistory: {},   // key -> [closeIrr...]
-  lastPriceOk: false,
-  lastHistOk: false,
-};
+  const u=document.getElementById("cryptoUpdatedAt");
+  if(u) u.textContent = fmtMaybeFaDigits(marketState.updatedAtCrypto);
+}
 
-const renderCrypto = () => {
-  if(!cryptoEl.grid) return;
-  const now = new Date();
-  const updated = elementSdk.getConfig().enable_persian_digits
-    ? toPersianDigits(now.toLocaleTimeString("en-US"))
-    : now.toLocaleTimeString("en-US");
+function renderIrCards(){
+  const host = document.getElementById("irCards");
+  if(!host) return;
+  host.innerHTML = "";
 
-  // رمزارزها (هفتگی دقیق)
-  const cards = CRYPTO_ASSETS.map(a=>{
-    const p = cryptoState.prices[a.key];
-    const hist = cryptoState.history[a.key];
-    const last = p?.lastTradePrice;
-    const low = p?.dayLow;
-    const high = p?.dayHigh;
+  IR_ASSETS.forEach(a=>{
+    const d = marketState.ir[a.key] || {};
+    const note = d.note ? `<div class="muted tiny mt-1">${escapeHtml(d.note)}</div>` : "";
+    const up = Number(d.change24) >= 0;
+    const arrow = (d.change24==null) ? "" : (up ? "▲" : "▼");
+    const arrowCls = up ? "text-emerald-300" : "text-rose-300";
+    const changeTxt = (d.change24==null) ? "" : pctFmt(d.change24);
 
-    const h = Array.isArray(hist) && hist.length>=2 ? hist : null;
-    const min7 = h ? Math.min(...h) : low;
-    const max7 = h ? Math.max(...h) : high;
+    const el=document.createElement("div");
+    el.className="soft p-3 rounded-xl hover:brightness-[1.03] transition-all";
+    el.innerHTML=`
+      <div class="flex items-center justify-between gap-2">
+        <div class="flex items-center gap-2">
+          <div class="w-10 h-10 rounded-2xl flex items-center justify-center bg-black/20 border border-white/10 text-xl">${a.icon}</div>
+          <div class="min-w-0">
+            <div class="font-bold truncate">${a.fa}</div>
+            <div class="muted tiny">${a.unit}</div>
+          </div>
+        </div>
+        <div class="text-left">
+          <div class="font-extrabold text-lg">${moneyFmt(d.toman)}</div>
+          <div class="tiny ${arrowCls} font-bold">${arrow ? `${arrow} ${changeTxt}` : ""}</div>
+        </div>
+      </div>
+      ${note}
+    `;
+    host.appendChild(el);
+  });
 
-    let pct = NaN;
-    if(h && Number.isFinite(h[0]) && Number.isFinite(h[h.length-1]) && h[0]!==0){
-      pct = ((h[h.length-1]-h[0]) / h[0]) * 100;
-    }else if(Number.isFinite(p?.dayChange) && Number.isFinite(last) && last!==0){
-      pct = Number(p.dayChange); // بعضی بازارها درصد روزانه می‌دهند
+  const u=document.getElementById("irUpdatedAt");
+  if(u) u.textContent = fmtMaybeFaDigits(marketState.updatedAtIr);
+}
+
+// ---- Main refreshers ----
+async function refreshCrypto(){
+  try{
+    setCryptoStatus("warn","در حال دریافت قیمت‌های جهانی…");
+    const ids = CRYPTO_ASSETS.map(x=>x.cg);
+    const simple = await fetchCryptoSimple(ids);
+
+    // Ensure USD->IRR known
+    if(!Number.isFinite(marketState.usdIrr)){
+      const er = await fetchUsdRates();
+      marketState.usdIrr = er.rates.IRR;
+      marketState.updatedAtIr = "نرخ ارز به‌روز شد";
+      marketState.lastIrOk = true;
+      setIrStatus("ok","نرخ ارز دریافت شد ✅");
     }
 
-    const up = Number.isFinite(pct) ? pct>=0 : true;
-    const spark = h ? sparklineSVG(h.map(x=>x/TOMAN_DIV), up) : "";
+    const usdToToman = (marketState.usdIrr / 10);
 
-    return buildAssetCard({
-      badge: a.badge,
-      label: a.label,
-      subtitle: "به تومان",
-      priceToman: fmtPriceToman(last),
-      minToman: fmtPriceToman(min7),
-      maxToman: fmtPriceToman(max7),
-      changePct: pct,
-      spark
-    });
-  }).join("");
-
-  cryptoEl.grid.innerHTML = cards;
-
-  // طلا/سکه/ارز (هفتگی از TGJU)
-  if(cryptoEl.irGrid){
-    const irCards = IR_ASSETS.map(a=>{
-      const hist = cryptoState.irHistory[a.key];
-      const h = Array.isArray(hist) && hist.length>=2 ? hist : null;
-      const last = h ? h[0] : NaN; // جدول TGJU معمولاً جدیدترین را اول می‌دهد
-      const values = h ? h.slice(0,7).reverse() : null; // برای نمودار از قدیم به جدید
-      const min7 = values ? Math.min(...values) : NaN;
-      const max7 = values ? Math.max(...values) : NaN;
-      let pct = NaN;
-      if(values && values[0]!==0 && Number.isFinite(values[0]) && Number.isFinite(values[values.length-1])){
-        pct = ((values[values.length-1]-values[0]) / values[0]) * 100;
-      }
-      const up = Number.isFinite(pct) ? pct>=0 : true;
-      const spark = values ? sparklineSVG(values.map(x=>x/TOMAN_DIV), up) : "";
-
-      return buildAssetCard({
-        badge: a.badge,
-        label: a.label,
-        subtitle: "به تومان",
-        priceToman: fmtPriceToman(last),
-        minToman: fmtPriceToman(min7),
-        maxToman: fmtPriceToman(max7),
-        changePct: pct,
-        spark
-      });
-    }).join("");
-    cryptoEl.irGrid.innerHTML = irCards;
-  }
-
-  if(cryptoEl.status){
-    cryptoEl.status.textContent = updated;
-  }
-};
-
-const updateCryptoPrices = async () => {
-  try{
-    if(cryptoEl.status) cryptoEl.status.textContent = "…";
-    const orderbooks = await nobitex.fetchOrderbook(CRYPTO_ASSETS.map(a=>a.market));
-    // ساخت state
+    // Fill crypto
     for(const a of CRYPTO_ASSETS){
-      const ob = orderbooks[a.market];
-      if(!ob) continue;
-      cryptoState.prices[a.key] = {
-        lastTradePrice: safeNum(ob.lastTradePrice),
-        dayLow: safeNum(ob.dayLow),
-        dayHigh: safeNum(ob.dayHigh),
-        dayChange: safeNum(ob.dayChange) // درصد یا مقدار (بستگی به API)
+      const row = simple[a.cg];
+      if(!row || typeof row.usd !== "number") continue;
+      const usd = row.usd;
+      const toman = usd * usdToToman;
+      marketState.crypto[a.key] = {
+        usd,
+        toman,
+        change24: row.usd_24h_change,
+        highToman: (row.usd_24h_high ?? NaN) * usdToToman,
+        lowToman: (row.usd_24h_low ?? NaN) * usdToToman,
+        spark7d: marketState.crypto[a.key]?.spark7d || []
       };
     }
-    cryptoState.lastPriceOk = true;
-    renderCrypto();
-  }catch{
-    cryptoState.lastPriceOk = false;
-    if(cryptoEl.status) cryptoEl.status.textContent = "خطا";
-  }
-};
 
-const updateCryptoHistory = async () => {
+    marketState.updatedAtCrypto = new Date().toLocaleTimeString("fa-IR", {hour:"2-digit",minute:"2-digit"});
+    marketState.lastCryptoOk = true;
+    setCryptoStatus("ok","قیمت‌های جهانی آپدیت شد ✅");
+    renderCryptoCards();
+  }catch(e){
+    marketState.lastCryptoOk = false;
+    setCryptoStatus("err","خطا در دریافت قیمت‌های جهانی. اینترنت/تحریم/محدودیت سرویس را بررسی کنید.");
+  }
+}
+
+async function refreshCryptoCharts(){
+  // chart calls are heavier -> کمتر فراخوانی
   try{
-    // تاریخچه رمزارز
-    await Promise.all(CRYPTO_ASSETS.map(async a=>{
-      try{
-        cryptoState.history[a.key] = await nobitex.fetchHistory(a.nobSymbol, 7);
-      }catch{
-        cryptoState.history[a.key] = null;
-      }
-    }));
-
-    // تاریخچه بازار ایران از TGJU
-    await Promise.all(IR_ASSETS.map(async a=>{
-      try{
-        const table = await tgju.fetchTable(a.tgju);
-        // table row: [open, low, high, close, change, change%, greg, jalali]
-        const closes = table.slice(0, 7).map(r=>parseTgjuNumber(r[3])).filter(Number.isFinite);
-        cryptoState.irHistory[a.key] = closes.length ? closes : null;
-      }catch{
-        cryptoState.irHistory[a.key] = null;
-      }
-    }));
-
-    cryptoState.lastHistOk = true;
-    renderCrypto();
+    const tasks = CRYPTO_ASSETS.slice(0,6).map(async (a)=>{
+      const prices = await fetchCryptoChart(a.cg);
+      marketState.crypto[a.key] = marketState.crypto[a.key] || {};
+      marketState.crypto[a.key].spark7d = prices;
+    });
+    await Promise.all(tasks);
+    renderCryptoCards();
   }catch{
-    cryptoState.lastHistOk = false;
+    // ignore chart errors (keep old)
   }
-};
+}
 
-const initMarketPage = () => {
-  cryptoEl.grid = document.getElementById("cryptoGrid");
-  cryptoEl.irGrid = document.getElementById("irMarketGrid");
-  cryptoEl.status = document.getElementById("cryptoStatus");
+async function refreshIranMarket(){
+  // FX + Gold/Silver approximations (computed)
+  try{
+    setIrStatus("warn","در حال دریافت نرخ ارز…");
+    const er = await fetchUsdRates();
+    const rates = er.rates;
+    marketState.usdIrr = rates.IRR;
 
-  updateCryptoPrices();
-  updateCryptoHistory();
+    const usdToToman = marketState.usdIrr / 10;
 
-  setInterval(updateCryptoPrices, CRYPTO_REFRESH_MS);
-  setInterval(updateCryptoHistory, HISTORY_REFRESH_MS);
-};
+    // FX: irr per 1 unit of currency
+    const irrPer = (cur) => marketState.usdIrr / rates[cur]; // because rates[cur] = cur per USD
+    marketState.ir.eur = { toman: irrPer("EUR")/10 };
+    marketState.ir.gbp = { toman: irrPer("GBP")/10 };
+    marketState.ir.try = { toman: irrPer("TRY")/10 };
+    marketState.ir.aed = { toman: irrPer("AED")/10 };
+
+    // Gold/Silver approximations: use current USD price from existing crypto state if possible
+    // Ensure we have paxg/kag; if not, fetch simple again for these two
+    const need = [];
+    if(!Number.isFinite(marketState.crypto.paxg?.usd)) need.push("pax-gold");
+    if(!Number.isFinite(marketState.crypto.kag?.usd)) need.push("kinesis-silver");
+    if(need.length){
+      const s = await fetchCryptoSimple(need);
+      if(s["pax-gold"]) marketState.crypto.paxg = {...(marketState.crypto.paxg||{}), usd: s["pax-gold"].usd};
+      if(s["kinesis-silver"]) marketState.crypto.kag = {...(marketState.crypto.kag||{}), usd: s["kinesis-silver"].usd};
+    }
+
+    const ozToG = 31.1034768;
+
+    // 24k gram price (USD)
+    const goldOzUsd = marketState.crypto.paxg?.usd;
+    const silverOzUsd = marketState.crypto.kag?.usd;
+    if(Number.isFinite(goldOzUsd)){
+      const gram24Usd = goldOzUsd / ozToG;
+      const gram18Toman = gram24Usd * 0.75 * usdToToman;
+      marketState.ir.gold18 = { toman: gram18Toman, note:"بر اساس قیمت جهانی طلا (تقریبی)" };
+
+      // Iranian coin approx: ~8.133g coin, 0.900 fine => 7.3197g pure gold
+      const pureG = 8.133 * 0.900;
+      const coinToman = pureG * gram24Usd * usdToToman;
+      marketState.ir.coin = { toman: coinToman, note:"بدون پرمیوم بازار (تقریبی)" };
+    }else{
+      marketState.ir.gold18 = { toman: NaN, note:"قیمت جهانی طلا در دسترس نیست." };
+      marketState.ir.coin   = { toman: NaN, note:"قیمت جهانی طلا در دسترس نیست." };
+    }
+
+    if(Number.isFinite(silverOzUsd)){
+      const gramSilverUsd = silverOzUsd / ozToG;
+      marketState.ir.silver = { toman: gramSilverUsd * usdToToman, note:"بر اساس قیمت جهانی نقره (تقریبی)" };
+    }else{
+      marketState.ir.silver = { toman: NaN, note:"قیمت جهانی نقره در دسترس نیست." };
+    }
+
+    marketState.updatedAtIr = new Date().toLocaleTimeString("fa-IR", {hour:"2-digit",minute:"2-digit"});
+    marketState.lastIrOk = true;
+    setIrStatus("ok","بازار (ارز/طلا) آپدیت شد ✅");
+    renderIrCards();
+  }catch{
+    marketState.lastIrOk = false;
+    setIrStatus("err","خطا در دریافت نرخ ارز. اینترنت/محدودیت سرویس را بررسی کنید.");
+  }
+}
+
+// Init bindings (called from init)
+function initMarketPage(){
+  const btnC = document.getElementById("cryptoRefreshBtn");
+  const btnI = document.getElementById("irRefreshBtn");
+  if(btnC) btnC.addEventListener("click", ()=>{ refreshCrypto(); showToast("به‌روزرسانی کریپتو…","info"); });
+  if(btnI) btnI.addEventListener("click", ()=>{ refreshIranMarket(); showToast("به‌روزرسانی بازار ایران…","info"); });
+
+  // initial
+  refreshIranMarket().then(()=>refreshCrypto()).then(()=>refreshCryptoCharts());
+  // schedules: قیمت لحظه‌ای هر 20 ثانیه، بازار ایران هر 2 دقیقه، نمودار هر 15 دقیقه
+  setInterval(refreshCrypto, 20*1000);
+  setInterval(refreshIranMarket, 120*1000);
+  setInterval(refreshCryptoCharts, 15*60*1000);
+}
+
+
+
+/* ========================= Weather (Open‑Meteo) ========================= */
+let wxInited = false;
+
+function wx$(id){ return document.getElementById(id); }
+function wxToFaDigits(str){ return String(str).replace(/\d/g, d => "۰۱۲۳۴۵۶۷۸۹"[d]); }
+function wxFmtMaybeFa(str){
+  const cfg = elementSdk.getConfig();
+  return cfg.enable_persian_digits ? wxToFaDigits(str) : String(str);
+}
+function wxFormatTimeHHMM(iso){
+  const d = new Date(iso);
+  const hh = String(d.getHours()).padStart(2,"0");
+  const mm = String(d.getMinutes()).padStart(2,"0");
+  return wxFmtMaybeFa(`${hh}:${mm}`);
+}
+function wxFormatDayName(iso){
+  const d = new Date(iso);
+  const names = ["یکشنبه","دوشنبه","سه‌شنبه","چهارشنبه","پنجشنبه","جمعه","شنبه"];
+  return names[d.getDay()];
+}
+function wxDiffHhMm(ms){
+  const totalMin = Math.max(0, Math.round(ms/60000));
+  const h = Math.floor(totalMin/60);
+  const m = totalMin%60;
+  return wxFmtMaybeFa(`${h} ساعت و ${m} دقیقه`);
+}
+function wxDescribe(code){
+  if (code === 0) return "صاف";
+  if (code === 1) return "عمدتاً صاف";
+  if (code === 2) return "نیمه ابری";
+  if (code === 3) return "ابری";
+  if ([45,48].includes(code)) return "مه/غبار";
+  if ([51,53,55].includes(code)) return "نم‌نم باران";
+  if ([56,57].includes(code)) return "نم‌نم یخ‌زده";
+  if ([61,63,65].includes(code)) return "بارانی";
+  if ([66,67].includes(code)) return "باران یخ‌زده";
+  if ([71,73,75,77].includes(code)) return "برفی";
+  if ([80,81,82].includes(code)) return "رگبار";
+  if ([85,86].includes(code)) return "رگبار برف";
+  if ([95,96,99].includes(code)) return "طوفان/رعدوبرق";
+  return "نامشخص";
+}
+function wxPickIcon(code, isDay, hourlyRain, hourlySnow){
+  const hasSnow = (hourlySnow ?? 0) > 0.1 || [71,73,75,77,85,86].includes(code);
+  const hasRain = (hourlyRain ?? 0) > 0.1 || [51,53,55,61,63,65,80,81,82,66,67].includes(code);
+
+  if (!isDay){
+    if (hasSnow) return "night-snow";
+    if (hasRain) return "night-rain";
+    if (code === 0) return "night-clear";
+    if (code === 2) return "night-partly";
+    if (code === 3) return "cloud";
+    return "night-cloud";
+  }
+  if (hasSnow) return "snow";
+  if (hasRain) return "rain";
+  if (code === 0 || code === 1) return "sun";
+  if (code === 2) return "partly";
+  return "cloud";
+}
+function wxIcon(type, small=false){
+  const cls = small ? "wxico" : "wxico";
+  const sun = `<div class="sun"></div>`;
+  const moon = `<div class="moon"></div>`;
+  const cloud = `<div class="cloud"></div>`;
+  const rain = `<div class="rain"><span class="drop"></span><span class="drop"></span><span class="drop"></span></div>`;
+  const snow = `<div class="snow"><span class="flake"></span><span class="flake"></span><span class="flake"></span></div>`;
+  let inner="";
+  if(type==="sun") inner=sun;
+  else if(type==="cloud") inner=cloud;
+  else if(type==="partly") inner=sun+cloud;
+  else if(type==="rain") inner=cloud+rain;
+  else if(type==="snow") inner=cloud+snow;
+  else if(type==="night-clear") inner=moon;
+  else if(type==="night-cloud"||type==="night-partly") inner=moon+cloud;
+  else if(type==="night-rain") inner=moon+cloud+rain;
+  else if(type==="night-snow") inner=moon+cloud+snow;
+  else inner=cloud;
+  return `<div class="${cls}" style="${small?'transform:scale(.72);transform-origin:right top;':''}">${inner}</div>`;
+}
+function wxAqiInfo(aqi){
+  if (aqi == null || Number.isNaN(aqi)) return {label:"نامشخص", cls:"muted"};
+  const v = Math.round(aqi);
+  if (v <= 50) return {label:"سالم", cls:"text-emerald-300"};
+  if (v <= 100) return {label:"متوسط", cls:"text-amber-300"};
+  if (v <= 150) return {label:"ناسالم برای گروه‌های حساس", cls:"text-amber-300"};
+  if (v <= 200) return {label:"ناسالم", cls:"text-rose-300"};
+  if (v <= 300) return {label:"خیلی ناسالم", cls:"text-rose-300"};
+  return {label:"خطرناک", cls:"text-rose-300"};
+}
+
+function initWeatherPage(){
+  if(wxInited) return;
+  wxInited = true;
+
+  const refreshBtn = wx$("wx_refreshBtn");
+  if(refreshBtn) refreshBtn.addEventListener("click", ()=>location.reload());
+
+  const stateEl = wx$("wx_currentState");
+  if(stateEl) stateEl.textContent = "در حال دریافت موقعیت کاربر…";
+
+  if(!navigator.geolocation){
+    if(stateEl) stateEl.textContent = "مرورگر شما از GPS پشتیبانی نمی‌کند.";
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(async (pos)=>{
+    const lat = pos.coords.latitude;
+    const lon = pos.coords.longitude;
+
+    wx$("wx_locBadge").textContent = `📍 مختصات: ${wxFmtMaybeFa(lat.toFixed(4))}, ${wxFmtMaybeFa(lon.toFixed(4))}`;
+    wx$("wx_subtitle").textContent = "مکان دریافت شد؛ در حال گرفتن پیش‌بینی…";
+
+    try{
+      const geoUrl = `https://geocoding-api.open-meteo.com/v1/reverse?latitude=${lat}&longitude=${lon}&language=fa`;
+      const geo = await (await fetch(geoUrl,{cache:"no-store"})).json();
+      const city = geo?.results?.[0]?.name || "نامشخص";
+      const admin1 = geo?.results?.[0]?.admin1 || "";
+      wx$("wx_locBadge").textContent = `📍 ${city}${admin1 ? "، "+admin1 : ""}`;
+      wx$("wx_subtitle").textContent = `${admin1 ? admin1+" - " : ""}${city}`;
+
+      const wxUrl =
+        `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}` +
+        `&current_weather=true&timezone=auto` +
+        `&hourly=temperature_2m,weathercode,is_day,precipitation,rain,snowfall` +
+        `&daily=weathercode,temperature_2m_max,temperature_2m_min,sunrise,sunset,precipitation_sum,snowfall_sum`;
+
+      const wx = await (await fetch(wxUrl,{cache:"no-store"})).json();
+
+      const aqUrl =
+        `https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}` +
+        `&hourly=us_aqi,pm2_5,pm10&timezone=auto`;
+      const aq = await (await fetch(aqUrl,{cache:"no-store"})).json();
+
+      wxRenderAll(city, wx, aq);
+    }catch(err){
+      if(stateEl) stateEl.textContent = "خطا در گرفتن اطلاعات. اینترنت را بررسی کنید.";
+    }
+  }, (err)=>{
+    if(stateEl) stateEl.textContent = "اجازه موقعیت داده نشد یا خطا رخ داد: " + err.message;
+  }, { enableHighAccuracy:true, timeout:12000, maximumAge:0 });
+}
+
+function wxRenderAll(city, wx, aq){
+  const now = wx.current_weather;
+  const tz = wx.timezone || "";
+  wx$("wx_updatedAt").textContent = `⏱️ ${wxFmtMaybeFa(new Date(now.time).toLocaleString("fa-IR"))} (${tz})`;
+
+  const code = now.weathercode;
+  const isDay = !!now.is_day;
+  const desc = wxDescribe(code);
+
+  const times = wx.hourly.time;
+  const nowIso = now.time;
+  let idx = times.indexOf(nowIso);
+  if(idx<0) idx = 0;
+  const hrRain = wx.hourly.rain?.[idx] ?? wx.hourly.precipitation?.[idx] ?? 0;
+  const hrSnow = wx.hourly.snowfall?.[idx] ?? 0;
+  const iconType = wxPickIcon(code, isDay, hrRain, hrSnow);
+
+  const sunriseIso = wx.daily.sunrise?.[0];
+  const sunsetIso  = wx.daily.sunset?.[0];
+  if(sunriseIso && sunsetIso){
+    const sr=new Date(sunriseIso), ss=new Date(sunsetIso);
+    const dayMs = ss - sr;
+    const nightMs = 24*60*60*1000 - dayMs;
+    wx$("wx_dayLen").textContent = wxDiffHhMm(dayMs);
+    wx$("wx_nightLen").textContent = wxDiffHhMm(nightMs);
+    wx$("wx_sunrise").textContent = `طلوع: ${wxFormatTimeHHMM(sunriseIso)}`;
+    wx$("wx_sunset").textContent  = `غروب: ${wxFormatTimeHHMM(sunsetIso)}`;
+  }
+
+  // AQI nearest hour
+  const aqTimes = aq?.hourly?.time || [];
+  const aqiArr  = aq?.hourly?.us_aqi || [];
+  let aqIdx = aqTimes.indexOf(nowIso);
+  if(aqIdx<0) aqIdx=0;
+  const aqi = aqiArr[aqIdx];
+  const ai = wxAqiInfo(aqi);
+  wx$("wx_aqiVal").textContent = aqi!=null ? wxFmtMaybeFa(Math.round(aqi)) : "—";
+  wx$("wx_aqiLabel").innerHTML = `<span class="${ai.cls}">${ai.label}</span>`;
+  wx$("wx_preciseTemp").textContent = wxFmtMaybeFa(Number(now.temperature).toFixed(1)) + "°C";
+
+  // Current card content
+  wx$("wx_currentState").innerHTML = `
+    <div class="flex items-center justify-between gap-3 flex-wrap">
+      <div class="flex items-center gap-3">
+        ${wxIcon(iconType,false)}
+        <div>
+          <div class="font-extrabold">${city} • ${desc} ${isDay ? "☀️" : "🌙"}</div>
+          <div class="muted tiny mt-1 flex flex-wrap gap-2">
+            <span class="soft px-2 py-1 rounded-lg">🌡️ ${wxFmtMaybeFa(Number(now.temperature).toFixed(1))}°C</span>
+            <span class="soft px-2 py-1 rounded-lg">💨 باد: ${wxFmtMaybeFa(Number(now.windspeed).toFixed(0))} km/h</span>
+            <span class="soft px-2 py-1 rounded-lg">🧭 جهت: ${wxFmtMaybeFa(Number(now.winddirection).toFixed(0))}°</span>
+          </div>
+        </div>
+      </div>
+      <div class="text-left min-w-[160px]">
+        <div class="text-4xl font-black">${wxFmtMaybeFa(Number(now.temperature).toFixed(1))}°</div>
+        <div class="muted tiny">بروزرسانی: ${wxFmtMaybeFa(new Date(nowIso).toLocaleTimeString("fa-IR",{hour:"2-digit",minute:"2-digit"}))}</div>
+      </div>
+    </div>
+  `;
+
+  wxRenderHourly(wx);
+  wxRenderDaily(wx);
+}
+
+function wxRenderHourly(wx){
+  const times = wx.hourly.time;
+  const temp  = wx.hourly.temperature_2m;
+  const code  = wx.hourly.weathercode;
+  const isDay = wx.hourly.is_day;
+  const rain  = wx.hourly.rain || wx.hourly.precipitation;
+  const snow  = wx.hourly.snowfall;
+
+  const nowIso = wx.current_weather.time;
+  let start = times.indexOf(nowIso);
+  if(start<0) start=0;
+  const end = Math.min(start+24, times.length);
+
+  let html = `<div class="flex gap-2 overflow-auto pb-1">`;
+  for(let i=start;i<end;i++){
+    const d=new Date(times[i]);
+    const hh=String(d.getHours()).padStart(2,"0");
+    const t=Number(temp[i]).toFixed(0);
+    const iconType = wxPickIcon(code[i], !!isDay[i], rain?.[i] ?? 0, snow?.[i] ?? 0);
+    const pr=(rain?.[i] ?? 0) + (snow?.[i] ?? 0);
+    const prTxt = pr>0.1 ? `💧 ${wxFmtMaybeFa(pr.toFixed(1))}` : "—";
+
+    html += `
+      <div class="soft rounded-xl p-2 min-w-[92px] text-center">
+        <div class="muted tiny">${wxFmtMaybeFa(hh)}:۰۰</div>
+        <div class="mt-1 flex justify-center">${wxIcon(iconType,true)}</div>
+        <div class="font-extrabold mt-1">${wxFmtMaybeFa(t)}°</div>
+        <div class="muted tiny mt-1">${prTxt}</div>
+      </div>
+    `;
+  }
+  html += `</div>`;
+  wx$("wx_hourlyWrap").innerHTML = html;
+}
+
+function wxRenderDaily(wx){
+  const times = wx.daily.time;
+  const tmax  = wx.daily.temperature_2m_max;
+  const tmin  = wx.daily.temperature_2m_min;
+  const code  = wx.daily.weathercode;
+  const psum  = wx.daily.precipitation_sum;
+  const ssum  = wx.daily.snowfall_sum;
+
+  let html = `<div class="grid gap-2 md:grid-cols-7 overflow-auto pb-1">`;
+  for(let i=0;i<Math.min(7,times.length);i++){
+    const iconType = wxPickIcon(code[i], true, psum?.[i] ?? 0, ssum?.[i] ?? 0);
+    html += `
+      <div class="soft rounded-xl p-3">
+        <div class="font-extrabold">${i===0 ? "امروز" : wxFormatDayName(times[i])}</div>
+        <div class="muted tiny">${wxFmtMaybeFa(new Date(times[i]).toLocaleDateString("fa-IR"))}</div>
+        <div class="mt-2 flex items-center gap-2">
+          ${wxIcon(iconType,true)}
+          <div>
+            <div class="font-bold">${wxDescribe(code[i])}</div>
+            <div class="muted tiny mt-1">کمینه ${wxFmtMaybeFa(Number(tmin[i]).toFixed(0))}° / بیشینه ${wxFmtMaybeFa(Number(tmax[i]).toFixed(0))}°</div>
+            <div class="muted tiny">بارش: ${wxFmtMaybeFa(Number(psum?.[i] ?? 0).toFixed(1))} • برف: ${wxFmtMaybeFa(Number(ssum?.[i] ?? 0).toFixed(1))}</div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+  html += `</div>`;
+  wx$("wx_dailyWrap").innerHTML = html;
+}
+
 
 /* ========================= Settings helpers ========================= */
 const bindColorPair = (colorInput, textInput, key) => {
@@ -2787,7 +3218,8 @@ const syncSettingsForm = (cfg) => {
     computeCaloriesUI();
     calcEvaluate();
     tickTime();
-    renderCrypto(cryptoLastRows); // بروزرسانی نمایش (بدون درخواست جدید)
+    renderCryptoCards();
+    renderIrCards(); // بروزرسانی نمایش (بدون درخواست جدید)
   });
 
   // initial renders
@@ -2798,8 +3230,7 @@ const syncSettingsForm = (cfg) => {
   calcEvaluate();
   setCalcMode("basic");
   tickTime();
-  updateCrypto(true);
-  startCryptoAuto();
+  initMarketPage();
 
   // fetch time (TimeAPI.io)
   fetchTimeApi();
