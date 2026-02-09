@@ -137,73 +137,29 @@
   
 /* Analog clock */
 .analogWrap{width:100%; display:flex; justify-content:center}
-.analogClock{
-  width: 260px; height: 260px;
-  border-radius: 9999px;
-  position: relative;
+
+.analogWrap{width:min(360px,100%); aspect-ratio:1/1; margin-inline:auto}
+.analogSvg{
+  width:100%; height:100%;
+  display:block;
+  border-radius:9999px;
   background: radial-gradient(circle at 30% 25%, color-mix(in srgb, var(--primary) 18%, transparent 82%), transparent 55%),
               radial-gradient(circle at 70% 75%, color-mix(in srgb, var(--secondary) 16%, transparent 84%), transparent 55%),
               linear-gradient(180deg, color-mix(in srgb, var(--surface) 90%, transparent 10%), color-mix(in srgb, var(--surface) 70%, black 30%));
   border: 1px solid color-mix(in srgb, var(--text) 12%, transparent 88%);
   box-shadow: 0 18px 60px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.06);
 }
-.analogClock::after{
-  content:"";
-  position:absolute; inset:14px;
-  border-radius:9999px;
-  border:1px dashed color-mix(in srgb, var(--text) 14%, transparent 86%);
-  opacity:.6;
-}
-.analogCenter{
-  position:absolute; inset:0;
-  margin:auto;
-  width: 14px; height: 14px;
-  border-radius:9999px;
-  background: linear-gradient(135deg, var(--gradA), var(--gradB));
-  box-shadow: 0 0 0 6px color-mix(in srgb, var(--surface) 80%, transparent 20%), 0 10px 18px rgba(0,0,0,.25);
-  z-index: 20;
-}
-.hand{
-  position:absolute;
-  left:50%; top:50%;
-  transform-origin: 50% 100%;
-  transform: translate(-50%, -100%) rotate(0deg);
-  border-radius: 9999px;
-  z-index: 10;
-}
-.hand.hour{ width:8px; height:70px; background: color-mix(in srgb, var(--text) 92%, transparent 8%); }
-.hand.min{ width:6px; height:96px; background: color-mix(in srgb, var(--text) 86%, transparent 14%); }
-.hand.sec{ width:3px; height:110px; background: color-mix(in srgb, var(--primary) 80%, white 20%); box-shadow: 0 0 18px color-mix(in srgb, var(--primary) 35%, transparent 65%); }
-.ticks span{
-  position:absolute; left:50%; top:50%;
-  transform-origin: 50% 120px;
-  width: 2px; height: 10px;
-  background: color-mix(in srgb, var(--text) 20%, transparent 80%);
-  border-radius: 9999px;
-  transform: translateX(-50%) rotate(0deg);
-}
-.ticks span.big{height:16px; width:3px; background: color-mix(in srgb, var(--text) 35%, transparent 65%); transform-origin: 50% 118px;}
-.numerals span{
-  position:absolute; left:50%; top:50%;
-  transform: translate(-50%, -50%);
-  font-size: 0.95rem;
-  font-weight: 800;
-  color: color-mix(in srgb, var(--text) 78%, transparent 22%);
-  text-shadow: 0 6px 18px rgba(0,0,0,.35);
-  user-select:none;
-}
-.clockBrand{
-  position:absolute;
-  left:0; right:0;
-  bottom:48px;
-  text-align:center;
-  font-weight:900;
-  font-size:.95rem;
-  letter-spacing:.02em;
-  opacity:.9;
-  color: color-mix(in srgb, var(--text) 85%, transparent 15%);
-  user-select:none;
-}
+.analogRing{stroke: color-mix(in srgb, var(--text) 14%, transparent 86%); stroke-dasharray: 2 5; opacity:.55}
+.analogTick{stroke: color-mix(in srgb, var(--text) 22%, transparent 78%); stroke-linecap:round}
+.analogTickMajor{stroke: color-mix(in srgb, var(--text) 40%, transparent 60%); stroke-width:3}
+.analogNum{fill: color-mix(in srgb, var(--text) 82%, transparent 18%); font-weight:900; font-size:14px; text-anchor:middle; dominant-baseline:middle; user-select:none}
+.analogBrand{fill: color-mix(in srgb, var(--text) 85%, transparent 15%); font-weight:900; font-size:12px; text-anchor:middle; dominant-baseline:middle; opacity:.92; letter-spacing:.03em}
+.handLine{stroke-linecap:round}
+.handHourLine{stroke: color-mix(in srgb, var(--text) 92%, transparent 8%); stroke-width:6}
+.handMinLine{stroke: color-mix(in srgb, var(--text) 86%, transparent 14%); stroke-width:5}
+.handSecLine{stroke: color-mix(in srgb, var(--primary) 82%, white 18%); stroke-width:2.5; filter: drop-shadow(0 0 10px color-mix(in srgb, var(--primary) 35%, transparent 65%))}
+.analogHub{fill: url(#gradHub); filter: drop-shadow(0 10px 18px rgba(0,0,0,.25))}
+
 .phoneWiggle{display:inline-block;animation:wiggle 1.8s ease-in-out infinite;transform-origin:50% 80%}
 @keyframes wiggle{0%,100%{transform:rotate(0deg) translateY(0)}25%{transform:rotate(10deg) translateY(-1px)}50%{transform:rotate(-10deg) translateY(0)}75%{transform:rotate(6deg) translateY(-1px)}}
 
@@ -213,7 +169,7 @@
 </head>
 
 <body class="min-h-screen">
-  <div class="max-w-6xl mx-auto px-4 py-5 md:py-7">
+  <div class="w-full mx-auto max-w-none px-4 py-5 md:py-7">
     <!-- Header -->
     <header class="glass p-4 md:p-5 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
       <div class="flex items-center gap-3">
@@ -545,17 +501,41 @@
 
       <div class="soft p-4 rounded-2xl flex flex-col items-center justify-center gap-3">
         <div class="font-bold">ساعت آنالوگ (ایران)</div>
+        
         <div class="analogWrap">
-          <div class="analogClock" aria-label="ساعت آنالوگ ایران">
-            <div class="analogCenter"></div>
-            <div class="hand hour" id="handHour"></div>
-            <div class="hand min" id="handMin"></div>
-            <div class="hand sec" id="handSec"></div>
-            <div class="ticks" id="clockTicks"></div>
-            <div class="numerals" id="clockNumerals"></div>
-            <div class="clockBrand">codeisa</div>
-          </div>
+          <svg id="analogSvg" class="analogSvg" viewBox="0 0 200 200" role="img" aria-label="ساعت آنالوگ ایران">
+            <defs>
+              <linearGradient id="gradHub" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="var(--gradA)"/>
+                <stop offset="100%" stop-color="var(--gradB)"/>
+              </linearGradient>
+              <radialGradient id="dialGlow" cx="35%" cy="25%" r="70%">
+                <stop offset="0%" stop-color="color-mix(in srgb, var(--primary) 22%, transparent 78%)"/>
+                <stop offset="55%" stop-color="transparent"/>
+                <stop offset="100%" stop-color="rgba(0,0,0,.25)"/>
+              </radialGradient>
+            </defs>
+
+            <circle cx="100" cy="100" r="96" fill="url(#dialGlow)"/>
+            <circle cx="100" cy="100" r="86" fill="transparent" class="analogRing"/>
+
+            <g id="analogTicks"></g>
+            <g id="analogNums"></g>
+
+            <!-- Hands (origin: center) -->
+            <g id="hands">
+              <line id="handHour" class="handLine handHourLine" x1="100" y1="104" x2="100" y2="60"/>
+              <line id="handMin" class="handLine handMinLine" x1="100" y1="106" x2="100" y2="42"/>
+              <line id="handSec" class="handLine handSecLine" x1="100" y1="112" x2="100" y2="36"/>
+            </g>
+
+            <circle cx="100" cy="100" r="7.5" class="analogHub"/>
+            <circle cx="100" cy="100" r="2.2" fill="rgba(255,255,255,.8)"/>
+
+            <text x="100" y="142" class="analogBrand">codeisa</text>
+          </svg>
         </div>
+
         <div id="timeStatusText" class="tiny text-amber-200">در حال دریافت…</div>
       </div>
     </div>
@@ -1915,32 +1895,58 @@ const TZ_UTC = "Etc/UTC";
 
 const HOLIDAY_API = (jy,jm,jd)=>`https://holidayapi.ir/jalali/${jy}/${jm}/${jd}`;
 
-const renderOccasions = (data) => {
-  const list = document.getElementById("occList");
-  const badge = document.getElementById("occHolidayBadge");
-  if(!list || !badge) return;
-  list.innerHTML = "";
-  if(!data || !Array.isArray(data.events)){
-    badge.classList.add("hidden");
-    return;
+
+const setOccStatus = (state) => {
+  const hint = document.getElementById("occHint");
+  if(!hint) return;
+  if(state==="loading"){
+    hint.textContent = "در حال دریافت مناسبت‌های امروز…";
+    hint.className = "muted leading-7";
+  }else if(state==="ok"){
+    hint.textContent = "به‌روزرسانی شد ✅";
+    hint.className = "text-emerald-200 leading-7";
+  }else{
+    hint.textContent = "امکان دریافت مناسبت‌ها وجود ندارد.";
+    hint.className = "text-amber-200 leading-7";
   }
-  const events = data.events || [];
-  const isHolidayDay = !!data.is_holiday || events.some(e=>e.is_holiday);
-  badge.classList.toggle("hidden", !isHolidayDay);
-  if(events.length===0){
-    list.innerHTML = `<div class="muted tiny">مناسبتی ثبت نشده است.</div>`;
-    return;
-  }
-  events.forEach(ev=>{
-    const isH = !!ev.is_holiday;
-    const row = document.createElement("div");
-    row.className = "soft p-3 rounded-xl flex items-center justify-between gap-3";
-    row.innerHTML = `<div class="text-sm">${escapeHtml(ev.event || ev.title || "مناسبت")}</div>${
-      isH ? `<div class="text-xs font-bold text-rose-200">تعطیل</div>` : `<div class="text-xs muted">—</div>`
-    }`;
-    list.appendChild(row);
-  });
 };
+
+
+
+
+const renderOccasions = (events, dayHoliday) => {
+  const listEl = document.getElementById("occList");
+  const badge = document.getElementById("occHolidayBadge");
+  if(!listEl) return;
+
+  if(badge){
+    badge.classList.toggle("hidden", !dayHoliday);
+    if(dayHoliday) badge.textContent = "تعطیل";
+  }
+
+  if(!events || events.length===0){
+    listEl.innerHTML = `<div class="muted leading-7">مناسبتی برای امروز ثبت نشده است.</div>`;
+    return;
+  }
+
+  const ul = document.createElement("ul");
+  ul.className = "space-y-2 leading-7";
+  events.forEach(ev=>{
+    const isH = !!ev.isHoliday;
+    const li = document.createElement("li");
+    li.className = `soft p-3 flex items-start justify-between gap-3 ${isH ? "border border-rose-400/30" : ""}`;
+    li.innerHTML = `
+      <div class="${isH ? "text-rose-200 font-semibold" : ""}">${escapeHtml(ev.title)}</div>
+      ${isH ? `<span class="text-rose-200 tiny font-bold">تعطیل</span>` : ``}
+    `;
+    ul.appendChild(li);
+  });
+
+  listEl.innerHTML = "";
+  listEl.appendChild(ul);
+};
+
+
 
 let occCacheKey = "";
 const fetchOccasions = async (jy,jm,jd) => {
@@ -2005,45 +2011,85 @@ const gregorianToJalali = (gy, gm, gd) => {
 
 const buildTimeString = (h,m,s) => `${pad2(h)}:${pad2(m)}:${pad2(s)}`;
 
-const buildTicksOnce = () => {
-  const ticks = document.getElementById("clockTicks");
-  const nums = document.getElementById("clockNumerals");
-  if(ticks){
-    ticks.innerHTML = "";
-    for(let i=0;i<60;i++){
-      const s=document.createElement("span");
-      s.className = (i%5===0) ? "big" : "small";
-      s.style.transform = `translateX(-50%) rotate(${i*6}deg)`;
-      ticks.appendChild(s);
-    }
+
+let analogBuilt = false;
+
+const buildAnalogSvgOnce = () => {
+  if (analogBuilt) return;
+  const svg = document.getElementById("analogSvg");
+  if (!svg) return;
+
+  const NS = "http://www.w3.org/2000/svg";
+  const ticksG = document.getElementById("analogTicks");
+  const numsG  = document.getElementById("analogNums");
+
+  // Clear (in case of hot reload)
+  ticksG.innerHTML = "";
+  numsG.innerHTML = "";
+
+  // Ticks
+  for (let i = 0; i < 60; i++) {
+    const ang = (i * 6) * Math.PI / 180;
+    const isMajor = (i % 5 === 0);
+    const r1 = isMajor ? 80 : 84;
+    const r2 = 92;
+
+    const x1 = 100 + Math.sin(ang) * r1;
+    const y1 = 100 - Math.cos(ang) * r1;
+    const x2 = 100 + Math.sin(ang) * r2;
+    const y2 = 100 - Math.cos(ang) * r2;
+
+    const line = document.createElementNS(NS, "line");
+    line.setAttribute("x1", x1.toFixed(2));
+    line.setAttribute("y1", y1.toFixed(2));
+    line.setAttribute("x2", x2.toFixed(2));
+    line.setAttribute("y2", y2.toFixed(2));
+    line.setAttribute("stroke-width", isMajor ? "3" : "1.8");
+    line.setAttribute("class", isMajor ? "analogTick analogTickMajor" : "analogTick");
+    ticksG.appendChild(line);
   }
-  if(nums){
-    nums.innerHTML = "";
-    for(let n=1;n<=12;n++){
-      const sp=document.createElement("span");
-      const angle = (n*30) - 90;
-      const radius = 92; // داخل صفحه ساعت
-      sp.style.transform = `translate(-50%, -50%) translate(${Math.cos(angle*Math.PI/180)*radius}px, ${Math.sin(angle*Math.PI/180)*radius}px)`;
-      sp.textContent = fmtMaybeFaDigits(String(n));
-      nums.appendChild(sp);
-    }
+
+  // Numbers (1..12)
+  for (let n = 1; n <= 12; n++) {
+    const ang = (n * 30) * Math.PI / 180;
+    const r = 64;
+    const x = 100 + Math.sin(ang) * r;
+    const y = 100 - Math.cos(ang) * r;
+
+    const t = document.createElementNS(NS, "text");
+    t.setAttribute("x", x.toFixed(2));
+    t.setAttribute("y", y.toFixed(2));
+    t.setAttribute("class", "analogNum");
+    t.textContent = n;
+    numsG.appendChild(t);
   }
+
+  analogBuilt = true;
+};
+
+const setHandRotation = (el, deg) => {
+  if (!el) return;
+  el.setAttribute("transform", `rotate(${deg} 100 100)`);
 };
 
 const renderAnalog = (h, m, s) => {
-  const hourEl=document.getElementById("handHour");
-  const minEl=document.getElementById("handMin");
-  const secEl=document.getElementById("handSec");
-  if(!hourEl || !minEl || !secEl) return;
+  buildAnalogSvgOnce();
 
-  const secAngle = s*6;
-  const minAngle = (m + s/60)*6;
-  const hourAngle = ((h%12) + m/60 + s/3600) * 30;
+  // Normalize
+  const hh = ((Number(h) % 12) + 12) % 12;
+  const mm = ((Number(m) % 60) + 60) % 60;
+  const ss = ((Number(s) % 60) + 60) % 60;
 
-  secEl.style.transform = `translate(-50%, -100%) rotate(${secAngle}deg)`;
-  minEl.style.transform = `translate(-50%, -100%) rotate(${minAngle}deg)`;
-  hourEl.style.transform = `translate(-50%, -100%) rotate(${hourAngle}deg)`;
+  // Angles
+  const hourDeg = hh * 30 + mm * 0.5 + ss * (0.5 / 60);
+  const minDeg  = mm * 6  + ss * 0.1;
+  const secDeg  = ss * 6;
+
+  setHandRotation(document.getElementById("handHour"), hourDeg);
+  setHandRotation(document.getElementById("handMin"),  minDeg);
+  setHandRotation(document.getElementById("handSec"),  secDeg);
 };
+
 
 const renderTimeUI = (payload, h, m, s) => {
   // دیجیتال
@@ -2442,7 +2488,7 @@ const syncSettingsForm = (cfg) => {
 
   // datetime (TimeAPI.io)
   document.getElementById("timeRefreshBtn").addEventListener("click", ()=>{
-    buildTicksOnce();
+    buildAnalogSvgOnce();
   fetchTimeApi();
   tickTime();
     showToast("درخواست به‌روزرسانی ارسال شد.", "info");
