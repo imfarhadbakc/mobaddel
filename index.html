@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>مبدل واحد حرفه‌ای</title>
+  <title>codeisa</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- WebSocket (Socket.IO) برای دریافت قیمت لحظه‌ای رمزارزها از والکس -->
   <script src="https://cdn.socket.io/2.5.0/socket.io.min.js"></script>
@@ -134,7 +134,59 @@
       font-size: .78rem;
       white-space: nowrap;
     }
-  </style>
+  
+/* Analog clock */
+.analogWrap{width:100%; display:flex; justify-content:center}
+.analogClock{
+  width: 260px; height: 260px;
+  border-radius: 9999px;
+  position: relative;
+  background: radial-gradient(circle at 30% 25%, color-mix(in srgb, var(--primary) 18%, transparent 82%), transparent 55%),
+              radial-gradient(circle at 70% 75%, color-mix(in srgb, var(--secondary) 16%, transparent 84%), transparent 55%),
+              linear-gradient(180deg, color-mix(in srgb, var(--surface) 90%, transparent 10%), color-mix(in srgb, var(--surface) 70%, black 30%));
+  border: 1px solid color-mix(in srgb, var(--text) 12%, transparent 88%);
+  box-shadow: 0 18px 60px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.06);
+}
+.analogClock::after{
+  content:"";
+  position:absolute; inset:14px;
+  border-radius:9999px;
+  border:1px dashed color-mix(in srgb, var(--text) 14%, transparent 86%);
+  opacity:.6;
+}
+.analogCenter{
+  position:absolute; inset:0;
+  margin:auto;
+  width: 14px; height: 14px;
+  border-radius:9999px;
+  background: linear-gradient(135deg, var(--gradA), var(--gradB));
+  box-shadow: 0 0 0 6px color-mix(in srgb, var(--surface) 80%, transparent 20%), 0 10px 18px rgba(0,0,0,.25);
+  z-index: 20;
+}
+.hand{
+  position:absolute;
+  left:50%; top:50%;
+  transform-origin: 50% 100%;
+  transform: translate(-50%, -100%) rotate(0deg);
+  border-radius: 9999px;
+  z-index: 10;
+}
+.hand.hour{ width:8px; height:70px; background: color-mix(in srgb, var(--text) 92%, transparent 8%); }
+.hand.min{ width:6px; height:96px; background: color-mix(in srgb, var(--text) 86%, transparent 14%); }
+.hand.sec{ width:3px; height:110px; background: color-mix(in srgb, var(--primary) 80%, white 20%); box-shadow: 0 0 18px color-mix(in srgb, var(--primary) 35%, transparent 65%); }
+.ticks span{
+  position:absolute; left:50%; top:50%;
+  transform-origin: 50% 120px;
+  width: 2px; height: 10px;
+  background: color-mix(in srgb, var(--text) 20%, transparent 80%);
+  border-radius: 9999px;
+  transform: translateX(-50%) rotate(0deg);
+}
+.ticks span.big{height:16px; width:3px; background: color-mix(in srgb, var(--text) 35%, transparent 65%); transform-origin: 50% 118px;}
+.phoneWiggle{display:inline-block;animation:wiggle 1.8s ease-in-out infinite;transform-origin:50% 80%}
+@keyframes wiggle{0%,100%{transform:rotate(0deg) translateY(0)}25%{transform:rotate(10deg) translateY(-1px)}50%{transform:rotate(-10deg) translateY(0)}75%{transform:rotate(6deg) translateY(-1px)}}
+
+</style>
 </head>
 
 <body class="min-h-screen">
@@ -144,7 +196,7 @@
       <div class="flex items-center gap-3">
         <div id="logoBadge" class="grad w-12 h-12 rounded-2xl flex items-center justify-center text-xl shadow">🔄</div>
         <div>
-          <h1 class="text-lg md:text-xl font-bold">مبدل واحد حرفه‌ای</h1>
+          <h1 class="text-lg md:text-xl font-bold">codeisa</h1>
           <p class="muted tiny">تبدیل دقیق واحدها + ابزارهای کاربردی</p>
         </div>
       </div>
@@ -363,97 +415,82 @@
       </section>
 
       <!-- DateTime Page -->
-      <section id="page-datetime" class="hidden space-y-4 md:space-y-5">
-        <div class="card p-4 md:p-5">
-          <div class="flex items-start justify-between gap-3">
-            <div>
-              <h2 class="text-base md:text-lg font-bold">تاریخ و ساعت (TimeAPI.io)</h2>
-              <p class="muted tiny mt-1">این بخش تاریخ و ساعت را از سرویس TimeAPI.io دریافت می‌کند (بدون وابستگی به ساعت دستگاه).</p>
-            </div>
-            <div class="flex gap-2 flex-wrap">
-              <button type="button" id="timeRefreshBtn" class="btn px-3 py-2 soft focusable">به‌روزرسانی</button>
-              <button type="button" id="timeCopyBtn" class="btn px-3 py-2 soft focusable">کپی اطلاعات</button>
-            </div>
+<section id="page-datetime" class="hidden space-y-4 md:space-y-5">
+  <div class="card p-4 md:p-5">
+    <div class="flex items-start justify-between gap-3 flex-wrap">
+      <div>
+        <h2 class="text-base md:text-lg font-bold">تاریخ و ساعت ایران</h2>
+        <p class="muted tiny mt-1">به‌روزرسانی خودکار (با سرویس آنلاین) + ساعت آنالوگ</p>
+      </div>
+      <div class="flex gap-2 flex-wrap">
+        <button type="button" id="timeRefreshBtn" class="btn px-3 py-2 soft focusable">به‌روزرسانی</button>
+        <button type="button" id="timeCopyBtn" class="btn px-3 py-2 soft focusable">کپی</button>
+      </div>
+    </div>
+
+    <div class="mt-4 grid lg:grid-cols-2 gap-3">
+      <div class="soft p-4 rounded-2xl">
+        <div class="flex items-center justify-between gap-2">
+          <div class="font-bold">ساعت ایران</div>
+          <div class="muted tiny">Asia/Tehran</div>
+        </div>
+        <div class="calcDisplay text-4xl md:text-5xl font-extrabold mt-3" id="timeIR">—</div>
+        <div class="mt-3 grid sm:grid-cols-2 gap-2">
+          <div class="soft p-3">
+            <div class="muted tiny">تاریخ شمسی</div>
+            <div class="calcDisplay text-2xl font-extrabold mt-2" id="todayJalali">—</div>
           </div>
-
-          <div class="mt-4 grid lg:grid-cols-3 gap-3">
-            <div class="soft p-3">
-              <div class="font-bold">امروز (شمسی)</div>
-              <div class="calcDisplay text-2xl font-extrabold mt-2" id="todayJalali">—</div>
-              <div class="muted tiny mt-2">منبع: TimeAPI.io</div>
-            </div>
-            <div class="soft p-3">
-              <div class="font-bold">امروز (میلادی)</div>
-              <div class="calcDisplay text-2xl font-extrabold mt-2" id="todayGreg">—</div>
-              <div class="muted tiny mt-2">منبع: TimeAPI.io</div>
-            </div>
-            <div class="soft p-3" id="hijriCard">
-              <div class="font-bold">امروز (قمری)</div>
-              <div class="calcDisplay text-2xl font-extrabold mt-2" id="todayHijri">—</div>
-              <div class="muted tiny mt-2">—</div>
-            </div>
-          </div>
-
-          <div class="mt-3 grid lg:grid-cols-2 gap-3">
-            <div class="soft p-3">
-              <div class="flex items-center justify-between gap-2">
-                <div class="font-bold">ساعت ایران</div>
-                <div class="muted tiny">Asia/Tehran</div>
-              </div>
-              <div class="calcDisplay text-4xl md:text-5xl font-extrabold mt-3" id="timeIR">—</div>
-              <div class="muted tiny mt-2">آخرین داده دریافتی: <span id="timeUpdatedAt">—</span></div>
-            </div>
-
-            <div class="soft p-3">
-              <div class="flex items-center justify-between gap-2">
-                <div class="font-bold">ساعت جهانی</div>
-                <div class="muted tiny">UTC</div>
-              </div>
-              <div class="calcDisplay text-4xl md:text-5xl font-extrabold mt-3" id="timeUTC">—</div>
-              <div class="muted tiny mt-2">منبع: TimeAPI.io</div>
-            </div>
-          </div>
-
-          <div id="timeStatus" class="mt-3 soft p-3">
-            <div class="flex items-center justify-between gap-2">
-              <div class="tiny muted">وضعیت</div>
-              <div id="timeStatusText" class="tiny text-amber-200">در حال تلاش برای دریافت اطلاعات…</div>
-            </div>
-            <div class="muted tiny mt-2" id="timeStatusHint">اگر اینترنت یا سرویس در دسترس نباشد، این بخش «—» نمایش می‌دهد.</div>
+          <div class="soft p-3">
+            <div class="muted tiny">تاریخ میلادی</div>
+            <div class="calcDisplay text-2xl font-extrabold mt-2" id="todayGreg">—</div>
           </div>
         </div>
-      </section>
+        <div class="muted tiny mt-3">آخرین بروزرسانی: <span id="timeUpdatedAt">—</span></div>
+      </div>
+
+      <div class="soft p-4 rounded-2xl flex flex-col items-center justify-center gap-3">
+        <div class="font-bold">ساعت آنالوگ (ایران)</div>
+        <div class="analogWrap">
+          <div class="analogClock" aria-label="ساعت آنالوگ ایران">
+            <div class="analogCenter"></div>
+            <div class="hand hour" id="handHour"></div>
+            <div class="hand min" id="handMin"></div>
+            <div class="hand sec" id="handSec"></div>
+            <div class="ticks" id="clockTicks"></div>
+          </div>
+        </div>
+        <div id="timeStatusText" class="tiny text-amber-200">در حال دریافت…</div>
+      </div>
+    </div>
+  </div>
+</section>
 
       <!-- Crypto Page -->
-      <section id="page-crypto" class="hidden space-y-4 md:space-y-5">
-        <div class="card p-4 md:p-5">
-          <div class="flex items-start justify-between gap-3 flex-wrap">
-            <div>
-              <h2 class="text-base md:text-lg font-bold">رمزارزها (قیمت لحظه‌ای به تومان)</h2>
-              <p class="muted tiny mt-1">قیمت‌ها «آخرین معامله» در بازار اسپات والکس هستند و به صورت زنده به‌روزرسانی می‌شوند.</p>
-            </div>
-            <div class="flex gap-2 flex-wrap">
-              <button type="button" id="cryptoRefreshBtn" class="btn px-3 py-2 soft focusable">اتصال مجدد</button>
-              <button type="button" id="cryptoCopyAllBtn" class="btn px-3 py-2 soft focusable">کپی همه قیمت‌ها</button>
-            </div>
-          </div>
-
-          <div class="mt-4 soft p-3 rounded-xl flex items-center justify-between gap-2 flex-wrap">
-            <div class="flex items-center gap-2">
-              <span id="cryptoStatusDot" class="w-2.5 h-2.5 rounded-full bg-amber-400"></span>
-              <div class="tiny muted">وضعیت: <span id="cryptoStatusText" class="font-semibold text-amber-200">در حال اتصال…</span></div>
-            </div>
-            <div class="tiny muted">آخرین بروزرسانی: <span id="cryptoLastUpdate">—</span></div>
-            <div class="tiny muted">منبع: Wallex API</div>
-          </div>
-
-          <div id="cryptoGrid" class="mt-4 grid sm:grid-cols-2 lg:grid-cols-3 gap-3"></div>
-
-          <div class="mt-4 muted tiny">
-            نکته: ممکن است قیمت‌ها بین صرافی‌ها تفاوت داشته باشند. این صفحه برای نمایش قیمت لحظه‌ای و سریع طراحی شده است.
-          </div>
+<section id="page-crypto" class="hidden space-y-4 md:space-y-5">
+  <div class="card p-4 md:p-5">
+    <div class="flex items-start justify-between gap-3 flex-wrap">
+      <div>
+        <h2 class="text-base md:text-lg font-bold">رمزارزها (قیمت لحظه‌ای به تومان)</h2>
+        <p class="muted tiny mt-1">قیمت‌ها از بازار ریالی نوبیتکس دریافت می‌شوند و هر چند ثانیه به‌روزرسانی می‌گردند.</p>
+      </div>
+      <div class="flex items-center gap-2 flex-wrap">
+        <div class="soft px-3 py-2 rounded-xl flex items-center gap-2">
+          <span id="cryptoStatusDot" class="w-2.5 h-2.5 rounded-full bg-amber-400"></span>
+          <span id="cryptoStatusText" class="font-semibold text-amber-200 tiny">در حال اتصال…</span>
         </div>
-      </section>
+        <button type="button" id="cryptoRefreshBtn" class="btn px-3 py-2 soft focusable">به‌روزرسانی</button>
+        <button type="button" id="cryptoCopyAllBtn" class="btn px-3 py-2 soft focusable">کپی همه</button>
+      </div>
+    </div>
+
+    <div class="mt-4 grid sm:grid-cols-2 lg:grid-cols-3 gap-3" id="cryptoGrid"></div>
+
+    <div class="mt-3 soft p-3 rounded-xl flex items-center justify-between gap-2">
+      <div class="tiny muted">آخرین بروزرسانی: <span id="cryptoUpdatedAt">—</span></div>
+      <div class="tiny muted">واحد: تومان</div>
+    </div>
+  </div>
+</section>
 
       <!-- Calculator Page -->
       <section id="page-calculator" class="hidden space-y-4 md:space-y-5">
@@ -464,6 +501,7 @@
               <p class="muted tiny mt-1">نمایشگر طبق انتخاب شما در تنظیمات: فارسی یا انگلیسی</p>
             </div>
             <div class="flex gap-2">
+              <button type="button" id="calcModeBtn" class="btn px-3 py-2 soft focusable">مهندسی</button>
               <button type="button" id="calcCopyBtn" class="btn px-3 py-2 soft focusable">کپی</button>
               <button type="button" id="calcClearBtn" class="btn px-3 py-2 soft focusable">پاک‌کردن</button>
             </div>
@@ -520,6 +558,23 @@
             <button type="button" class="calcKey calcKeyOp focusable" data-k="=">=</button>
             <button type="button" class="calcKey calcKeyOp focusable" data-k="+">+</button>
           </div>
+
+<div class="mt-3 hidden grid grid-cols-4 gap-2 select-none" id="calcPadSci">
+  <button type="button" class="calcKey calcKeyUtil focusable" data-k="pi">π</button>
+  <button type="button" class="calcKey calcKeyUtil focusable" data-k="e">e</button>
+  <button type="button" class="calcKey calcKeyUtil focusable" data-k="^">xʸ</button>
+  <button type="button" class="calcKey calcKeyUtil focusable" data-k="sqrt(">√</button>
+
+  <button type="button" class="calcKey calcKeyUtil focusable" data-k="sin(">sin</button>
+  <button type="button" class="calcKey calcKeyUtil focusable" data-k="cos(">cos</button>
+  <button type="button" class="calcKey calcKeyUtil focusable" data-k="tan(">tan</button>
+  <button type="button" class="calcKey calcKeyUtil focusable" data-k="abs(">abs</button>
+
+  <button type="button" class="calcKey calcKeyUtil focusable" data-k="log(">log</button>
+  <button type="button" class="calcKey calcKeyUtil focusable" data-k="ln(">ln</button>
+  <button type="button" class="calcKey calcKeyUtil focusable" data-k="pow(">pow</button>
+  <button type="button" class="calcKey calcKeyUtil focusable" data-k=",">,</button>
+</div>
 
           <div class="mt-4 soft p-3 rounded-xl">
             <div class="tiny muted">ورود با کیبورد</div>
@@ -736,7 +791,7 @@
     <footer class="mt-6 md:mt-8 pb-6 text-center muted tiny">
       <div class="flex flex-col gap-2 items-center">
         <span id="footerOut">طراحی شده توسط FARHAD 🎨</span>
-        <a class="text-sky-300 underline underline-offset-4" href="https://t.me/ShadowPsychologist" target="_blank" rel="noopener">ارتباط با سازنده</a>
+        <a class="text-sky-300 underline underline-offset-4" href="https://t.me/ShadowPsychologist" target="_blank" rel="noopener"><span class="phoneWiggle">📞</span> ارتباط با سازنده</a>
       </div>
     </footer>
   </div>
@@ -1141,7 +1196,57 @@ const CATEGORIES = [
       {title:"۸ بیت → بایت", value:8, from:"بیت", to:"بایت"},
       {title:"۵۰۰ MB → GB", value:500, from:"مگابایت", to:"گیگابایت"},
     ]
-  },
+  },,
+{ id:"power", name:"توان",
+  def: linearUnits([
+    UNIT("وات","W", v=>v, v=>v),
+    UNIT("کیلووات","kW", v=>v*1000, v=>v/1000),
+    UNIT("مگاوات","MW", v=>v*1e6, v=>v/1e6),
+    UNIT("اسب‌بخار (متریک)","hp", v=>v*735.49875, v=>v/735.49875),
+  ]),
+  quick:[
+    {title:"۱ kW → W", value:1, from:"کیلووات", to:"وات"},
+    {title:"۱ hp → kW", value:1, from:"اسب‌بخار (متریک)", to:"کیلووات"},
+    {title:"۵۰۰ W → kW", value:500, from:"وات", to:"کیلووات"},
+  ]
+},
+{ id:"force", name:"نیرو",
+  def: linearUnits([
+    UNIT("نیوتن","N", v=>v, v=>v),
+    UNIT("کیلو نیوتن","kN", v=>v*1000, v=>v/1000),
+    UNIT("داین","dyn", v=>v*1e-5, v=>v/1e-5),
+    UNIT("کیلوگرم-نیرو","kgf", v=>v*9.80665, v=>v/9.80665),
+    UNIT("پوند-نیرو","lbf", v=>v*4.4482216152605, v=>v/4.4482216152605),
+  ]),
+  quick:[
+    {title:"۱ kgf → N", value:1, from:"کیلوگرم-نیرو", to:"نیوتن"},
+    {title:"۱۰۰ N → kgf", value:100, from:"نیوتن", to:"کیلوگرم-نیرو"},
+    {title:"۱۰ lbf → N", value:10, from:"پوند-نیرو", to:"نیوتن"},
+  ]
+},
+{ id:"angle", name:"زاویه",
+  def: linearUnits([
+    UNIT("درجه","°", v=>v, v=>v),
+    UNIT("رادیان","rad", v=>v*180/Math.PI, v=>v*Math.PI/180),
+    UNIT("گرادیان","gon", v=>v*0.9, v=>v/0.9),
+  ]),
+  quick:[
+    {title:"π رادیان → درجه", value:Math.PI, from:"رادیان", to:"درجه"},
+    {title:"۱۸۰ درجه → رادیان", value:180, from:"درجه", to:"رادیان"},
+  ]
+},
+{ id:"frequency", name:"فرکانس",
+  def: linearUnits([
+    UNIT("هرتز","Hz", v=>v, v=>v),
+    UNIT("کیلوهرتز","kHz", v=>v*1000, v=>v/1000),
+    UNIT("مگاهرتز","MHz", v=>v*1e6, v=>v/1e6),
+    UNIT("گیگاهرتز","GHz", v=>v*1e9, v=>v/1e9),
+  ]),
+  quick:[
+    {title:"۱ GHz → MHz", value:1, from:"گیگاهرتز", to:"مگاهرتز"},
+    {title:"۴۴۱۰۰ Hz → kHz", value:44100, from:"هرتز", to:"کیلوهرتز"},
+  ]
+},
 ];
 
 let state = { categoryId: CATEGORIES[0].id, fromLabel: null, toLabel: null };
@@ -1365,6 +1470,62 @@ const playClick = () => {
 
 /* ========================= Calculator ========================= */
 let calcExpr = "";
+let calcMode = "basic"; // basic | sci
+
+const safeEvalSci = (expr) => {
+  // whitelist expression characters
+  let s = normalizeCalcInput(expr).replace(/\s+/g,'');
+  if(!s) return NaN;
+
+  // percent (rough): replace % with /100
+  s = s.replace(/%/g, "/100");
+
+  // constants
+  // replace standalone pi and e
+  s = s.replace(/\bpi\b/gi, "Math.PI");
+  s = s.replace(/\be\b/g, "Math.E");
+
+  // functions
+  s = s.replace(/\bln\(/gi, "Math.log(");
+  s = s.replace(/\blog\(/gi, "Math.log10(");
+  s = s.replace(/\bsin\(/gi, "Math.sin(");
+  s = s.replace(/\bcos\(/gi, "Math.cos(");
+  s = s.replace(/\btan\(/gi, "Math.tan(");
+  s = s.replace(/\bsqrt\(/gi, "Math.sqrt(");
+  s = s.replace(/\babs\(/gi, "Math.abs(");
+  s = s.replace(/\bpow\(/gi, "Math.pow(");
+
+  // exponent
+  s = s.replace(/\^/g, "**");
+
+  // final whitelist (numbers, operators, dots, commas, parentheses, Math. letters)
+  if(!/^[0-9+\-*/().,**MathPIElog10sinsqrtabspow]*$/.test(s.replace(/Math\./g,"Math"))){
+    // fallback strict check:
+  }
+  // stronger check: allow only these chars after replacements
+  if(!/^[0-9+\-*/().,A-Za-z_]*$/.test(s)) return NaN;
+  // prevent other identifiers
+  const bad = s.match(/\b(?!Math\b)[A-Za-z_]+\b/g);
+  if(bad) return NaN;
+
+  try{
+    // eslint-disable-next-line no-new-func
+    const fn = new Function("Math", `return (${s});`);
+    const v = fn(Math);
+    return Number.isFinite(v) ? v : NaN;
+  }catch{ return NaN; }
+};
+
+const setCalcMode = (mode) => {
+  calcMode = (mode==="sci") ? "sci" : "basic";
+  const sci = document.getElementById("calcPadSci");
+  if(sci) sci.classList.toggle("hidden", calcMode!=="sci");
+  const btn = document.getElementById("calcModeBtn");
+  if(btn) btn.textContent = (calcMode==="sci") ? "معمولی" : "مهندسی";
+  calcEvaluate();
+};
+
+
 let calcMem = 0;
 
 const normalizeCalcInput = (s) => {
@@ -1477,7 +1638,7 @@ const calcEvaluate = () => {
     return;
   }
 
-  const val=evalRPN(toRPN(tokenize(calcExpr)));
+  const val = (calcMode==="sci") ? safeEvalSci(calcExpr) : evalRPN(toRPN(tokenize(calcExpr)));
   const out = Number.isFinite(val) ? formatNumber(val, p) : "—";
   document.getElementById("calcResult").textContent = (lang==="fa" ? toPersianDigits(out) : toLatinDigits(out));
 };
@@ -1487,7 +1648,7 @@ const calcPush = (k) => {
   const mapped = (k==="÷")?"/":(k==="×")?"*":(k==="٪")?"%":k;
 
   if(mapped==="="){
-    const val=evalRPN(toRPN(tokenize(calcExpr)));
+    const val = (calcMode==="sci") ? safeEvalSci(calcExpr) : evalRPN(toRPN(tokenize(calcExpr)));
     if(!Number.isFinite(val)){
       showToast("عبارت نامعتبر است.", "warn");
       return;
@@ -1525,44 +1686,20 @@ const calcPush = (k) => {
 };
 const calcClear = () => { playClick(); calcExpr=""; calcEvaluate(); };
 
-/* ========================= DateTime via TimeAPI.io (FIX کامل) =========================
-   - فقط تاریخ میلادی + ساعت ایران + ساعت UTC
-   - جلوگیری از اختلاف ۱ ساعت: هیچ تبدیل Date/Intl روی زمان API انجام نمی‌دهیم
-   - شمسی با تبدیل داخلی از تاریخ میلادی ایران
-   - قمری مخفی می‌شود
+/* ========================= DateTime via TimeAPI.io (Iran Only + Analog) =========================
+   - دریافت زمان از TimeAPI.io (بدون اتکا به ساعت دستگاه برای زمان مطلق)
+   - ساخت یک "ساعت مرجع" و تیک محلی برای نمایش روان
 */
 const TIMEAPI_BASE = "https://timeapi.io/api/Time/current/zone";
 const TZ_IR = "Asia/Tehran";
-const TZ_UTC = "Etc/UTC";
 
-let timeState = {
-  lastOk:false,
-  timeIR:"—",
-  timeUTC:"—",
-  jalali:"—",
-  greg:"—",
-  updatedAt:"—"
+let timeTicker = {
+  baseEpochMs: null,       // epoch of fetched time in UTC ms (approx)
+  fetchedPerfMs: null,     // performance.now() at fetch time
+  lastPayload: null
 };
 
 const pad2 = (n) => String(n).padStart(2,"0");
-
-const setTimeStatus = (kind, hint="") => {
-  const el = document.getElementById("timeStatusText");
-  const h = document.getElementById("timeStatusHint");
-  if(!el || !h) return;
-
-  if(kind==="ok"){
-    el.className="tiny text-emerald-200";
-    el.textContent="اطلاعات با موفقیت دریافت شد ✅";
-  }else if(kind==="warn"){
-    el.className="tiny text-amber-200";
-    el.textContent="در حال دریافت اطلاعات…";
-  }else{
-    el.className="tiny text-rose-200";
-    el.textContent="خطا: دریافت اطلاعات ناموفق بود.";
-  }
-  h.textContent = hint || "";
-};
 
 const fmtMaybeFaDigits = (s) => {
   const cfg = elementSdk.getConfig();
@@ -1570,28 +1707,10 @@ const fmtMaybeFaDigits = (s) => {
   return cfg.enable_persian_digits ? toPersianDigits(String(s)) : String(s);
 };
 
-const renderTime = () => {
-  const elJ = document.getElementById("todayJalali");
-  const elG = document.getElementById("todayGreg");
-  const elIR = document.getElementById("timeIR");
-  const elUTC = document.getElementById("timeUTC");
-  const elU = document.getElementById("timeUpdatedAt");
-
-  if(elJ) elJ.textContent = fmtMaybeFaDigits(timeState.jalali);
-  if(elG) elG.textContent = fmtMaybeFaDigits(timeState.greg);
-  if(elIR) elIR.textContent = fmtMaybeFaDigits(timeState.timeIR);
-  if(elUTC) elUTC.textContent = fmtMaybeFaDigits(timeState.timeUTC);
-  if(elU) elU.textContent = fmtMaybeFaDigits(timeState.updatedAt);
-
-  const hijriCard = document.getElementById("hijriCard");
-  if(hijriCard) hijriCard.style.display = "none";
-};
-
 const gregorianToJalali = (gy, gm, gd) => {
   const g_d_m = [0,31,59,90,120,151,181,212,243,273,304,334];
   let jy;
   if (gy > 1600) { jy = 979; gy -= 1600; } else { jy = 0; gy -= 621; }
-
   const gy2 = (gm > 2) ? (gy + 1) : gy;
   let days = 365*gy
     + Math.floor((gy2 + 3)/4)
@@ -1600,21 +1719,76 @@ const gregorianToJalali = (gy, gm, gd) => {
     - 80
     + gd
     + g_d_m[gm-1];
-
   jy += 33 * Math.floor(days / 12053);
   days %= 12053;
-
   jy += 4 * Math.floor(days / 1461);
   days %= 1461;
-
   if (days > 365) {
     jy += Math.floor((days - 1) / 365);
     days = (days - 1) % 365;
   }
-
   const jm = (days < 186) ? (1 + Math.floor(days / 31)) : (7 + Math.floor((days - 186) / 30));
   const jd = 1 + ((days < 186) ? (days % 31) : ((days - 186) % 30));
   return { jy, jm, jd };
+};
+
+const buildTimeString = (h,m,s) => `${pad2(h)}:${pad2(m)}:${pad2(s)}`;
+
+const buildTicksOnce = () => {
+  const wrap = document.getElementById("clockTicks");
+  if(!wrap || wrap.childElementCount) return;
+  for(let i=0;i<60;i++){
+    const t=document.createElement("span");
+    if(i%5===0) t.classList.add("big");
+    t.style.transform = `translateX(-50%) rotate(${i*6}deg)`;
+    wrap.appendChild(t);
+  }
+};
+
+const renderAnalog = (h, m, s) => {
+  const hourEl=document.getElementById("handHour");
+  const minEl=document.getElementById("handMin");
+  const secEl=document.getElementById("handSec");
+  if(!hourEl || !minEl || !secEl) return;
+
+  const secAngle = s*6;
+  const minAngle = (m + s/60)*6;
+  const hourAngle = ((h%12) + m/60 + s/3600) * 30;
+
+  secEl.style.transform = `translate(-50%, -100%) rotate(${secAngle}deg)`;
+  minEl.style.transform = `translate(-50%, -100%) rotate(${minAngle}deg)`;
+  hourEl.style.transform = `translate(-50%, -100%) rotate(${hourAngle}deg)`;
+};
+
+const renderTimeUI = (payload, h, m, s) => {
+  // دیجیتال
+  document.getElementById("timeIR").textContent = fmtMaybeFaDigits(buildTimeString(h,m,s));
+
+  // تاریخ
+  if(payload){
+    const g = `${payload.year}-${pad2(payload.month)}-${pad2(payload.day)}`;
+    document.getElementById("todayGreg").textContent = fmtMaybeFaDigits(g);
+
+    const j = gregorianToJalali(payload.year, payload.month, payload.day);
+    const jStr = `${j.jy}/${pad2(j.jm)}/${pad2(j.jd)}`;
+    document.getElementById("todayJalali").textContent = fmtMaybeFaDigits(jStr);
+  }
+
+  // بروزرسانی
+  const up = buildTimeString(h,m,s);
+  document.getElementById("timeUpdatedAt").textContent = fmtMaybeFaDigits(up);
+
+  // آنالوگ
+  renderAnalog(h,m,s);
+};
+
+const setTimeStatus = (kind, text) => {
+  const el = document.getElementById("timeStatusText");
+  if(!el) return;
+  if(kind==="ok") el.className="tiny text-emerald-200";
+  else if(kind==="warn") el.className="tiny text-amber-200";
+  else el.className="tiny text-rose-200";
+  el.textContent = text || "—";
 };
 
 const fetchTimeApiZone = async (timeZone) => {
@@ -1623,59 +1797,68 @@ const fetchTimeApiZone = async (timeZone) => {
   if(!res.ok) throw new Error("bad_status");
   const data = await res.json();
   if(!data || typeof data.year !== "number" || typeof data.hour !== "number") throw new Error("bad_payload");
-  return data; // year, month, day, hour, minute, seconds, dateTime, timeZone, dstActive...
+  return data;
 };
 
-const buildTimeString = (d) => `${pad2(d.hour)}:${pad2(d.minute)}:${pad2(d.seconds ?? 0)}`;
+// تبدیل تقریبی داده دریافتی به epoch برای تیک روان
+const payloadToEpochMsApprox = (p) => {
+  // p.dateTime معمولاً رشته ISO است. اگر نبود، با اجزا می‌سازیم.
+  if(p.dateTime){
+    const t = Date.parse(p.dateTime);
+    if(Number.isFinite(t)) return t;
+  }
+  // fallback: ساخت به صورت UTC با فرض اینکه اجزا مربوط به همان zone هستند.
+  // برای نمایش، ما فقط با اختلاف ثانیه جلو می‌رویم؛ در نتیجه حتی اگر آفست دقیق نباشد،
+  // ساعت دیجیتال از روی خود اجزا نمایش داده می‌شود.
+  return Date.now();
+};
 
 const fetchTimeApi = async () => {
   try{
-    setTimeStatus("warn","در حال دریافت از TimeAPI.io…");
+    setTimeStatus("warn","در حال دریافت…");
+    const ir = await fetchTimeApiZone(TZ_IR);
+    timeTicker.lastPayload = ir;
+    timeTicker.baseEpochMs = payloadToEpochMsApprox(ir);
+    timeTicker.fetchedPerfMs = performance.now();
 
-    const [ir, utc] = await Promise.all([
-      fetchTimeApiZone(TZ_IR),
-      fetchTimeApiZone(TZ_UTC)
-    ]);
-
-    timeState.timeIR = buildTimeString(ir);
-    timeState.timeUTC = buildTimeString(utc);
-
-    timeState.greg = `${ir.year}-${pad2(ir.month)}-${pad2(ir.day)}`;
-
-    const j = gregorianToJalali(ir.year, ir.month, ir.day);
-    timeState.jalali = `${j.jy}/${pad2(j.jm)}/${pad2(j.jd)}`;
-
-    timeState.updatedAt = `${timeState.timeIR} (ایران)`;
-    timeState.lastOk = true;
-
-    setTimeStatus("ok","هر ۳۰ ثانیه یک‌بار خودکار به‌روزرسانی می‌شود.");
-    renderTime();
+    // نمایش اولیه (دقیقاً از روی hour/minute/seconds)
+    renderTimeUI(ir, ir.hour, ir.minute, ir.seconds ?? 0);
+    setTimeStatus("ok","به‌روزرسانی شد ✅");
   }catch{
-    timeState.lastOk = false;
-    setTimeStatus("err","دریافت از TimeAPI.io ناموفق بود. اینترنت/اختلال سرویس را بررسی کنید.");
-    renderTime();
+    setTimeStatus("err","خطا در دریافت اطلاعات.");
   }
 };
 
-/* ========================= Crypto (Wallex) =========================
-   - اتصال Socket.IO طبق مستند رسمی والکس
-   - subscribe به کانال SYMBOL@marketCap
-   - نمایش قیمت به تومان (TMN)
+const tickTime = () => {
+  const p = timeTicker.lastPayload;
+  if(!p){ return; }
+  const elapsed = Math.max(0, Math.floor((performance.now() - timeTicker.fetchedPerfMs)/1000));
+  const baseSec = (p.hour*3600) + (p.minute*60) + (p.seconds ?? 0);
+  const cur = baseSec + elapsed;
+  const h = Math.floor(cur/3600) % 24;
+  const m = Math.floor((cur%3600)/60);
+  const s = cur%60;
+  renderTimeUI(p, h, m, s);
+};
+
+/* ========================= Crypto (Nobitex) =========================
+   - دریافت قیمت لحظه‌ای بازار ریالی نوبیتکس
+   - استفاده از /v3/orderbook/all و lastTradePrice
+   - نمایش به تومان
 */
+const NOBITEX_ORDERBOOK_ALL = "https://apiv2.nobitex.ir/v3/orderbook/all";
+
 const CRYPTO_MARKETS = [
-  { key:"BTC", symbol:"BTCTMN", name:"بیت‌کوین", icon:"₿" },
-  { key:"ETH", symbol:"ETHTMN", name:"اتریوم", icon:"Ξ" },
-  { key:"USDT", symbol:"USDTTMN", name:"تتر", icon:"₮" },
-  { key:"TON", symbol:"TONTMN", name:"تون", icon:"🟦" },
-  { key:"TRX", symbol:"TRXTMN", name:"ترون", icon:"◆" },
+  { key:"BTC", symbol:"BTCIRT", name:"بیت‌کوین", icon:"₿" },
+  { key:"ETH", symbol:"ETHIRT", name:"اتریوم", icon:"Ξ" },
+  { key:"USDT", symbol:"USDTIRT", name:"تتر", icon:"₮" },
+  { key:"TON", symbol:"TONIRT", name:"تون", icon:"🟦" },
+  { key:"TRX", symbol:"TRXIRT", name:"ترون", icon:"◆" },
 ];
 
-let cryptoSocket = null;
 let cryptoState = {
-  connected:false,
   lastUpdateMs: null,
-  lastAnyPriceMs: null,
-  data: {} // symbol -> payload
+  data: {} // symbol -> {price}
 };
 
 const formatGrouped = (n, maxFrac=0) => {
@@ -1699,14 +1882,6 @@ const formatToman = (n) => {
   return `${formatGrouped(n, frac)} تومان`;
 };
 
-const formatPct = (n) => {
-  const cfg = elementSdk.getConfig();
-  if(!Number.isFinite(n)) return "—";
-  const raw = formatNumber(n, 2);
-  const withSign = (n>0 ? `+${raw}` : raw);
-  return cfg.enable_persian_digits ? toPersianDigits(withSign) : withSign;
-};
-
 const setCryptoStatus = (kind, text) => {
   const dot = document.getElementById("cryptoStatusDot");
   const lbl = document.getElementById("cryptoStatusText");
@@ -1714,172 +1889,99 @@ const setCryptoStatus = (kind, text) => {
 
   if(kind==="ok"){
     dot.className="w-2.5 h-2.5 rounded-full bg-emerald-400";
-    lbl.className="font-semibold text-emerald-200";
+    lbl.className="font-semibold text-emerald-200 tiny";
   }else if(kind==="warn"){
     dot.className="w-2.5 h-2.5 rounded-full bg-amber-400";
-    lbl.className="font-semibold text-amber-200";
+    lbl.className="font-semibold text-amber-200 tiny";
   }else{
     dot.className="w-2.5 h-2.5 rounded-full bg-rose-400";
-    lbl.className="font-semibold text-rose-200";
+    lbl.className="font-semibold text-rose-200 tiny";
   }
   lbl.textContent = text || "—";
+};
+
+const parseNobitexPrice = (payload, symbol) => {
+  // payload keys are like "BTCIRT": { lastTradePrice: "..." }
+  const direct = payload?.[symbol];
+  if(direct && direct.lastTradePrice != null){
+    const v = Number(String(direct.lastTradePrice).replace(/,/g,''));
+    return Number.isFinite(v) ? v : NaN;
+  }
+  // fallback: case-insensitive
+  const key = Object.keys(payload||{}).find(k=>k.toUpperCase()===symbol.toUpperCase());
+  if(key){
+    const v = Number(String(payload[key]?.lastTradePrice ?? "").replace(/,/g,''));
+    return Number.isFinite(v) ? v : NaN;
+  }
+  return NaN;
 };
 
 const renderCryptoGrid = () => {
   const grid = document.getElementById("cryptoGrid");
   if(!grid) return;
-  grid.innerHTML = "";
+  grid.innerHTML="";
 
   CRYPTO_MARKETS.forEach(m=>{
-    const card = document.createElement("div");
-    card.className = "soft p-4 rounded-2xl cryptoCard";
+    const price = cryptoState.data?.[m.symbol]?.price;
+    const card=document.createElement("div");
+    card.className="soft p-4 rounded-2xl";
     card.innerHTML = `
-      <div class="relative">
-        <div class="flex items-start justify-between gap-2">
-          <div class="flex items-center gap-3 min-w-0">
-            <div class="grad w-11 h-11 rounded-2xl flex items-center justify-center font-extrabold text-slate-900 shrink-0">${escapeHtml(m.icon)}</div>
-            <div class="min-w-0">
-              <div class="font-bold truncate">${escapeHtml(m.name)}</div>
-              <div class="muted tiny truncate">${escapeHtml(m.symbol)} • تومان</div>
-            </div>
-          </div>
-          <div class="flex gap-2">
-            <button type="button" class="btn px-3 py-2 soft focusable tiny" data-crypto-copy="${escapeHtml(m.symbol)}">کپی</button>
+      <div class="flex items-start justify-between gap-2">
+        <div class="flex items-center gap-3 min-w-0">
+          <div class="grad w-11 h-11 rounded-2xl flex items-center justify-center text-lg shadow">${m.icon}</div>
+          <div class="min-w-0">
+            <div class="font-bold truncate">${m.name}</div>
+            <div class="muted tiny">${m.symbol}</div>
           </div>
         </div>
-
-        <div class="mt-3">
-          <div id="cryptoPrice-${m.symbol}" class="calcDisplay text-2xl md:text-3xl font-extrabold">—</div>
-          <div class="mt-2 flex items-center justify-between gap-2 flex-wrap">
-            <div class="cryptoBadge" id="cryptoChange-${m.symbol}">—</div>
-            <div class="muted tiny">تغییر ۲۴ساعت</div>
-          </div>
-        </div>
-
-        <div class="mt-3 grid grid-cols-2 gap-2 tiny">
-          <div class="soft p-2">
-            <div class="muted">کمترین ۲۴ساعت</div>
-            <div class="font-semibold mt-1" id="cryptoLow-${m.symbol}">—</div>
-          </div>
-          <div class="soft p-2">
-            <div class="muted">بیشترین ۲۴ساعت</div>
-            <div class="font-semibold mt-1" id="cryptoHigh-${m.symbol}">—</div>
-          </div>
-          <div class="soft p-2 col-span-2">
-            <div class="muted">حجم ۲۴ساعت (تومان)</div>
-            <div class="font-semibold mt-1" id="cryptoQVol-${m.symbol}">—</div>
-          </div>
-        </div>
+        <button type="button" class="btn px-3 py-2 soft focusable tiny" data-copy="${m.symbol}">کپی</button>
+      </div>
+      <div class="mt-3">
+        <div class="calcDisplay text-2xl font-extrabold">${formatToman(price)}</div>
+        <div class="muted tiny mt-1">قیمت لحظه‌ای</div>
       </div>
     `;
     grid.appendChild(card);
   });
-};
 
-const renderCrypto = () => {
-  const lastEl = document.getElementById("cryptoLastUpdate");
-  if(lastEl){
-    if(!cryptoState.lastUpdateMs){
-      lastEl.textContent = "—";
-    }else{
-      const sec = Math.max(0, Math.floor((Date.now() - cryptoState.lastUpdateMs)/1000));
-      const txt = sec === 0 ? "همین الان" : `${sec} ثانیه پیش`;
-      lastEl.textContent = fmtMaybeFaDigits(txt);
-    }
-  }
-
-  // رندر کارت‌ها بر اساس داده ذخیره‌شده
-  for(const m of CRYPTO_MARKETS){
-    const d = cryptoState.data[m.symbol];
-    const elP = document.getElementById(`cryptoPrice-${m.symbol}`);
-    const elC = document.getElementById(`cryptoChange-${m.symbol}`);
-    const elL = document.getElementById(`cryptoLow-${m.symbol}`);
-    const elH = document.getElementById(`cryptoHigh-${m.symbol}`);
-    const elQV = document.getElementById(`cryptoQVol-${m.symbol}`);
-
-    if(!elP || !elC || !elL || !elH || !elQV) continue;
-
-    if(!d){
-      elP.textContent = "—";
-      elC.textContent = "—";
-      elL.textContent = "—";
-      elH.textContent = "—";
-      elQV.textContent = "—";
-      continue;
-    }
-
-    const last = safeNum(d.lastPrice);
-    const ch24 = safeNum(d["24h_ch"]);
-    const low = safeNum(d["24h_lowPrice"]);
-    const high = safeNum(d["24h_highPrice"]);
-    const qvol = safeNum(d["24h_quoteVolume"]);
-
-    elP.textContent = formatToman(last);
-
-    // badge تغییر
-    const pct = formatPct(ch24);
-    elC.textContent = (pct==="—") ? "—" : `${pct}٪`;
-
-    const positive = Number.isFinite(ch24) && ch24 > 0;
-    const negative = Number.isFinite(ch24) && ch24 < 0;
-    elC.style.borderColor = positive ? "rgba(52, 211, 153, .35)" : negative ? "rgba(251, 113, 133, .35)" : "";
-    elC.style.background = positive ? "rgba(52, 211, 153, .10)" : negative ? "rgba(251, 113, 133, .10)" : "";
-
-    elL.textContent = Number.isFinite(low) ? formatToman(low) : "—";
-    elH.textContent = Number.isFinite(high) ? formatToman(high) : "—";
-    elQV.textContent = Number.isFinite(qvol) ? formatToman(qvol) : "—";
-  }
-};
-
-const connectCrypto = () => {
-  // اگر socket.io لود نشده باشد:
-  if(typeof window.io !== "function"){
-    setCryptoStatus("err", "Socket.IO لود نشد");
-    showToast("کتابخانه لازم برای قیمت لحظه‌ای بارگذاری نشد. اینترنت یا محدودیت CDN را بررسی کنید.", "err");
-    return;
-  }
-
-  if(cryptoSocket){
-    try{ cryptoSocket.close(); }catch{}
-    cryptoSocket = null;
-  }
-
-  setCryptoStatus("warn", "در حال اتصال…");
-
-  try{
-    cryptoSocket = io("https://api.wallex.ir", { transports:["websocket"] });
-  }catch{
-    setCryptoStatus("err", "خطا در اتصال");
-    return;
-  }
-
-  cryptoSocket.on("connect", () => {
-    cryptoState.connected = true;
-    setCryptoStatus("ok", "متصل ✅");
-    CRYPTO_MARKETS.forEach(m=>{
-      cryptoSocket.emit("subscribe", { channel: `${m.symbol}@marketCap` });
+  grid.querySelectorAll("[data-copy]").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      const sym = btn.getAttribute("data-copy");
+      const m = CRYPTO_MARKETS.find(x=>x.symbol===sym);
+      const p = cryptoState.data?.[sym]?.price;
+      if(!Number.isFinite(p)){ showToast("قیمت برای کپی در دسترس نیست.", "warn"); return; }
+      const txt = `${m?.name||sym}: ${p} تومان`;
+      copyText(maybePersianForCopy(txt), "قیمت کپی شد ✅");
     });
   });
+};
 
-  cryptoSocket.on("disconnect", () => {
-    cryptoState.connected = false;
-    setCryptoStatus("warn", "اتصال قطع شد…");
-  });
+const fetchCryptoOnce = async () => {
+  try{
+    setCryptoStatus("warn","در حال دریافت…");
+    const res = await fetch(NOBITEX_ORDERBOOK_ALL, { cache:"no-store" });
+    if(!res.ok) throw new Error("bad_status");
+    const data = await res.json();
+    if(!data || data.status!=="ok") throw new Error("bad_payload");
 
-  cryptoSocket.on("connect_error", () => {
-    cryptoState.connected = false;
-    setCryptoStatus("err", "خطا در اتصال");
-  });
-
-  cryptoSocket.on("Broadcaster", (channel, data) => {
-    const sym = String(channel||"").split("@")[0];
-    if(!sym) return;
-    if(!CRYPTO_MARKETS.some(m=>m.symbol===sym)) return;
-
-    cryptoState.data[sym] = data || {};
+    const next = {};
+    for(const m of CRYPTO_MARKETS){
+      const price = parseNobitexPrice(data, m.symbol);
+      next[m.symbol] = { price };
+    }
+    cryptoState.data = next;
     cryptoState.lastUpdateMs = Date.now();
-    renderCrypto();
-  });
+
+    const t = new Date(cryptoState.lastUpdateMs);
+    const ts = `${pad2(t.getHours())}:${pad2(t.getMinutes())}:${pad2(t.getSeconds())}`;
+    document.getElementById("cryptoUpdatedAt").textContent = fmtMaybeFaDigits(ts);
+
+    renderCryptoGrid();
+    setCryptoStatus("ok","به‌روزرسانی شد ✅");
+  }catch{
+    renderCryptoGrid();
+    setCryptoStatus("err","خطا در دریافت قیمت‌ها");
+  }
 };
 
 /* ========================= Settings helpers ========================= */
@@ -2008,49 +2110,35 @@ const syncSettingsForm = (cfg) => {
 
   // datetime (TimeAPI.io)
   document.getElementById("timeRefreshBtn").addEventListener("click", ()=>{
-    fetchTimeApi();
+    buildTicksOnce();
+  fetchTimeApi();
+  tickTime();
     showToast("درخواست به‌روزرسانی ارسال شد.", "info");
   });
   document.getElementById("timeCopyBtn").addEventListener("click", ()=>{
     const j = toLatinDigits(document.getElementById("todayJalali").textContent);
     const g = toLatinDigits(document.getElementById("todayGreg").textContent);
     const ir = toLatinDigits(document.getElementById("timeIR").textContent);
-    const utc = toLatinDigits(document.getElementById("timeUTC").textContent);
-    const up = toLatinDigits(document.getElementById("timeUpdatedAt").textContent);
-    const txt = `منبع: TimeAPI.io\nتاریخ شمسی: ${j}\nتاریخ میلادی: ${g}\nساعت ایران: ${ir}\nساعت UTC: ${utc}\nآخرین داده دریافتی: ${up}`;
+    const txt = `تاریخ شمسی: ${j}\nتاریخ میلادی: ${g}\nساعت ایران: ${ir}`;
     copyText(maybePersianForCopy(txt), "اطلاعات کپی شد ✅");
   });
 
+  
+
   // crypto
   renderCryptoGrid();
-  connectCrypto();
+  fetchCryptoOnce();
   document.getElementById("cryptoRefreshBtn").addEventListener("click", ()=>{
-    connectCrypto();
-    showToast("در حال تلاش برای اتصال مجدد…", "info");
+    fetchCryptoOnce();
+    showToast("در حال بروزرسانی قیمت‌ها…", "info");
   });
   document.getElementById("cryptoCopyAllBtn").addEventListener("click", ()=>{
     const lines = CRYPTO_MARKETS.map(m=>{
-      const d = cryptoState.data[m.symbol];
-      const last = d ? safeNum(d.lastPrice) : NaN;
-      const priceTxt = Number.isFinite(last) ? `${formatNumber(last, 0)} تومان` : "—";
-      // کپی با اعداد استاندارد، سپس طبق تنظیمات تبدیل می‌شود
-      return `${m.key}: ${priceTxt}`;
+      const p = cryptoState.data?.[m.symbol]?.price;
+      const priceTxt = Number.isFinite(p) ? `${p} تومان` : "—";
+      return `${m.name}: ${priceTxt}`;
     }).join("\n");
     copyText(maybePersianForCopy(lines), "قیمت‌ها کپی شد ✅");
-  });
-  document.getElementById("cryptoGrid").addEventListener("click", (e)=>{
-    const btn = e.target.closest("[data-crypto-copy]");
-    if(!btn) return;
-    const symbol = btn.getAttribute("data-crypto-copy");
-    const market = CRYPTO_MARKETS.find(x=>x.symbol===symbol);
-    const d = cryptoState.data[symbol];
-    const last = d ? safeNum(d.lastPrice) : NaN;
-    if(!market || !Number.isFinite(last)){
-      showToast("هنوز قیمتی دریافت نشده است.", "warn");
-      return;
-    }
-    const txt = `${market.name} (${market.key}): ${formatNumber(last, 0)} تومان`;
-    copyText(maybePersianForCopy(txt), "کپی شد ✅");
   });
 
   // calculator
@@ -2059,6 +2147,17 @@ const syncSettingsForm = (cfg) => {
     if(!btn) return;
     calcPush(btn.dataset.k);
   });
+
+  document.getElementById("calcPadSci").addEventListener("click", (e)=>{
+    const btn=e.target.closest("[data-k]");
+    if(!btn) return;
+    calcPush(btn.dataset.k);
+  });
+  document.getElementById("calcModeBtn").addEventListener("click", ()=>{
+    setCalcMode(calcMode==="sci" ? "basic" : "sci");
+    showToast(calcMode==="sci" ? "حالت مهندسی فعال شد." : "حالت معمولی فعال شد.", "info");
+  });
+
   document.getElementById("calcClearBtn").addEventListener("click", calcClear);
   document.getElementById("calcCopyBtn").addEventListener("click", ()=>{
     const out = document.getElementById("calcResult").textContent;
@@ -2152,8 +2251,8 @@ const syncSettingsForm = (cfg) => {
     computeBMIUI();
     computeCaloriesUI();
     calcEvaluate();
-    renderTime();
-    renderCrypto(); // برای بروزرسانی اعداد/فرمت در رمزارزها
+    tickTime();
+    renderCryptoGrid(); // برای بروزرسانی اعداد/فرمت در رمزارزها
   });
 
   // initial renders
@@ -2162,15 +2261,17 @@ const syncSettingsForm = (cfg) => {
   computeBMIUI();
   computeCaloriesUI();
   calcEvaluate();
-  renderTime();
-  renderCrypto();
+  setCalcMode("basic");
+  tickTime();
+  renderCryptoGrid();
 
   // fetch time (TimeAPI.io)
   fetchTimeApi();
   setInterval(fetchTimeApi, 30 * 1000);
 
   // بروزرسانی متن "آخرین بروزرسانی" رمزارزها
-  setInterval(renderCrypto, 1000);
+  setInterval(fetchCryptoOnce, 20 * 1000);
+  setInterval(tickTime, 250);
 
   showToast("آماده‌ست! ✅", "ok");
 })();
