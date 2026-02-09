@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>مبدل واحد حرفه‌ای</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- WebSocket (Socket.IO) برای دریافت قیمت لحظه‌ای رمزارزها از والکس -->
+  <script src="https://cdn.socket.io/2.5.0/socket.io.min.js"></script>
   <style>
     :root{
       --bg:#0b1220;
@@ -109,6 +111,29 @@
     .calcKeyUtil{
       background: linear-gradient(180deg, color-mix(in srgb, var(--surface) 92%, transparent 8%), color-mix(in srgb, var(--surface) 72%, black 28%));
     }
+
+    /* Crypto cards */
+    .cryptoCard{
+      position:relative;
+      overflow:hidden;
+    }
+    .cryptoCard::before{
+      content:"";
+      position:absolute;
+      inset:-40px;
+      background: radial-gradient(400px 180px at 80% 0%, color-mix(in srgb, var(--primary) 20%, transparent 80%), transparent 60%),
+                  radial-gradient(420px 220px at 20% 10%, color-mix(in srgb, var(--secondary) 16%, transparent 84%), transparent 65%);
+      opacity:.9;
+      pointer-events:none;
+    }
+    .cryptoBadge{
+      border:1px solid color-mix(in srgb, var(--text) 10%, transparent 90%);
+      background: color-mix(in srgb, var(--surface) 70%, transparent 30%);
+      border-radius: 999px;
+      padding: .25rem .6rem;
+      font-size: .78rem;
+      white-space: nowrap;
+    }
   </style>
 </head>
 
@@ -128,6 +153,7 @@
         <button type="button" data-nav="converter" class="navBtn btn px-3.5 py-2 tabActive focusable">تبدیل واحدها</button>
         <button type="button" data-nav="health" class="navBtn btn px-3.5 py-2 tabIdle focusable">محاسبات سلامتی</button>
         <button type="button" data-nav="datetime" class="navBtn btn px-3.5 py-2 tabIdle focusable">تاریخ و ساعت</button>
+        <button type="button" data-nav="crypto" class="navBtn btn px-3.5 py-2 tabIdle focusable">رمزارزها</button>
         <button type="button" data-nav="calculator" class="navBtn btn px-3.5 py-2 tabIdle focusable">ماشین حساب</button>
         <button type="button" data-nav="settings" class="navBtn btn px-3.5 py-2 tabIdle focusable">تنظیمات</button>
         <button type="button" data-nav="help" class="navBtn btn px-3.5 py-2 tabIdle focusable">راهنما</button>
@@ -398,6 +424,37 @@
         </div>
       </section>
 
+      <!-- Crypto Page -->
+      <section id="page-crypto" class="hidden space-y-4 md:space-y-5">
+        <div class="card p-4 md:p-5">
+          <div class="flex items-start justify-between gap-3 flex-wrap">
+            <div>
+              <h2 class="text-base md:text-lg font-bold">رمزارزها (قیمت لحظه‌ای به تومان)</h2>
+              <p class="muted tiny mt-1">قیمت‌ها «آخرین معامله» در بازار اسپات والکس هستند و به صورت زنده به‌روزرسانی می‌شوند.</p>
+            </div>
+            <div class="flex gap-2 flex-wrap">
+              <button type="button" id="cryptoRefreshBtn" class="btn px-3 py-2 soft focusable">اتصال مجدد</button>
+              <button type="button" id="cryptoCopyAllBtn" class="btn px-3 py-2 soft focusable">کپی همه قیمت‌ها</button>
+            </div>
+          </div>
+
+          <div class="mt-4 soft p-3 rounded-xl flex items-center justify-between gap-2 flex-wrap">
+            <div class="flex items-center gap-2">
+              <span id="cryptoStatusDot" class="w-2.5 h-2.5 rounded-full bg-amber-400"></span>
+              <div class="tiny muted">وضعیت: <span id="cryptoStatusText" class="font-semibold text-amber-200">در حال اتصال…</span></div>
+            </div>
+            <div class="tiny muted">آخرین بروزرسانی: <span id="cryptoLastUpdate">—</span></div>
+            <div class="tiny muted">منبع: Wallex API</div>
+          </div>
+
+          <div id="cryptoGrid" class="mt-4 grid sm:grid-cols-2 lg:grid-cols-3 gap-3"></div>
+
+          <div class="mt-4 muted tiny">
+            نکته: ممکن است قیمت‌ها بین صرافی‌ها تفاوت داشته باشند. این صفحه برای نمایش قیمت لحظه‌ای و سریع طراحی شده است.
+          </div>
+        </div>
+      </section>
+
       <!-- Calculator Page -->
       <section id="page-calculator" class="hidden space-y-4 md:space-y-5">
         <div class="calcShell p-4 md:p-6">
@@ -657,6 +714,13 @@
               </ul>
             </div>
             <div class="soft p-3">
+              <div class="font-bold">رمزارزها</div>
+              <ul class="mt-2 list-disc pr-5 muted">
+                <li>قیمت‌ها به‌صورت زنده از Wallex API دریافت می‌شوند.</li>
+                <li>قیمت نمایش داده شده «آخرین معامله» است و ممکن است بین صرافی‌ها متفاوت باشد.</li>
+              </ul>
+            </div>
+            <div class="soft p-3">
               <div class="font-bold">ماشین حساب</div>
               <ul class="mt-2 list-disc pr-5 muted">
                 <li>نمایشگر فقط یک حالت دارد (فارسی یا انگلیسی) و از تنظیمات قابل انتخاب است.</li>
@@ -873,7 +937,7 @@ const applyConfig = (cfg) => {
 };
 
 /* ========================= Navigation ========================= */
-const pages = ["converter","health","datetime","calculator","settings","help"];
+const pages = ["converter","health","datetime","crypto","calculator","settings","help"];
 const showPage = (id) => {
   const target = pages.includes(id) ? id : "converter";
   for(const p of pages){
@@ -1568,7 +1632,6 @@ const fetchTimeApi = async () => {
   try{
     setTimeStatus("warn","در حال دریافت از TimeAPI.io…");
 
-    // نکته کلیدی: زمان را مستقیم از hour/minute/seconds می‌گیریم و هیچ تبدیل اضافه انجام نمی‌دهیم.
     const [ir, utc] = await Promise.all([
       fetchTimeApiZone(TZ_IR),
       fetchTimeApiZone(TZ_UTC)
@@ -1592,6 +1655,231 @@ const fetchTimeApi = async () => {
     setTimeStatus("err","دریافت از TimeAPI.io ناموفق بود. اینترنت/اختلال سرویس را بررسی کنید.");
     renderTime();
   }
+};
+
+/* ========================= Crypto (Wallex) =========================
+   - اتصال Socket.IO طبق مستند رسمی والکس
+   - subscribe به کانال SYMBOL@marketCap
+   - نمایش قیمت به تومان (TMN)
+*/
+const CRYPTO_MARKETS = [
+  { key:"BTC", symbol:"BTCTMN", name:"بیت‌کوین", icon:"₿" },
+  { key:"ETH", symbol:"ETHTMN", name:"اتریوم", icon:"Ξ" },
+  { key:"USDT", symbol:"USDTTMN", name:"تتر", icon:"₮" },
+  { key:"TON", symbol:"TONTMN", name:"تون", icon:"🟦" },
+  { key:"TRX", symbol:"TRXTMN", name:"ترون", icon:"◆" },
+];
+
+let cryptoSocket = null;
+let cryptoState = {
+  connected:false,
+  lastUpdateMs: null,
+  lastAnyPriceMs: null,
+  data: {} // symbol -> payload
+};
+
+const formatGrouped = (n, maxFrac=0) => {
+  const cfg = elementSdk.getConfig();
+  if(!Number.isFinite(n)) return "—";
+  const s = new Intl.NumberFormat("en-US", { maximumFractionDigits: maxFrac, minimumFractionDigits: 0 }).format(n);
+  return cfg.enable_persian_digits ? toPersianDigits(s) : s;
+};
+
+const autoFracForToman = (n) => {
+  if(!Number.isFinite(n)) return 0;
+  const a = Math.abs(n);
+  if(a < 100) return 2;
+  if(a < 1000) return 1;
+  return 0;
+};
+
+const formatToman = (n) => {
+  if(!Number.isFinite(n)) return "—";
+  const frac = autoFracForToman(n);
+  return `${formatGrouped(n, frac)} تومان`;
+};
+
+const formatPct = (n) => {
+  const cfg = elementSdk.getConfig();
+  if(!Number.isFinite(n)) return "—";
+  const raw = formatNumber(n, 2);
+  const withSign = (n>0 ? `+${raw}` : raw);
+  return cfg.enable_persian_digits ? toPersianDigits(withSign) : withSign;
+};
+
+const setCryptoStatus = (kind, text) => {
+  const dot = document.getElementById("cryptoStatusDot");
+  const lbl = document.getElementById("cryptoStatusText");
+  if(!dot || !lbl) return;
+
+  if(kind==="ok"){
+    dot.className="w-2.5 h-2.5 rounded-full bg-emerald-400";
+    lbl.className="font-semibold text-emerald-200";
+  }else if(kind==="warn"){
+    dot.className="w-2.5 h-2.5 rounded-full bg-amber-400";
+    lbl.className="font-semibold text-amber-200";
+  }else{
+    dot.className="w-2.5 h-2.5 rounded-full bg-rose-400";
+    lbl.className="font-semibold text-rose-200";
+  }
+  lbl.textContent = text || "—";
+};
+
+const renderCryptoGrid = () => {
+  const grid = document.getElementById("cryptoGrid");
+  if(!grid) return;
+  grid.innerHTML = "";
+
+  CRYPTO_MARKETS.forEach(m=>{
+    const card = document.createElement("div");
+    card.className = "soft p-4 rounded-2xl cryptoCard";
+    card.innerHTML = `
+      <div class="relative">
+        <div class="flex items-start justify-between gap-2">
+          <div class="flex items-center gap-3 min-w-0">
+            <div class="grad w-11 h-11 rounded-2xl flex items-center justify-center font-extrabold text-slate-900 shrink-0">${escapeHtml(m.icon)}</div>
+            <div class="min-w-0">
+              <div class="font-bold truncate">${escapeHtml(m.name)}</div>
+              <div class="muted tiny truncate">${escapeHtml(m.symbol)} • تومان</div>
+            </div>
+          </div>
+          <div class="flex gap-2">
+            <button type="button" class="btn px-3 py-2 soft focusable tiny" data-crypto-copy="${escapeHtml(m.symbol)}">کپی</button>
+          </div>
+        </div>
+
+        <div class="mt-3">
+          <div id="cryptoPrice-${m.symbol}" class="calcDisplay text-2xl md:text-3xl font-extrabold">—</div>
+          <div class="mt-2 flex items-center justify-between gap-2 flex-wrap">
+            <div class="cryptoBadge" id="cryptoChange-${m.symbol}">—</div>
+            <div class="muted tiny">تغییر ۲۴ساعت</div>
+          </div>
+        </div>
+
+        <div class="mt-3 grid grid-cols-2 gap-2 tiny">
+          <div class="soft p-2">
+            <div class="muted">کمترین ۲۴ساعت</div>
+            <div class="font-semibold mt-1" id="cryptoLow-${m.symbol}">—</div>
+          </div>
+          <div class="soft p-2">
+            <div class="muted">بیشترین ۲۴ساعت</div>
+            <div class="font-semibold mt-1" id="cryptoHigh-${m.symbol}">—</div>
+          </div>
+          <div class="soft p-2 col-span-2">
+            <div class="muted">حجم ۲۴ساعت (تومان)</div>
+            <div class="font-semibold mt-1" id="cryptoQVol-${m.symbol}">—</div>
+          </div>
+        </div>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+};
+
+const renderCrypto = () => {
+  const lastEl = document.getElementById("cryptoLastUpdate");
+  if(lastEl){
+    if(!cryptoState.lastUpdateMs){
+      lastEl.textContent = "—";
+    }else{
+      const sec = Math.max(0, Math.floor((Date.now() - cryptoState.lastUpdateMs)/1000));
+      const txt = sec === 0 ? "همین الان" : `${sec} ثانیه پیش`;
+      lastEl.textContent = fmtMaybeFaDigits(txt);
+    }
+  }
+
+  // رندر کارت‌ها بر اساس داده ذخیره‌شده
+  for(const m of CRYPTO_MARKETS){
+    const d = cryptoState.data[m.symbol];
+    const elP = document.getElementById(`cryptoPrice-${m.symbol}`);
+    const elC = document.getElementById(`cryptoChange-${m.symbol}`);
+    const elL = document.getElementById(`cryptoLow-${m.symbol}`);
+    const elH = document.getElementById(`cryptoHigh-${m.symbol}`);
+    const elQV = document.getElementById(`cryptoQVol-${m.symbol}`);
+
+    if(!elP || !elC || !elL || !elH || !elQV) continue;
+
+    if(!d){
+      elP.textContent = "—";
+      elC.textContent = "—";
+      elL.textContent = "—";
+      elH.textContent = "—";
+      elQV.textContent = "—";
+      continue;
+    }
+
+    const last = safeNum(d.lastPrice);
+    const ch24 = safeNum(d["24h_ch"]);
+    const low = safeNum(d["24h_lowPrice"]);
+    const high = safeNum(d["24h_highPrice"]);
+    const qvol = safeNum(d["24h_quoteVolume"]);
+
+    elP.textContent = formatToman(last);
+
+    // badge تغییر
+    const pct = formatPct(ch24);
+    elC.textContent = (pct==="—") ? "—" : `${pct}٪`;
+
+    const positive = Number.isFinite(ch24) && ch24 > 0;
+    const negative = Number.isFinite(ch24) && ch24 < 0;
+    elC.style.borderColor = positive ? "rgba(52, 211, 153, .35)" : negative ? "rgba(251, 113, 133, .35)" : "";
+    elC.style.background = positive ? "rgba(52, 211, 153, .10)" : negative ? "rgba(251, 113, 133, .10)" : "";
+
+    elL.textContent = Number.isFinite(low) ? formatToman(low) : "—";
+    elH.textContent = Number.isFinite(high) ? formatToman(high) : "—";
+    elQV.textContent = Number.isFinite(qvol) ? formatToman(qvol) : "—";
+  }
+};
+
+const connectCrypto = () => {
+  // اگر socket.io لود نشده باشد:
+  if(typeof window.io !== "function"){
+    setCryptoStatus("err", "Socket.IO لود نشد");
+    showToast("کتابخانه لازم برای قیمت لحظه‌ای بارگذاری نشد. اینترنت یا محدودیت CDN را بررسی کنید.", "err");
+    return;
+  }
+
+  if(cryptoSocket){
+    try{ cryptoSocket.close(); }catch{}
+    cryptoSocket = null;
+  }
+
+  setCryptoStatus("warn", "در حال اتصال…");
+
+  try{
+    cryptoSocket = io("https://api.wallex.ir", { transports:["websocket"] });
+  }catch{
+    setCryptoStatus("err", "خطا در اتصال");
+    return;
+  }
+
+  cryptoSocket.on("connect", () => {
+    cryptoState.connected = true;
+    setCryptoStatus("ok", "متصل ✅");
+    CRYPTO_MARKETS.forEach(m=>{
+      cryptoSocket.emit("subscribe", { channel: `${m.symbol}@marketCap` });
+    });
+  });
+
+  cryptoSocket.on("disconnect", () => {
+    cryptoState.connected = false;
+    setCryptoStatus("warn", "اتصال قطع شد…");
+  });
+
+  cryptoSocket.on("connect_error", () => {
+    cryptoState.connected = false;
+    setCryptoStatus("err", "خطا در اتصال");
+  });
+
+  cryptoSocket.on("Broadcaster", (channel, data) => {
+    const sym = String(channel||"").split("@")[0];
+    if(!sym) return;
+    if(!CRYPTO_MARKETS.some(m=>m.symbol===sym)) return;
+
+    cryptoState.data[sym] = data || {};
+    cryptoState.lastUpdateMs = Date.now();
+    renderCrypto();
+  });
 };
 
 /* ========================= Settings helpers ========================= */
@@ -1733,6 +2021,38 @@ const syncSettingsForm = (cfg) => {
     copyText(maybePersianForCopy(txt), "اطلاعات کپی شد ✅");
   });
 
+  // crypto
+  renderCryptoGrid();
+  connectCrypto();
+  document.getElementById("cryptoRefreshBtn").addEventListener("click", ()=>{
+    connectCrypto();
+    showToast("در حال تلاش برای اتصال مجدد…", "info");
+  });
+  document.getElementById("cryptoCopyAllBtn").addEventListener("click", ()=>{
+    const lines = CRYPTO_MARKETS.map(m=>{
+      const d = cryptoState.data[m.symbol];
+      const last = d ? safeNum(d.lastPrice) : NaN;
+      const priceTxt = Number.isFinite(last) ? `${formatNumber(last, 0)} تومان` : "—";
+      // کپی با اعداد استاندارد، سپس طبق تنظیمات تبدیل می‌شود
+      return `${m.key}: ${priceTxt}`;
+    }).join("\n");
+    copyText(maybePersianForCopy(lines), "قیمت‌ها کپی شد ✅");
+  });
+  document.getElementById("cryptoGrid").addEventListener("click", (e)=>{
+    const btn = e.target.closest("[data-crypto-copy]");
+    if(!btn) return;
+    const symbol = btn.getAttribute("data-crypto-copy");
+    const market = CRYPTO_MARKETS.find(x=>x.symbol===symbol);
+    const d = cryptoState.data[symbol];
+    const last = d ? safeNum(d.lastPrice) : NaN;
+    if(!market || !Number.isFinite(last)){
+      showToast("هنوز قیمتی دریافت نشده است.", "warn");
+      return;
+    }
+    const txt = `${market.name} (${market.key}): ${formatNumber(last, 0)} تومان`;
+    copyText(maybePersianForCopy(txt), "کپی شد ✅");
+  });
+
   // calculator
   document.getElementById("calcPad").addEventListener("click", (e)=>{
     const btn=e.target.closest("[data-k]");
@@ -1833,6 +2153,7 @@ const syncSettingsForm = (cfg) => {
     computeCaloriesUI();
     calcEvaluate();
     renderTime();
+    renderCrypto(); // برای بروزرسانی اعداد/فرمت در رمزارزها
   });
 
   // initial renders
@@ -1842,15 +2163,17 @@ const syncSettingsForm = (cfg) => {
   computeCaloriesUI();
   calcEvaluate();
   renderTime();
+  renderCrypto();
 
   // fetch time (TimeAPI.io)
   fetchTimeApi();
   setInterval(fetchTimeApi, 30 * 1000);
+
+  // بروزرسانی متن "آخرین بروزرسانی" رمزارزها
+  setInterval(renderCrypto, 1000);
 
   showToast("آماده‌ست! ✅", "ok");
 })();
 </script>
 </body>
 </html>
-
-
