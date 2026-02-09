@@ -136,9 +136,8 @@
     }
   
 /* Analog clock */
-.analogWrap{width:100%; display:flex; justify-content:center}
+.analogWrap{width:100%; max-width:380px; height:min(380px,70vw); aspect-ratio:1/1; margin-inline:auto; display:flex; justify-content:center; align-items:center}
 
-.analogWrap{width:min(360px,100%); aspect-ratio:1/1; margin-inline:auto}
 .analogSvg{
   width:100%; height:100%;
   display:block;
@@ -570,6 +569,14 @@
     </div>
 
     <div class="mt-4 grid sm:grid-cols-2 lg:grid-cols-3 gap-3" id="cryptoGrid"></div>
+
+    <div class="mt-5">
+      <div class="flex items-center justify-between gap-2 mb-2">
+        <h3 class="font-bold">بازار ایران (طلا و ارز)</h3>
+        <div class="tiny muted">۷ روز گذشته</div>
+      </div>
+      <div id="irMarketGrid" class="grid md:grid-cols-2 lg:grid-cols-3 gap-3"></div>
+    </div>
 
     <div class="mt-3 soft p-3 rounded-xl flex items-center justify-between gap-2">
       <div class="tiny muted">آخرین بروزرسانی: <span id="cryptoUpdatedAt">—</span></div>
@@ -2196,149 +2203,306 @@ const tickTime = () => {
   if(utcEl) utcEl.textContent = fmtMaybeFaDigits(utcText);
 };
 
-/* ========================= Crypto (Nobitex) =========================
-   - دریافت قیمت لحظه‌ای از API عمومی نوبیتکس (Orderbook)
-   - بازارهای *IRT معمولاً قیمت را به «ریال» برمی‌گردانند؛ اینجا برای نمایش «تومان» عدد را ÷10 می‌کنیم.
-   - به‌روزرسانی هوشمند: هر 15 ثانیه + توقف وقتی تب مخفی است
-   منابع: مستندات API نوبیتکس
+/* ========================= بازار لحظه‌ای (رمزارز + طلا/ارز) =========================
+   منابع:
+   - رمزارزها: Nobitex (قیمت لحظه‌ای + تاریخچه ۷ روزه)
+   - طلا/سکه/ارز: TGJU (داده جدول خلاصه از api2.tgju.org)
+   نکته: قیمت‌های Nobitex و TGJU معمولاً «ریال» هستند؛ نمایش «تومان» با تقسیم بر ۱۰ انجام می‌شود.
 */
-const NOBITEX_ORDERBOOK = (symbol)=>`https://apiv2.nobitex.ir/v3/orderbook/${encodeURIComponent(symbol)}`;
+const TOMAN_DIV = 10;
 
-const CRYPTO_MARKETS = [
-  { key:"BTC",  symbol:"BTCIRT",  name:"بیت‌کوین",          icon:"btc"  },
-  { key:"ETH",  symbol:"ETHIRT",  name:"اتریوم",            icon:"eth"  },
-  { key:"USDT", symbol:"USDTIRT", name:"تتر",               icon:"usdt" },
-  { key:"TON",  symbol:"TONIRT",  name:"تون",               icon:"ton"  },
-  { key:"TRX",  symbol:"TRXIRT",  name:"ترون",              icon:"trx"  },
-  { key:"PAXG", symbol:"PAXGIRT", name:"طلای دیجیتال (PAXG)", icon:"paxg" },
+const CRYPTO_ASSETS = [
+  { key:"BTC", label:"بیت‌کوین", symbol:"BTC", market:"btc-rls", nobSymbol:"BTCIRT", badge:"₿" },
+  { key:"ETH", label:"اتریوم",  symbol:"ETH", market:"eth-rls", nobSymbol:"ETHIRT", badge:"Ξ" },
+  { key:"USDT",label:"تتر",    symbol:"USDT",market:"usdt-rls",nobSymbol:"USDTIRT", badge:"₮" },
+  { key:"TON", label:"تون",     symbol:"TON", market:"ton-rls", nobSymbol:"TONIRT", badge:"◎" },
+  { key:"TRX", label:"ترون",    symbol:"TRX", market:"trx-rls", nobSymbol:"TRXIRT", badge:"▲" },
+  { key:"PAXG",label:"طلای دیجیتال", symbol:"PAXG", market:"paxg-rls", nobSymbol:"PAXGIRT", badge:"🪙" },
 ];
 
-const cryptoEl = {
-  grid: () => document.getElementById("cryptoGrid"),
-  status: () => document.getElementById("cryptoStatusText"),
-  updated: () => document.getElementById("cryptoUpdatedAt"),
-};
+const IR_ASSETS = [
+  { key:"G18", label:"طلا ۱۸ عیار", unit:"تومان", tgju:"geram18", badge:"Au" },
+  { key:"COIN", label:"سکه (امامی)", unit:"تومان", tgju:"sekee_down", badge:"🪙" },
+  { key:"SILVER", label:"نقره ۹۹۹", unit:"تومان", tgju:"silver_999", badge:"Ag" },
+  { key:"EUR", label:"یورو", unit:"تومان", tgju:"price_eur", badge:"€" },
+  { key:"GBP", label:"پوند انگلیس", unit:"تومان", tgju:"price_gbp", badge:"£" },
+  { key:"TRY", label:"لیر ترکیه", unit:"تومان", tgju:"price_try", badge:"₺" },
+  { key:"AED", label:"درهم امارات", unit:"تومان", tgju:"price_aed", badge:"د" },
+];
 
-const cryptoSvg = (k) => {
-  const common = 'width="28" height="28" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg"';
-  if(k==="btc") return `<svg ${common}><circle cx="32" cy="32" r="28" fill="#F7931A"/><path d="M37.6 19.6c2.2.6 3.6 2 3.9 4.5.4 3.1-1.3 5.2-4 6.2 3.3 1.1 5.3 3.4 4.7 7.2-.7 4.2-4 6-8.4 6.4v5h-3.1v-4.8h-2.5v4.8H25v-5c-.6 0-1.2 0-1.8-.1l-3.8-.2.6-3.7 2.2.1c.8.1 1.3-.2 1.5-.9V22.7c-.1-.5-.4-.9-1.1-.9l-2.2-.1.6-3.6 4 .2h1v-5h3.2v5h2.5v-5h3.1v5.2c1 .1 2 .3 2.8.5Zm-8.3 9.6 4.2.2c2.1 0 3.9-.6 4.2-2.8.3-2.1-1.2-3-3-3.2l-5.4-.3v6.1Zm0 14.1 5.2.3c2.6.1 4.7-.7 5.1-3.3.4-2.5-1.3-3.6-3.7-3.8l-6.6-.4v7.2Z" fill="#0B1220"/></svg>`;
-  if(k==="eth") return `<svg ${common}><circle cx="32" cy="32" r="28" fill="#627EEA"/><path d="M32 10l12 20-12 7-12-7 12-20Zm0 29 12-7-12 17-12-17 12 7Z" fill="#0B1220" opacity=".95"/></svg>`;
-  if(k==="usdt") return `<svg ${common}><circle cx="32" cy="32" r="28" fill="#26A17B"/><path d="M39 18H25v6c-5.4.7-9.5 2.3-9.5 4.2 0 1.9 4.1 3.5 9.5 4.2v13h14V36.6c5.4-.7 9.5-2.3 9.5-4.2 0-1.9-4.1-3.5-9.5-4.2V18Zm-7 18.2c-6.1 0-11-.9-11-2 0-1.1 4.9-2 11-2s11 .9 11 2c0 1.1-4.9 2-11 2Zm0-6.1c-3.9 0-7.1-.4-7.1-.9s3.2-.9 7.1-.9 7.1.4 7.1.9-3.2.9-7.1.9Z" fill="#0B1220" opacity=".95"/></svg>`;
-  if(k==="ton") return `<svg ${common}><circle cx="32" cy="32" r="28" fill="#0098EA"/><path d="M32 16c-7 0-14 2.9-14 8.3 0 3.7 3 7.1 7.4 10.7l3.9 3.2c1.5 1.2 3.9 1.2 5.4 0l3.9-3.2c4.4-3.6 7.4-7 7.4-10.7C46 18.9 39 16 32 16Zm0 20.7-4.3-3.6c-3.6-3-5.7-5.3-5.7-7.8 0-2.6 4-4.7 10-4.7s10 2.1 10 4.7c0 2.5-2.1 4.8-5.7 7.8L32 36.7Z" fill="#0B1220" opacity=".95"/></svg>`;
-  if(k==="trx") return `<svg ${common}><circle cx="32" cy="32" r="28" fill="#EF0027"/><path d="M18 18l28 5-10 28-18-33Zm8.8 7.6 9.2 7.5 6.2-8.7-15.4 1.2Zm7.1 10.9-7.8-6.4 8.9 16.5 5.8-16.2-6.9 6.1Z" fill="#0B1220" opacity=".95"/></svg>`;
-  if(k==="paxg") return `<svg ${common}><circle cx="32" cy="32" r="28" fill="#D4AF37"/><path d="M32 15c6.2 0 11 3 11 8 0 5.6-4.4 11.6-11 26-6.6-14.4-11-20.4-11-26 0-5 4.8-8 11-8Zm0 5.5a4.6 4.6 0 1 0 0 9.2 4.6 4.6 0 0 0 0-9.2Z" fill="#0B1220" opacity=".95"/></svg>`;
-  return `<div class="w-7 h-7 rounded-xl grad"></div>`;
-};
+const CRYPTO_REFRESH_MS = 20 * 1000;
+const HISTORY_REFRESH_MS = 10 * 60 * 1000; // تاریخچه دیرتر آپدیت شود
 
-let cryptoTimer = null;
-let cryptoLastUpdated = null;
-let cryptoInFlight = false;
-let cryptoLastRows = [];
-
-const toToman = (rial) => rial / 10;
-
-const formatMoneyFa = (n) => {
-  const cfg = elementSdk.getConfig();
-  if(!Number.isFinite(n)) return "—";
-  const s = Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-  return cfg.enable_persian_digits ? toPersianDigits(s) : s;
-};
-
-const fetchMarket = async (symbol) => {
-  const res = await fetch(NOBITEX_ORDERBOOK(symbol), { cache:"no-store" });
-  if(!res.ok) throw new Error("bad_status");
-  const data = await res.json();
-  if(!data || data.status !== "ok") throw new Error("bad_payload");
-  const p = Number(data.lastTradePrice);
-  const u = Number(data.lastUpdate);
-  if(!Number.isFinite(p)) throw new Error("bad_price");
-  return { price: p, lastUpdate: u };
-};
-
-const renderCrypto = (rows) => {
-  cryptoLastRows = rows;
-  const grid = cryptoEl.grid();
-  if(!grid) return;
-  grid.innerHTML = "";
-  rows.forEach(r=>{
-    const priceText = r.priceToman != null ? `${formatMoneyFa(r.priceToman)} تومان` : "—";
-    const card = document.createElement("div");
-    card.className = "cryptoCard soft p-3 rounded-2xl flex items-center justify-between gap-3";
-    card.innerHTML = `
-      <div class="flex items-center gap-3 min-w-0">
-        <div class="shrink-0">${cryptoSvg(r.icon)}</div>
-        <div class="min-w-0">
-          <div class="font-bold truncate">${escapeHtml(r.name)}</div>
-          <div class="muted tiny mt-0.5">${escapeHtml(r.key)} • ${escapeHtml(r.symbol)}</div>
-        </div>
-      </div>
-      <div class="text-left">
-        <div class="text-lg font-extrabold calcDisplay">${priceText}</div>
-        <button type="button" class="btn px-3 py-1.5 mt-2 soft focusable tiny" data-ccopy="${escapeHtml(r.key)}">کپی</button>
-      </div>
-    `;
-    grid.appendChild(card);
-  });
-
-  grid.querySelectorAll("[data-ccopy]").forEach(btn=>{
-    btn.addEventListener("click", ()=>{
-      const k = btn.getAttribute("data-ccopy");
-      const row = rows.find(x=>x.key===k);
-      if(!row || row.priceToman==null){ showToast("چیزی برای کپی وجود ندارد.", "warn"); return; }
-      const txt = `${row.key}: ${Math.round(row.priceToman)} تومان`;
-      copyText(maybePersianForCopy(txt), "قیمت کپی شد ✅");
-    });
-  });
-};
-
-const setCryptoStatus = (msg, type="info") => {
-  const el = cryptoEl.status();
-  if(!el) return;
-  el.className = "tiny " + (type==="ok" ? "text-emerald-200" : type==="err" ? "text-rose-200" : "text-amber-200");
-  el.textContent = msg;
-};
-
-const updateCrypto = async (force=false) => {
-  if(cryptoInFlight && !force) return;
-  cryptoInFlight = true;
-
-  try{
-    setCryptoStatus("در حال دریافت قیمت‌ها…", "info");
-    const tasks = CRYPTO_MARKETS.map(async m=>{
-      try{
-        const d = await fetchMarket(m.symbol);
-        return { ...m, priceRaw: d.price, priceToman: toToman(d.price), lastUpdate: d.lastUpdate };
-      }catch{
-        return { ...m, priceRaw: null, priceToman: null, lastUpdate: null, _err:true };
-      }
-    });
-
-    const rows = await Promise.all(tasks);
-    renderCrypto(rows);
-
-    const last = rows.map(r=>r.lastUpdate).filter(Boolean).sort((a,b)=>b-a)[0];
-    cryptoLastUpdated = last ? new Date(last) : new Date();
-    const cfg = elementSdk.getConfig();
-    const ts = cryptoLastUpdated ? cryptoLastUpdated.toLocaleTimeString("fa-IR", {hour:"2-digit", minute:"2-digit", second:"2-digit"}) : "—";
-    const shown = cfg.enable_persian_digits ? ts : toLatinDigits(ts);
-
-    if(cryptoEl.updated()) cryptoEl.updated().textContent = shown;
-    setCryptoStatus("قیمت‌ها به‌روزرسانی شد ✅", "ok");
-  }catch{
-    setCryptoStatus("خطا در دریافت قیمت‌ها. اینترنت/دسترسی API را بررسی کنید.", "err");
-  }finally{
-    cryptoInFlight = false;
+const nobitex = {
+  baseV2: "https://api.nobitex.ir",
+  baseV2Alt: "https://apiv2.nobitex.ir",
+  async fetchOrderbook(markets){
+    const url = `${this.baseV2}/v3/orderbook/all?markets=${encodeURIComponent(markets.join(','))}`;
+    const res = await fetch(url, { cache:"no-store" });
+    if(!res.ok) throw new Error("nobitex_orderbook_bad_status");
+    const data = await res.json();
+    if(!data || !data.status || !data.orderbooks) throw new Error("nobitex_orderbook_bad_payload");
+    return data.orderbooks;
+  },
+  async fetchHistory(symbol, days=7){
+    // UDF history: daily candles
+    const now = Math.floor(Date.now()/1000);
+    const from = now - (days * 24 * 60 * 60);
+    const url = `${this.baseV2Alt}/market/udf/history?symbol=${encodeURIComponent(symbol)}&resolution=D&from=${from}&to=${now}`;
+    const res = await fetch(url, { cache:"no-store" });
+    if(!res.ok) throw new Error("nobitex_hist_bad_status");
+    const data = await res.json();
+    if(!data || data.s !== "ok" || !Array.isArray(data.c)) throw new Error("nobitex_hist_bad_payload");
+    // close prices in IRR (ریال) for IRT markets
+    return data.c.slice(-days);
   }
 };
 
-const startCryptoAuto = () => {
-  if(cryptoTimer) clearInterval(cryptoTimer);
-  cryptoTimer = setInterval(()=>{ if(!document.hidden) updateCrypto(); }, 15000);
+const tgju = {
+  base: "https://api2.tgju.org/v1/market/indicator/summary-table-data/",
+  async fetchTable(grade){
+    const url = `${this.base}${encodeURIComponent(grade)}`;
+    const res = await fetch(url, { cache:"no-store" });
+    if(!res.ok) throw new Error("tgju_bad_status");
+    const data = await res.json();
+    if(!data || !Array.isArray(data.data)) throw new Error("tgju_bad_payload");
+    return data.data;
+  }
 };
 
-document.addEventListener("visibilitychange", ()=>{
-  if(!document.hidden) updateCrypto(true);
-});
+const parseTgjuNumber = (s) => {
+  const t = String(s ?? "")
+    .replace(/<[^>]*>/g,"")
+    .replace(/,/g,"")
+    .trim();
+  const n = Number(toLatinDigits(t));
+  return Number.isFinite(n) ? n : NaN;
+};
+
+const fmtPriceToman = (irr) => {
+  if(!Number.isFinite(irr)) return "—";
+  const t = irr / TOMAN_DIV;
+  // بدون اعشار
+  const s = Math.round(t).toLocaleString("en-US");
+  return elementSdk.getConfig().enable_persian_digits ? toPersianDigits(s) : s;
+};
+
+const fmtCompact = (n) => {
+  if(!Number.isFinite(n)) return "—";
+  const s = Math.round(n).toLocaleString("en-US");
+  return elementSdk.getConfig().enable_persian_digits ? toPersianDigits(s) : s;
+};
+
+const sparklineSVG = (values, up=true) => {
+  if(!Array.isArray(values) || values.length<2 || values.some(v=>!Number.isFinite(v))) return "";
+  const w=120, h=34, p=3;
+  const min=Math.min(...values), max=Math.max(...values);
+  const span = (max-min) || 1;
+  const pts = values.map((v,i)=>{
+    const x = p + (i*(w-2*p))/(values.length-1);
+    const y = h - p - ((v-min)*(h-2*p))/span;
+    return `${x.toFixed(1)},${y.toFixed(1)}`;
+  }).join(" ");
+  const stroke = up ? "rgba(52,211,153,.95)" : "rgba(251,113,133,.95)";
+  const fill = up ? "rgba(52,211,153,.10)" : "rgba(251,113,133,.10)";
+  return `<svg viewBox="0 0 ${w} ${h}" class="w-[120px] h-[34px] shrink-0">
+    <polyline points="${pts}" fill="none" stroke="${stroke}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <polyline points="${pts} ${w-p},${h-p} ${p},${h-p}" fill="${fill}" stroke="none" opacity="0.9"/>
+  </svg>`;
+};
+
+const arrowBadge = (pct) => {
+  if(!Number.isFinite(pct)) return `<span class="text-xs muted">—</span>`;
+  const up = pct >= 0;
+  const color = up ? "text-emerald-300" : "text-rose-300";
+  const sign = up ? "▲" : "▼";
+  const p = Math.abs(pct);
+  const s = `${p.toFixed(2)}%`;
+  const shown = elementSdk.getConfig().enable_persian_digits ? toPersianDigits(s) : s;
+  return `<span class="text-xs font-bold ${color} inline-flex items-center gap-1">${sign} ${shown}</span>`;
+};
+
+const buildAssetCard = ({badge,label,subtitle,priceToman, minToman, maxToman, changePct, spark, extra=""}) => {
+  return `<div class="soft p-3 rounded-2xl hover:scale-[1.01] transition-transform">
+    <div class="flex items-center justify-between gap-2">
+      <div class="flex items-center gap-3 min-w-0">
+        <div class="grad w-10 h-10 rounded-2xl flex items-center justify-center font-extrabold text-[#06101f] shrink-0">${escapeHtml(badge||"")}</div>
+        <div class="min-w-0">
+          <div class="font-bold truncate">${escapeHtml(label)}</div>
+          <div class="tiny muted truncate">${escapeHtml(subtitle||"")}</div>
+        </div>
+      </div>
+      <div class="text-left">
+        <div class="text-lg font-extrabold calcDisplay">${priceToman}</div>
+        <div class="mt-0.5">${arrowBadge(changePct)}</div>
+      </div>
+    </div>
+    <div class="mt-2 flex items-center justify-between gap-3">
+      <div class="tiny muted">
+        کمینه: <span class="font-semibold">${minToman}</span> • بیشینه: <span class="font-semibold">${maxToman}</span>
+      </div>
+      ${spark || ""}
+    </div>
+    ${extra ? `<div class="mt-2 tiny muted">${extra}</div>` : ``}
+  </div>`;
+};
+
+const cryptoEl = {
+  grid: null,
+  irGrid: null,
+  status: null,
+};
+
+let cryptoState = {
+  prices: {},      // key -> {priceIrr, dayLowIrr, dayHighIrr}
+  history: {},     // key -> [closeIrr...]
+  irHistory: {},   // key -> [closeIrr...]
+  lastPriceOk: false,
+  lastHistOk: false,
+};
+
+const renderCrypto = () => {
+  if(!cryptoEl.grid) return;
+  const now = new Date();
+  const updated = elementSdk.getConfig().enable_persian_digits
+    ? toPersianDigits(now.toLocaleTimeString("en-US"))
+    : now.toLocaleTimeString("en-US");
+
+  // رمزارزها (هفتگی دقیق)
+  const cards = CRYPTO_ASSETS.map(a=>{
+    const p = cryptoState.prices[a.key];
+    const hist = cryptoState.history[a.key];
+    const last = p?.lastTradePrice;
+    const low = p?.dayLow;
+    const high = p?.dayHigh;
+
+    const h = Array.isArray(hist) && hist.length>=2 ? hist : null;
+    const min7 = h ? Math.min(...h) : low;
+    const max7 = h ? Math.max(...h) : high;
+
+    let pct = NaN;
+    if(h && Number.isFinite(h[0]) && Number.isFinite(h[h.length-1]) && h[0]!==0){
+      pct = ((h[h.length-1]-h[0]) / h[0]) * 100;
+    }else if(Number.isFinite(p?.dayChange) && Number.isFinite(last) && last!==0){
+      pct = Number(p.dayChange); // بعضی بازارها درصد روزانه می‌دهند
+    }
+
+    const up = Number.isFinite(pct) ? pct>=0 : true;
+    const spark = h ? sparklineSVG(h.map(x=>x/TOMAN_DIV), up) : "";
+
+    return buildAssetCard({
+      badge: a.badge,
+      label: a.label,
+      subtitle: "به تومان",
+      priceToman: fmtPriceToman(last),
+      minToman: fmtPriceToman(min7),
+      maxToman: fmtPriceToman(max7),
+      changePct: pct,
+      spark
+    });
+  }).join("");
+
+  cryptoEl.grid.innerHTML = cards;
+
+  // طلا/سکه/ارز (هفتگی از TGJU)
+  if(cryptoEl.irGrid){
+    const irCards = IR_ASSETS.map(a=>{
+      const hist = cryptoState.irHistory[a.key];
+      const h = Array.isArray(hist) && hist.length>=2 ? hist : null;
+      const last = h ? h[0] : NaN; // جدول TGJU معمولاً جدیدترین را اول می‌دهد
+      const values = h ? h.slice(0,7).reverse() : null; // برای نمودار از قدیم به جدید
+      const min7 = values ? Math.min(...values) : NaN;
+      const max7 = values ? Math.max(...values) : NaN;
+      let pct = NaN;
+      if(values && values[0]!==0 && Number.isFinite(values[0]) && Number.isFinite(values[values.length-1])){
+        pct = ((values[values.length-1]-values[0]) / values[0]) * 100;
+      }
+      const up = Number.isFinite(pct) ? pct>=0 : true;
+      const spark = values ? sparklineSVG(values.map(x=>x/TOMAN_DIV), up) : "";
+
+      return buildAssetCard({
+        badge: a.badge,
+        label: a.label,
+        subtitle: "به تومان",
+        priceToman: fmtPriceToman(last),
+        minToman: fmtPriceToman(min7),
+        maxToman: fmtPriceToman(max7),
+        changePct: pct,
+        spark
+      });
+    }).join("");
+    cryptoEl.irGrid.innerHTML = irCards;
+  }
+
+  if(cryptoEl.status){
+    cryptoEl.status.textContent = updated;
+  }
+};
+
+const updateCryptoPrices = async () => {
+  try{
+    if(cryptoEl.status) cryptoEl.status.textContent = "…";
+    const orderbooks = await nobitex.fetchOrderbook(CRYPTO_ASSETS.map(a=>a.market));
+    // ساخت state
+    for(const a of CRYPTO_ASSETS){
+      const ob = orderbooks[a.market];
+      if(!ob) continue;
+      cryptoState.prices[a.key] = {
+        lastTradePrice: safeNum(ob.lastTradePrice),
+        dayLow: safeNum(ob.dayLow),
+        dayHigh: safeNum(ob.dayHigh),
+        dayChange: safeNum(ob.dayChange) // درصد یا مقدار (بستگی به API)
+      };
+    }
+    cryptoState.lastPriceOk = true;
+    renderCrypto();
+  }catch{
+    cryptoState.lastPriceOk = false;
+    if(cryptoEl.status) cryptoEl.status.textContent = "خطا";
+  }
+};
+
+const updateCryptoHistory = async () => {
+  try{
+    // تاریخچه رمزارز
+    await Promise.all(CRYPTO_ASSETS.map(async a=>{
+      try{
+        cryptoState.history[a.key] = await nobitex.fetchHistory(a.nobSymbol, 7);
+      }catch{
+        cryptoState.history[a.key] = null;
+      }
+    }));
+
+    // تاریخچه بازار ایران از TGJU
+    await Promise.all(IR_ASSETS.map(async a=>{
+      try{
+        const table = await tgju.fetchTable(a.tgju);
+        // table row: [open, low, high, close, change, change%, greg, jalali]
+        const closes = table.slice(0, 7).map(r=>parseTgjuNumber(r[3])).filter(Number.isFinite);
+        cryptoState.irHistory[a.key] = closes.length ? closes : null;
+      }catch{
+        cryptoState.irHistory[a.key] = null;
+      }
+    }));
+
+    cryptoState.lastHistOk = true;
+    renderCrypto();
+  }catch{
+    cryptoState.lastHistOk = false;
+  }
+};
+
+const initMarketPage = () => {
+  cryptoEl.grid = document.getElementById("cryptoGrid");
+  cryptoEl.irGrid = document.getElementById("irMarketGrid");
+  cryptoEl.status = document.getElementById("cryptoStatus");
+
+  updateCryptoPrices();
+  updateCryptoHistory();
+
+  setInterval(updateCryptoPrices, CRYPTO_REFRESH_MS);
+  setInterval(updateCryptoHistory, HISTORY_REFRESH_MS);
+};
 
 /* ========================= Settings helpers ========================= */
 const bindColorPair = (colorInput, textInput, key) => {
@@ -2511,8 +2675,14 @@ const syncSettingsForm = (cfg) => {
       calcPush(btn.dataset.k);
     });
   };
-  bindCalcPad(document.getElementById("calcPadBasic"));
+  const padBasic = document.getElementById("calcPadBasic") || document.getElementById("calcPad");
+  bindCalcPad(padBasic);
   bindCalcPad(document.getElementById("calcPadSci"));
+
+  document.getElementById("calcModeBtn")?.addEventListener("click", ()=>{
+    setCalcMode(calcMode==="sci" ? "basic" : "sci");
+    showToast(calcMode==="sci" ? "ماشین‌حساب: مهندسی" : "ماشین‌حساب: ساده", "info");
+  });
 
   document.getElementById("calcClearBtn").addEventListener("click", calcClear);
   document.getElementById("calcCopyBtn").addEventListener("click", ()=>{
@@ -2540,18 +2710,10 @@ const syncSettingsForm = (cfg) => {
   
 
   
-  // crypto
-  updateCrypto(true);
-  startCryptoAuto();
-  const refreshBtn=document.getElementById("cryptoRefreshBtn");
-  if(refreshBtn) refreshBtn.addEventListener("click", ()=>updateCrypto(true));
-  const copyAllBtn=document.getElementById("cryptoCopyAllBtn");
-  if(copyAllBtn) copyAllBtn.addEventListener("click", ()=>{
-    if(!cryptoLastRows || !cryptoLastRows.length){ showToast("چیزی برای کپی وجود ندارد.", "warn"); return; }
-    const lines = cryptoLastRows.map(r=> r.priceToman==null ? `${r.key}: —` : `${r.key}: ${Math.round(r.priceToman)} تومان`);
-    copyText(maybePersianForCopy(lines.join("\n")), "همه قیمت‌ها کپی شد ✅");
-  });
-// settings bindings
+    // market (crypto + طلا/ارز)
+  initMarketPage();
+
+  // settings bindings
   bindColorPair(document.getElementById("bgColor"), document.getElementById("bgColorText"), "background_color");
   bindColorPair(document.getElementById("surfaceColor"), document.getElementById("surfaceColorText"), "surface_color");
   bindColorPair(document.getElementById("textColor"), document.getElementById("textColorText"), "text_color");
