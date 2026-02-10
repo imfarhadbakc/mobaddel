@@ -1,18 +1,12 @@
 <!doctype html>
 <html lang="fa" dir="rtl">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>codeisa</title>
-
-  <!-- Tailwind -->
   <script src="https://cdn.tailwindcss.com"></script>
-
-  <!-- Fonts (2 گزینه فارسی) -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;600;800&family=Sahel:wght@300;400;600;700&display=swap" rel="stylesheet">
-
+  <!-- WebSocket (Socket.IO) برای دریافت قیمت لحظه‌ای رمزارزها از والکس -->
+  <script src="https://cdn.socket.io/2.5.0/socket.io.min.js"></script>
   <style>
     :root{
       --bg:#0b1220;
@@ -24,1812 +18,2635 @@
       --gradB:#38bdf8;
       --radius:18px;
       --fs:16px;
-      --ff: "Vazirmatn", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Tahoma", Arial;
-      --line: color-mix(in srgb, var(--text) 12%, transparent 88%);
-      --muted: color-mix(in srgb, var(--text) 72%, transparent 28%);
-      --shadow: 0 18px 60px rgba(0,0,0,.35);
+      --ff: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji","Segoe UI Emoji";
     }
-
     html,body{height:100%}
-    body{
-      margin:0;
-      background:
-        radial-gradient(1200px 700px at 70% 0%, color-mix(in srgb, var(--gradA) 14%, transparent 86%), transparent 60%),
-        radial-gradient(900px 600px at 10% 20%, color-mix(in srgb, var(--gradB) 14%, transparent 86%), transparent 55%),
-        var(--bg);
-      color:var(--text);
-      font-family:var(--ff);
-      font-size:var(--fs);
-      line-height:1.7;
-      overflow-x:hidden;
-    }
-
+    body{background:var(--bg); color:var(--text); font-family:var(--ff); font-size:var(--fs)}
     .card{
-      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
-      border:1px solid var(--line);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
+      background:color-mix(in srgb, var(--surface) 92%, black 8%);
+      border:1px solid color-mix(in srgb, var(--text) 10%, transparent 90%);
+      border-radius:var(--radius);
+      box-shadow:0 10px 30px rgba(0,0,0,.25);
     }
     .soft{
-      border:1px solid var(--line);
-      background: rgba(0,0,0,.14);
-      border-radius: 14px;
+      border:1px solid color-mix(in srgb, var(--text) 12%, transparent 88%);
+      background:color-mix(in srgb, var(--surface) 82%, black 18%);
+      border-radius:14px;
     }
-    .btn{
-      border-radius: 14px;
-      transition: .15s ease;
-    }
-    .btn:active{ transform: translateY(1px) scale(.99); }
-    .tabActive{background: color-mix(in srgb, var(--primary) 18%, transparent 82%); border:1px solid color-mix(in srgb, var(--primary) 45%, transparent 55%);}
-    .tabIdle{background: color-mix(in srgb, var(--surface) 72%, transparent 28%); border:1px solid var(--line);}
-    .grad{background: linear-gradient(135deg, var(--gradA), var(--gradB));}
-    .muted{color:var(--muted);}
-    .tiny{font-size:.85em;}
     .focusable:focus{outline:2px solid color-mix(in srgb, var(--primary) 80%, white 20%); outline-offset:2px}
-
-    /* Full-height on desktop nicer */
-    @media (min-width: 1024px){
-      .appShell{ min-height: calc(100vh - 28px); }
+    .btn{border-radius:14px; transition:.18s transform,.18s filter,.18s background,.18s box-shadow}
+    .btn:active{transform:translateY(1px) scale(.99)}
+    .glass{
+      background:linear-gradient(135deg, color-mix(in srgb, var(--surface) 88%, transparent 12%), color-mix(in srgb, var(--surface) 72%, transparent 28%));
+      backdrop-filter: blur(10px);
+      border:1px solid color-mix(in srgb, var(--text) 12%, transparent 88%);
+      border-radius:var(--radius);
     }
-
-    /* Tiny animated Telegram icon */
-    .tgFab{
-      display:inline-flex; align-items:center; gap:10px;
-      padding:10px 14px;
-      border-radius:999px;
-      border:1px solid color-mix(in srgb, var(--primary) 45%, transparent 55%);
-      background: color-mix(in srgb, var(--primary) 10%, transparent 90%);
-      box-shadow: 0 16px 40px rgba(0,0,0,.35);
-      transform-origin: 50% 50%;
-      animation: wiggle 2.8s ease-in-out infinite;
+    .grad{background:linear-gradient(135deg, var(--gradA), var(--gradB));}
+    .muted{color:color-mix(in srgb, var(--text) 72%, transparent 28%)}
+    .tiny{font-size:.85em}
+    .tabActive{background:color-mix(in srgb, var(--primary) 18%, transparent 82%); border:1px solid color-mix(in srgb, var(--primary) 45%, transparent 55%);}
+    .tabIdle{background:color-mix(in srgb, var(--surface) 72%, transparent 28%); border:1px solid color-mix(in srgb, var(--text) 10%, transparent 90%);}
+    input,select,textarea{
+      background:color-mix(in srgb, var(--surface) 78%, black 22%);
+      border:1px solid color-mix(in srgb, var(--text) 14%, transparent 86%);
+      color:var(--text);
     }
-    .tgFab:hover{ filter: brightness(1.08); transform: translateY(-1px); }
-    @keyframes wiggle{
-      0%, 100% { transform: translateY(0) rotate(0deg); }
-      35% { transform: translateY(-2px) rotate(-2deg); }
-      70% { transform: translateY(0) rotate(2deg); }
+    input::placeholder,textarea::placeholder{color:color-mix(in srgb, var(--text) 45%, transparent 55%)}
+    option{background:#0b1220}
+    .toast{animation:toastIn .22s ease-out}
+    @keyframes toastIn{from{transform:translateY(8px);opacity:0}to{transform:translateY(0);opacity:1}}
+    .calcDisplay{font-variant-numeric: tabular-nums; letter-spacing:.02em; word-break: break-word;}
+
+    /* Calculator */
+    .calcShell{
+      background: radial-gradient(1200px 500px at 80% 0%, color-mix(in srgb, var(--primary) 18%, transparent 82%), transparent 60%),
+                  radial-gradient(900px 400px at 15% 20%, color-mix(in srgb, var(--secondary) 14%, transparent 86%), transparent 55%),
+                  linear-gradient(180deg, color-mix(in srgb, var(--surface) 85%, black 15%), color-mix(in srgb, var(--surface) 75%, black 25%));
+      border:1px solid color-mix(in srgb, var(--text) 10%, transparent 90%);
+      border-radius: calc(var(--radius) + 6px);
+      box-shadow: 0 18px 60px rgba(0,0,0,.35);
+      position: relative;
+      overflow: hidden;
     }
-
-    /* Mini sparklines */
-    canvas.spark{ width: 110px; height: 36px; }
-
-    /* Analog clock */
-    .clockWrap{
-      width:min(360px, 84vw);
-      aspect-ratio: 1/1;
-      margin-inline:auto;
+    .calcShell::before{
+      content:"";
+      position:absolute; inset:-2px;
+      background:linear-gradient(135deg, color-mix(in srgb, var(--gradA) 55%, transparent 45%), color-mix(in srgb, var(--gradB) 55%, transparent 45%));
+      opacity:.10;
+      filter: blur(18px);
+      pointer-events:none;
+    }
+    .calcTop{
       position:relative;
-      border-radius:999px;
-      border:1px solid var(--line);
-      background:
-        radial-gradient(circle at 50% 38%, rgba(255,255,255,.10), rgba(255,255,255,.03) 55%, rgba(0,0,0,.18) 100%),
-        linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
-      box-shadow: 0 28px 80px rgba(0,0,0,.45);
+      background:linear-gradient(135deg, color-mix(in srgb, var(--surface) 85%, transparent 15%), color-mix(in srgb, var(--surface) 70%, transparent 30%));
+      border:1px solid color-mix(in srgb, var(--text) 12%, transparent 88%);
+      border-radius: 22px;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.05);
+    }
+    .calcKey{
+      min-height:52px;
+      border-radius: 18px;
+      background: linear-gradient(180deg, color-mix(in srgb, var(--surface) 90%, transparent 10%), color-mix(in srgb, var(--surface) 75%, black 25%));
+      border:1px solid color-mix(in srgb, var(--text) 10%, transparent 90%);
+      box-shadow: 0 10px 18px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.06);
+      transition: transform .12s ease, filter .12s ease, box-shadow .12s ease;
+    }
+    .calcKey:hover{filter:brightness(1.06)}
+    .calcKey:active{
+      transform: translateY(1px) scale(.99);
+      box-shadow: 0 6px 12px rgba(0,0,0,.24), inset 0 1px 0 rgba(255,255,255,.04);
+    }
+    .calcKeyOp{
+      background: linear-gradient(135deg, color-mix(in srgb, var(--gradA) 80%, white 20%), color-mix(in srgb, var(--gradB) 80%, white 20%));
+      color:#06101f;
+      border:none;
+      box-shadow: 0 12px 22px rgba(0,0,0,.28), 0 0 24px color-mix(in srgb, var(--primary) 35%, transparent 65%);
+    }
+    .calcKeyDanger{
+      background: linear-gradient(135deg, color-mix(in srgb, #fb7185 70%, white 30%), color-mix(in srgb, #f97316 70%, white 30%));
+      color:#14070a;
+      border:none;
+    }
+    .calcKeyUtil{
+      background: linear-gradient(180deg, color-mix(in srgb, var(--surface) 92%, transparent 8%), color-mix(in srgb, var(--surface) 72%, black 28%));
+    }
+
+    /* Crypto cards */
+    .cryptoCard{
+      position:relative;
       overflow:hidden;
     }
-    .clockRing{
-      position:absolute; inset:10px;
-      border-radius:999px;
-      border:1px dashed rgba(255,255,255,.12);
-      opacity:.55;
-    }
-    .tick{
-      position:absolute; left:50%; top:50%;
-      width:2px; height:10px;
-      background: rgba(255,255,255,.22);
-      transform-origin: 50% calc(100% + 130px);
-      border-radius:2px;
-    }
-    .tick.big{ height:16px; width:3px; background: rgba(255,255,255,.30); }
-    .num{
+    .cryptoCard::before{
+      content:"";
       position:absolute;
-      left:50%; top:50%;
-      transform: translate(-50%,-50%);
-      font-weight:800;
-      color: rgba(231,240,255,.85);
-      text-shadow: 0 10px 30px rgba(0,0,0,.5);
-      user-select:none;
+      inset:-40px;
+      background: radial-gradient(400px 180px at 80% 0%, color-mix(in srgb, var(--primary) 20%, transparent 80%), transparent 60%),
+                  radial-gradient(420px 220px at 20% 10%, color-mix(in srgb, var(--secondary) 16%, transparent 84%), transparent 65%);
+      opacity:.9;
+      pointer-events:none;
     }
-    .hand{
-      position:absolute; left:50%; top:50%;
-      transform-origin: 50% 100%;
+    .cryptoBadge{
+      border:1px solid color-mix(in srgb, var(--text) 10%, transparent 90%);
+      background: color-mix(in srgb, var(--surface) 70%, transparent 30%);
       border-radius: 999px;
-      filter: drop-shadow(0 12px 18px rgba(0,0,0,.45));
+      padding: .25rem .6rem;
+      font-size: .78rem;
+      white-space: nowrap;
     }
-    .hand.hour{ width:8px; height:82px; background: rgba(231,240,255,.88); }
-    .hand.min{ width:6px; height:112px; background: rgba(231,240,255,.70); }
-    .hand.sec{ width:3px; height:132px; background: color-mix(in srgb, var(--primary) 70%, white 30%); }
-    .pin{
-      position:absolute; left:50%; top:50%;
-      width:18px; height:18px;
-      transform: translate(-50%,-50%);
-      border-radius:999px;
-      background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.95), rgba(255,255,255,.35));
-      box-shadow: 0 0 0 6px rgba(0,0,0,.18);
-    }
-    .clockBrand{
-      position:absolute;
-      left:50%; top:72%;
-      transform: translate(-50%,-50%);
-      font-weight:900;
-      letter-spacing:.4px;
-      opacity:.82;
-      user-select:none;
-    }
-  </style>
+  
+/* Analog clock */
+.analogWrap{width:100%; display:flex; justify-content:center}
+
+.analogWrap{width:min(360px,100%); aspect-ratio:1/1; margin-inline:auto}
+.analogSvg{
+  width:100%; height:100%;
+  display:block;
+  border-radius:9999px;
+  background: radial-gradient(circle at 30% 25%, color-mix(in srgb, var(--primary) 18%, transparent 82%), transparent 55%),
+              radial-gradient(circle at 70% 75%, color-mix(in srgb, var(--secondary) 16%, transparent 84%), transparent 55%),
+              linear-gradient(180deg, color-mix(in srgb, var(--surface) 90%, transparent 10%), color-mix(in srgb, var(--surface) 70%, black 30%));
+  border: 1px solid color-mix(in srgb, var(--text) 12%, transparent 88%);
+  box-shadow: 0 18px 60px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.06);
+}
+.analogRing{stroke: color-mix(in srgb, var(--text) 14%, transparent 86%); stroke-dasharray: 2 5; opacity:.55}
+.analogTick{stroke: color-mix(in srgb, var(--text) 22%, transparent 78%); stroke-linecap:round}
+.analogTickMajor{stroke: color-mix(in srgb, var(--text) 40%, transparent 60%); stroke-width:3}
+.analogNum{fill: color-mix(in srgb, var(--text) 82%, transparent 18%); font-weight:900; font-size:14px; text-anchor:middle; dominant-baseline:middle; user-select:none}
+.analogBrand{fill: color-mix(in srgb, var(--text) 85%, transparent 15%); font-weight:900; font-size:12px; text-anchor:middle; dominant-baseline:middle; opacity:.92; letter-spacing:.03em}
+.handLine{stroke-linecap:round}
+.handHourLine{stroke: color-mix(in srgb, var(--text) 92%, transparent 8%); stroke-width:6}
+.handMinLine{stroke: color-mix(in srgb, var(--text) 86%, transparent 14%); stroke-width:5}
+.handSecLine{stroke: color-mix(in srgb, var(--primary) 82%, white 18%); stroke-width:2.5; filter: drop-shadow(0 0 10px color-mix(in srgb, var(--primary) 35%, transparent 65%))}
+.analogHub{fill: url(#gradHub); filter: drop-shadow(0 10px 18px rgba(0,0,0,.25))}
+
+.phoneWiggle{display:inline-block;animation:wiggle 1.8s ease-in-out infinite;transform-origin:50% 80%}
+@keyframes wiggle{0%,100%{transform:rotate(0deg) translateY(0)}25%{transform:rotate(10deg) translateY(-1px)}50%{transform:rotate(-10deg) translateY(0)}75%{transform:rotate(6deg) translateY(-1px)}}
+
+
+    @font-face{font-family:"Sahel";src:url("https://cdn.jsdelivr.net/gh/rastikerdar/sahel-font@v3.4.0/dist/Farsi-Digits/Sahel-FD.woff2") format("woff2");font-weight:400;font-style:normal;font-display:swap;}
+</style>
 </head>
 
 <body class="min-h-screen">
-  <div class="max-w-6xl mx-auto px-4 py-5 md:py-7 appShell">
+  <div class="w-full mx-auto max-w-none px-4 py-5 md:py-7">
     <!-- Header -->
-    <header class="card p-4 md:p-5 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+    <header class="glass p-4 md:p-5 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
       <div class="flex items-center gap-3">
-        <div class="grad w-12 h-12 rounded-2xl flex items-center justify-center text-xl shadow">◼︎</div>
+        <div id="logoBadge" class="grad w-12 h-12 rounded-2xl flex items-center justify-center text-xl shadow"><svg aria-hidden="true" viewBox="0 0 64 64" width="28" height="28" class="drop-shadow"><defs><linearGradient id="lgCodeisa" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="var(--gradA)"></stop><stop offset="1" stop-color="var(--gradB)"></stop></linearGradient></defs><path d="M32 6c11 0 20 9 20 20v12c0 11-9 20-20 20S12 49 12 38V26c0-11 9-20 20-20Z" fill="url(#lgCodeisa)" opacity=".95"/><path d="M22 28h20v4H22zm0 10h14v4H22z" fill="rgba(6,16,31,.9)"/><path d="M44 22l6 6-6 6" fill="none" stroke="rgba(6,16,31,.9)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
         <div>
-          <h1 class="text-lg md:text-xl font-extrabold">codeisa</h1>
-          <p class="muted tiny">ابزارهای کاربردی • سبک و سریع • سازگار با موبایل و دسکتاپ</p>
+          <h1 class="text-lg md:text-xl font-bold">codeisa</h1>
+          <p class="muted tiny">تبدیل دقیق واحدها + ابزارهای کاربردی</p>
         </div>
       </div>
 
       <nav id="topNav" class="flex flex-wrap gap-2">
         <button type="button" data-nav="converter" class="navBtn btn px-3.5 py-2 tabActive focusable">تبدیل واحدها</button>
-        <button type="button" data-nav="health" class="navBtn btn px-3.5 py-2 tabIdle focusable">سلامتی</button>
+        <button type="button" data-nav="health" class="navBtn btn px-3.5 py-2 tabIdle focusable">محاسبات سلامتی</button>
         <button type="button" data-nav="datetime" class="navBtn btn px-3.5 py-2 tabIdle focusable">تاریخ و ساعت</button>
         <button type="button" data-nav="crypto" class="navBtn btn px-3.5 py-2 tabIdle focusable">رمزارزها</button>
-        <button type="button" data-nav="iran" class="navBtn btn px-3.5 py-2 tabIdle focusable">بازار ایران</button>
-        <button type="button" data-nav="weather" class="navBtn btn px-3.5 py-2 tabIdle focusable">آب و هوا</button>
         <button type="button" data-nav="calculator" class="navBtn btn px-3.5 py-2 tabIdle focusable">ماشین حساب</button>
         <button type="button" data-nav="settings" class="navBtn btn px-3.5 py-2 tabIdle focusable">تنظیمات</button>
         <button type="button" data-nav="help" class="navBtn btn px-3.5 py-2 tabIdle focusable">راهنما</button>
       </nav>
     </header>
 
-    <main class="mt-5 md:mt-7 space-y-4 md:space-y-5">
-      <!-- ================= Converter (kept simple) ================= -->
+    <!-- Main -->
+    <main class="mt-5 md:mt-7">
+      <!-- Converter Page -->
       <section id="page-converter" class="space-y-4 md:space-y-5">
-        <div class="card p-4 md:p-5">
-          <h2 class="text-base md:text-lg font-bold">تبدیل واحد</h2>
-          <p class="muted tiny mt-1">برای سبک ماندن، این بخش مثل نسخه‌های قبلی کار می‌کند (می‌توانی بعداً واحدهای بیشتر هم اضافه کنی).</p>
+        <div class="grid md:grid-cols-3 gap-4 md:gap-5">
+          <div class="card p-4 md:p-5 md:col-span-2">
+            <div class="flex items-start justify-between gap-3">
+              <div>
+                <h2 class="text-base md:text-lg font-bold">تبدیل واحد</h2>
+                <p class="muted tiny mt-1">مقدار را وارد کنید، واحد مبدا و مقصد را انتخاب کنید. نتیجه فوری محاسبه می‌شود.</p>
+              </div>
+              <button type="button" id="swapBtn" class="btn px-3 py-2 soft focusable" title="جابجایی واحدها">
+                <span class="inline-flex items-center gap-2"><span>جابجایی</span> <span aria-hidden="true">⇄</span></span>
+              </button>
+            </div>
 
-          <div class="mt-4 grid md:grid-cols-5 gap-3">
-            <div class="md:col-span-2">
-              <label class="muted tiny">مقدار</label>
-              <input id="ucVal" class="w-full mt-1 px-3 py-2.5 rounded-xl focusable soft" placeholder="مثلاً 12.5" inputmode="decimal"/>
-            </div>
-            <div>
-              <label class="muted tiny">از</label>
-              <select id="ucFrom" class="w-full mt-1 px-3 py-2.5 rounded-xl focusable soft"></select>
-            </div>
-            <div>
-              <label class="muted tiny">به</label>
-              <select id="ucTo" class="w-full mt-1 px-3 py-2.5 rounded-xl focusable soft"></select>
-            </div>
-            <div class="flex items-end">
-              <button id="ucSwap" class="btn w-full px-3 py-2.5 soft focusable">جابجایی ⇄</button>
+            <div class="mt-4 grid sm:grid-cols-2 gap-3">
+              <div class="space-y-2">
+                <label class="tiny muted" for="categorySel">دسته‌بندی</label>
+                <select id="categorySel" class="w-full px-3 py-2.5 rounded-xl focusable"></select>
+              </div>
+
+              <div class="space-y-2">
+                <label class="tiny muted" for="precisionRange">دقت نمایش (اعشار)</label>
+                <div class="flex items-center gap-3">
+                  <input id="precisionRange" type="range" min="0" max="8" step="1" class="w-full" />
+                  <div id="precisionLabel" class="soft px-3 py-2 rounded-xl text-sm w-16 text-center">2</div>
+                </div>
+              </div>
+
+              <div class="space-y-2">
+                <label class="tiny muted" for="valueInput">مقدار</label>
+                <input id="valueInput" inputmode="decimal" autocomplete="off" placeholder="مثلاً 12.5" class="w-full px-3 py-2.5 rounded-xl focusable" />
+                <div id="valueHint" class="muted tiny">نکته: می‌توانید از نقطه برای اعشار استفاده کنید.</div>
+              </div>
+
+              <div class="space-y-2">
+                <label class="tiny muted" for="fromUnitSel">از</label>
+                <select id="fromUnitSel" class="w-full px-3 py-2.5 rounded-xl focusable"></select>
+              </div>
+
+              <div class="space-y-2">
+                <label class="tiny muted" for="toUnitSel">به</label>
+                <select id="toUnitSel" class="w-full px-3 py-2.5 rounded-xl focusable"></select>
+              </div>
+
+              <div class="space-y-2">
+                <label class="tiny muted">نتیجه</label>
+                <div class="soft p-3 rounded-xl flex items-center justify-between gap-2">
+                  <div>
+                    <div id="resultValue" class="text-lg md:text-xl font-bold">—</div>
+                    <div id="resultUnit" class="muted tiny mt-1">—</div>
+                  </div>
+                  <div class="flex gap-2">
+                    <button type="button" id="copyResultBtn" class="btn px-3 py-2 soft focusable">کپی</button>
+                  </div>
+                </div>
+                <div id="converterNote" class="muted tiny"></div>
+              </div>
             </div>
           </div>
 
-          <div class="mt-3 soft p-3 flex items-center justify-between gap-2">
-            <div>
-              <div class="muted tiny">نتیجه</div>
-              <div id="ucOut" class="text-xl font-extrabold">—</div>
+          <div class="card p-4 md:p-5">
+            <h3 class="font-bold">تبدیل‌های رایج</h3>
+            <p class="muted tiny mt-1">با یک کلیک، مقادیر نمونه را تنظیم کنید.</p>
+            <div id="quickGrid" class="mt-3 grid gap-2"></div>
+
+            <div class="mt-4 soft p-3">
+              <div class="flex items-center justify-between gap-2">
+                <span class="tiny muted">نمایش اعداد فارسی</span>
+                <label class="inline-flex items-center cursor-pointer">
+                  <input id="uiPersianDigitsToggle" type="checkbox" class="sr-only">
+                  <span class="w-12 h-7 rounded-full relative soft">
+                    <span id="uiPersianDigitsDot" class="absolute top-1 right-1 w-5 h-5 rounded-full grad transition-all"></span>
+                  </span>
+                </label>
+              </div>
+              <div class="muted tiny mt-2">کپی معمولاً با اعداد استاندارد انجام می‌شود.</div>
             </div>
-            <button id="ucCopy" class="btn px-3 py-2 soft focusable">کپی</button>
           </div>
         </div>
       </section>
 
-      <!-- ================= Health ================= -->
+      <!-- Health Page -->
       <section id="page-health" class="hidden space-y-4 md:space-y-5">
         <div class="grid lg:grid-cols-2 gap-4 md:gap-5">
           <div class="card p-4 md:p-5">
-            <h2 class="text-base md:text-lg font-bold">BMI (شاخص توده بدنی)</h2>
-            <div class="mt-4 grid sm:grid-cols-2 gap-3">
+            <div class="flex items-start justify-between gap-3">
               <div>
-                <label class="muted tiny">وزن (کیلوگرم)</label>
-                <input id="bmiW" class="w-full mt-1 px-3 py-2.5 rounded-xl focusable soft" inputmode="decimal" placeholder="مثلاً 72.5"/>
+                <h2 class="text-base md:text-lg font-bold">شاخص توده بدنی (BMI)</h2>
+                <p class="muted tiny mt-1">BMI = وزن / (قد به متر)^۲</p>
               </div>
-              <div>
-                <label class="muted tiny">قد (سانتی‌متر)</label>
-                <input id="bmiH" class="w-full mt-1 px-3 py-2.5 rounded-xl focusable soft" inputmode="decimal" placeholder="مثلاً 175"/>
+              <button type="button" id="copyBmiBtn" class="btn px-3 py-2 soft focusable">کپی</button>
+            </div>
+
+            <div class="mt-4 grid sm:grid-cols-2 gap-3">
+              <div class="space-y-2">
+                <label class="tiny muted" for="bmiWeight">وزن (کیلوگرم)</label>
+                <input id="bmiWeight" inputmode="decimal" placeholder="مثلاً 72.5" class="w-full px-3 py-2.5 rounded-xl focusable" />
+                <div class="muted tiny">وزن فعلی خود را وارد کنید.</div>
+              </div>
+              <div class="space-y-2">
+                <label class="tiny muted" for="bmiHeight">قد (سانتی‌متر)</label>
+                <input id="bmiHeight" inputmode="decimal" placeholder="مثلاً 175" class="w-full px-3 py-2.5 rounded-xl focusable" />
+                <div class="muted tiny">قد بدون کفش.</div>
               </div>
             </div>
-            <div class="mt-3 soft p-3">
-              <div class="muted tiny">نتیجه</div>
-              <div class="text-2xl font-extrabold"><span id="bmiOut">—</span></div>
-              <div class="muted tiny mt-1">وضعیت: <span id="bmiCat" class="font-bold">—</span></div>
+
+            <div class="mt-3 soft p-3 rounded-xl">
+              <div class="flex items-center justify-between gap-2">
+                <div>
+                  <div class="muted tiny">نتیجه</div>
+                  <div class="text-xl font-bold"><span id="bmiValue">—</span></div>
+                  <div class="muted tiny mt-1">وضعیت: <span id="bmiCat" class="font-semibold">—</span></div>
+                </div>
+                <label class="inline-flex items-center gap-2 cursor-pointer">
+                  <input id="idealWeightToggle" type="checkbox" class="w-4 h-4 rounded focusable">
+                  <span class="tiny">نمایش وزن ایده‌آل</span>
+                </label>
+              </div>
+              <div id="idealWeightBox" class="hidden mt-2 muted tiny">
+                محدوده وزن سالم: <span id="idealWeightRange" class="font-semibold"></span> کیلوگرم
+              </div>
+              <div id="bmiWarn" class="mt-2 hidden tiny"></div>
             </div>
           </div>
 
           <div class="card p-4 md:p-5">
-            <h2 class="text-base md:text-lg font-bold">راهنمای سریع تفسیر آزمایش</h2>
-            <p class="muted tiny mt-1">این بخش آموزشی است و جایگزین پزشک نیست؛ اما کمک می‌کند عددها را بهتر بفهمید.</p>
+            <div class="flex items-start justify-between gap-3">
+              <div>
+                <h2 class="text-base md:text-lg font-bold">محاسبه کالری روزانه</h2>
+                <p class="muted tiny mt-1">BMR و TDEE و کالری هدف بر اساس Mifflin–St Jeor</p>
+              </div>
+              <button type="button" id="copyGoalBtn" class="btn px-3 py-2 soft focusable">کپی کالری هدف</button>
+            </div>
 
-            <div class="mt-4 grid gap-2">
-              <div class="soft p-3">
-                <div class="font-bold">CBC (خون)</div>
-                <ul class="mt-2 list-disc pr-5 muted tiny">
-                  <li><b>WBC</b>: بالا → التهاب/عفونت احتمالی • پایین → برخی داروها/ویروس‌ها</li>
-                  <li><b>Hb/Hct</b>: پایین → کم‌خونی • بالا → کم‌آبی/پلی‌سیتمی</li>
-                  <li><b>PLT</b>: پایین → ریسک خونریزی • بالا → التهاب/کمبود آهن</li>
-                </ul>
+            <div class="mt-4 grid sm:grid-cols-2 gap-3">
+              <div class="space-y-2">
+                <label class="tiny muted" for="sexSel">جنسیت</label>
+                <select id="sexSel" class="w-full px-3 py-2.5 rounded-xl focusable">
+                  <option value="male">مرد</option>
+                  <option value="female">زن</option>
+                </select>
+              </div>
+              <div class="space-y-2">
+                <label class="tiny muted" for="ageInput">سن (سال)</label>
+                <input id="ageInput" inputmode="numeric" placeholder="مثلاً 30" class="w-full px-3 py-2.5 rounded-xl focusable" />
+              </div>
+              <div class="space-y-2">
+                <label class="tiny muted" for="calHeight">قد (سانتی‌متر)</label>
+                <input id="calHeight" inputmode="decimal" placeholder="مثلاً 175" class="w-full px-3 py-2.5 rounded-xl focusable" />
+              </div>
+              <div class="space-y-2">
+                <label class="tiny muted" for="calWeight">وزن (کیلوگرم)</label>
+                <input id="calWeight" inputmode="decimal" placeholder="مثلاً 72.5" class="w-full px-3 py-2.5 rounded-xl focusable" />
               </div>
 
-              <div class="soft p-3">
-                <div class="font-bold">قند و چربی</div>
-                <ul class="mt-2 list-disc pr-5 muted tiny">
-                  <li><b>FBS</b>: بالا → دیابت/پیش‌دیابت (نیاز به بررسی) </li>
-                  <li><b>HbA1c</b>: میانگین قند ۳ ماهه</li>
-                  <li><b>LDL/HDL/TG</b>: ریسک قلبی و سبک زندگی</li>
-                </ul>
+              <div class="space-y-2 sm:col-span-2">
+                <label class="tiny muted" for="activitySel">سطح فعالیت</label>
+                <select id="activitySel" class="w-full px-3 py-2.5 rounded-xl focusable">
+                  <option value="1.2">کم‌تحرک (1.2)</option>
+                  <option value="1.375">فعالیت سبک (1.375)</option>
+                  <option value="1.55" selected>فعالیت متوسط (1.55)</option>
+                  <option value="1.725">فعالیت زیاد (1.725)</option>
+                  <option value="1.9">خیلی زیاد (1.9)</option>
+                </select>
               </div>
 
-              <div class="soft p-3">
-                <div class="font-bold">کبد و کلیه</div>
-                <ul class="mt-2 list-disc pr-5 muted tiny">
-                  <li><b>ALT/AST</b>: بالا → آسیب سلول کبد/عضله</li>
-                  <li><b>Creatinine/eGFR</b>: عملکرد کلیه</li>
-                  <li><b>Urea(BUN)</b>: آب بدن/کلیه/پروتئین</li>
-                </ul>
+              <div class="space-y-2 sm:col-span-2">
+                <label class="tiny muted" for="goalSel">هدف</label>
+                <select id="goalSel" class="w-full px-3 py-2.5 rounded-xl focusable">
+                  <option value="0" selected>نگهداری وزن (0)</option>
+                  <option value="-250">کاهش وزن ملایم (−250)</option>
+                  <option value="-500">کاهش وزن (−500)</option>
+                  <option value="250">افزایش وزن ملایم (+250)</option>
+                  <option value="500">افزایش وزن (+500)</option>
+                </select>
               </div>
+            </div>
 
-              <div class="soft p-3">
-                <div class="font-bold">ادرار / مدفوع</div>
-                <ul class="mt-2 list-disc pr-5 muted tiny">
-                  <li><b>Urine</b>: WBC/RBC بالا → عفونت/سنگ احتمالی</li>
-                  <li><b>Stool</b>: خون مخفی/انگل/التهاب</li>
-                </ul>
+            <div class="mt-3 soft p-3 rounded-xl">
+              <div id="calError" class="hidden mb-2 text-sm font-semibold"></div>
+              <div class="grid sm:grid-cols-3 gap-2">
+                <div class="soft p-3">
+                  <div class="muted tiny">BMR</div>
+                  <div class="text-lg font-bold"><span id="bmrOut">—</span> <span class="muted tiny">کیلوکالری</span></div>
+                </div>
+                <div class="soft p-3">
+                  <div class="muted tiny">کالری نگهداری (TDEE)</div>
+                  <div class="text-lg font-bold"><span id="tdeeOut">—</span></div>
+                </div>
+                <div class="soft p-3">
+                  <div class="muted tiny">کالری هدف</div>
+                  <div class="text-lg font-bold"><span id="goalOut">—</span></div>
+                </div>
               </div>
+              <div id="calWarn" class="mt-2 hidden tiny"></div>
             </div>
           </div>
         </div>
-      </section>
-
-      <!-- ================= DateTime ================= -->
-      <section id="page-datetime" class="hidden space-y-4 md:space-y-5">
+      
         <div class="card p-4 md:p-5">
           <div class="flex items-start justify-between gap-3 flex-wrap">
             <div>
-              <h2 class="text-base md:text-lg font-bold">تاریخ و ساعت</h2>
-              <p class="muted tiny mt-1">ساعت به‌صورت خودکار و لحظه‌ای آپدیت می‌شود. هم ایران هم جهانی.</p>
+              <h2 class="text-base md:text-lg font-bold">راهنمای سریع تفسیر آزمایش‌ها</h2>
+              <p class="muted tiny mt-1">این بخش صرفاً آموزشی است و جایگزین نظر پزشک نیست.</p>
             </div>
-            <div class="soft px-3 py-2 tiny">
-              <span class="muted">وضعیت:</span>
-              <span id="timeStatus" class="font-bold">در حال اتصال…</span>
+            <button type="button" id="copyLabBtn" class="btn px-3 py-2 soft focusable">کپی نتیجه</button>
+          </div>
+
+          <div class="mt-4 grid md:grid-cols-3 gap-3">
+            <div class="space-y-2">
+              <label class="tiny muted" for="labType">نوع آزمایش</label>
+              <select id="labType" class="w-full px-3 py-2.5 rounded-xl focusable"></select>
+              <div class="muted tiny" id="labUnitHint">—</div>
+            </div>
+
+            <div class="space-y-2">
+              <label class="tiny muted" for="labValue">عدد شما</label>
+              <input id="labValue" inputmode="decimal" placeholder="مثلاً 95" class="w-full px-3 py-2.5 rounded-xl focusable" />
+              <div class="muted tiny">می‌توانید با اعداد فارسی یا انگلیسی وارد کنید.</div>
+            </div>
+
+            <div class="space-y-2">
+              <label class="tiny muted" for="labSex">جنسیت (در صورت نیاز)</label>
+              <select id="labSex" class="w-full px-3 py-2.5 rounded-xl focusable">
+                <option value="any">فرقی ندارد</option>
+                <option value="male">مرد</option>
+                <option value="female">زن</option>
+              </select>
+              <div class="muted tiny">برخی رنج‌ها وابسته به جنسیت هستند.</div>
             </div>
           </div>
 
-          <div class="mt-4 grid lg:grid-cols-3 gap-3">
-            <div class="soft p-3">
-              <div class="font-bold">تاریخ امروز (شمسی)</div>
-              <div id="dtJ" class="text-2xl font-extrabold mt-2">—</div>
+          <div class="mt-3 soft p-3 rounded-xl">
+            <div class="grid md:grid-cols-3 gap-2">
+              <div class="soft p-3">
+                <div class="muted tiny">وضعیت</div>
+                <div class="text-lg font-extrabold" id="labStatus">—</div>
+              </div>
+              <div class="soft p-3 md:col-span-2">
+                <div class="muted tiny">توضیح</div>
+                <div class="leading-7" id="labExplain">برای شروع، نوع آزمایش و عدد خود را وارد کنید.</div>
+              </div>
             </div>
-            <div class="soft p-3">
-              <div class="font-bold">تاریخ امروز (میلادی)</div>
-              <div id="dtG" class="text-2xl font-extrabold mt-2">—</div>
-            </div>
-            <div class="soft p-3">
-              <div class="font-bold">ساعت جهانی (UTC)</div>
-              <div id="dtUTC" class="text-2xl font-extrabold mt-2">—</div>
-            </div>
+            <div class="mt-2 muted tiny" id="labRange">رنج مرجع: —</div>
           </div>
-
-          <div class="mt-4 grid lg:grid-cols-2 gap-3 items-start">
-            <div class="soft p-3">
-              <div class="flex items-center justify-between">
-                <div class="font-bold">ساعت ایران (دیجیتال)</div>
-                <div class="muted tiny">Asia/Tehran</div>
-              </div>
-              <div id="dtIR" class="text-4xl md:text-5xl font-extrabold mt-3">—</div>
-              <div class="muted tiny mt-2">آخرین همگام‌سازی: <span id="dtSync">—</span></div>
+        </div>
+            <div class="mt-3 grid md:grid-cols-2 gap-2">
+              <details class="soft p-3 rounded-xl">
+                <summary class="cursor-pointer font-bold">نکات مهم</summary>
+                <ul class="mt-2 list-disc pr-5 muted tiny leading-7">
+                  <li>نتیجهٔ آزمایش به سن، شرایط بدنی، داروها و روش آزمایشگاه هم وابسته است.</li>
+                  <li>اگر «خیلی بالا/خیلی پایین» نمایش داده شد یا علائم دارید، برای تفسیر قطعی با پزشک مشورت کنید.</li>
+                  <li>بهتر است چند نتیجه پشت‌سرهم را مقایسه کنید، نه فقط یک عدد.</li>
+                </ul>
+              </details>
+              <details class="soft p-3 rounded-xl">
+                <summary class="cursor-pointer font-bold">راهنمای سریع رنگ‌ها</summary>
+                <div class="mt-2 muted tiny leading-7">
+                  <div><span class="font-bold text-emerald-200">نرمال</span> یعنی در محدوده مرجع.</div>
+                  <div><span class="font-bold text-amber-200">مرزی</span> یعنی نزدیک حد پایین/بالا و نیازمند توجه.</div>
+                  <div><span class="font-bold text-rose-200">غیرنرمال</span> یعنی خارج از محدوده و بهتر است بررسی شود.</div>
+                </div>
+              </details>
             </div>
 
-            <div class="soft p-3">
-              <div class="font-bold text-center">ساعت آنالوگ (ایران)</div>
-              <div class="clockWrap mt-3" aria-label="ساعت آنالوگ ایران">
-                <div class="clockRing"></div>
-                <div id="clockTicks"></div>
-                <div id="clockNums"></div>
 
-                <div id="handH" class="hand hour"></div>
-                <div id="handM" class="hand min"></div>
-                <div id="handS" class="hand sec"></div>
-                <div class="pin"></div>
-                <div class="clockBrand">codeisa</div>
-              </div>
-              <div class="mt-3 text-center">
-                <span class="inline-flex items-center gap-2 soft px-3 py-2 tiny">
-                  <span class="grad w-2.5 h-2.5 rounded-full"></span>
-                  <span>ثانیه‌شمار فعال است؛ همگام‌سازی فقط هر چند دقیقه یکبار انجام می‌شود.</span>
-                </span>
-              </div>
-            </div>
+      </section>
+
+      <!-- DateTime Page -->
+<section id="page-datetime" class="hidden space-y-4 md:space-y-5">
+  <div class="card p-4 md:p-5">
+    <div class="flex items-start justify-between gap-3 flex-wrap">
+      <div>
+        <h2 class="text-base md:text-lg font-bold">تاریخ و ساعت ایران</h2>
+        <p class="muted tiny mt-1">به‌روزرسانی خودکار (با سرویس آنلاین) + ساعت آنالوگ</p>
+      </div>
+      <div class="flex gap-2 flex-wrap">
+        <button type="button" id="timeRefreshBtn" class="btn px-3 py-2 soft focusable">به‌روزرسانی</button>
+        <button type="button" id="timeCopyBtn" class="btn px-3 py-2 soft focusable">کپی</button>
+      </div>
+    </div>
+
+    <div class="mt-4 grid lg:grid-cols-2 gap-3">
+      <div class="soft p-4 rounded-2xl">
+        <div class="flex items-center justify-between gap-2">
+          <div class="font-bold">ساعت ایران</div>
+          <div class="muted tiny">Asia/Tehran</div>
+        </div>
+        <div class="calcDisplay text-4xl md:text-5xl font-extrabold mt-3" id="timeIR">—</div>
+        <div class="mt-2 soft p-3 flex items-center justify-between gap-2">
+          <div class="muted tiny">ساعت جهانی (UTC)</div>
+          <div class="calcDisplay text-xl font-extrabold" id="timeUTC">—</div>
+        </div>
+        <div class="mt-3 grid sm:grid-cols-2 gap-2">
+          <div class="soft p-3">
+            <div class="muted tiny">تاریخ شمسی</div>
+            <div class="calcDisplay text-2xl font-extrabold mt-2" id="todayJalali">—</div>
           </div>
+          <div class="soft p-3">
+            <div class="muted tiny">تاریخ میلادی</div>
+            <div class="calcDisplay text-2xl font-extrabold mt-2" id="todayGreg">—</div>
+          </div>
+        </div>
+        <div class="muted tiny mt-3">آخرین بروزرسانی: <span id="timeUpdatedAt">—</span></div>
+      </div>
 
-          <div class="mt-4 soft p-3">
+      <div class="soft p-4 rounded-2xl flex flex-col items-center justify-center gap-3">
+        <div class="font-bold">ساعت آنالوگ (ایران)</div>
+        
+        <div class="analogWrap">
+          <svg id="analogSvg" class="analogSvg" viewBox="0 0 200 200" role="img" aria-label="ساعت آنالوگ ایران">
+            <defs>
+              <linearGradient id="gradHub" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="var(--gradA)"/>
+                <stop offset="100%" stop-color="var(--gradB)"/>
+              </linearGradient>
+              <radialGradient id="dialGlow" cx="35%" cy="25%" r="70%">
+                <stop offset="0%" stop-color="color-mix(in srgb, var(--primary) 22%, transparent 78%)"/>
+                <stop offset="55%" stop-color="transparent"/>
+                <stop offset="100%" stop-color="rgba(0,0,0,.25)"/>
+              </radialGradient>
+            </defs>
+
+            <circle cx="100" cy="100" r="96" fill="url(#dialGlow)"/>
+            <circle cx="100" cy="100" r="86" fill="transparent" class="analogRing"/>
+
+            <g id="analogTicks"></g>
+            <g id="analogNums"></g>
+
+            <!-- Hands (origin: center) -->
+            <g id="hands">
+              <line id="handHour" class="handLine handHourLine" x1="100" y1="104" x2="100" y2="60"/>
+              <line id="handMin" class="handLine handMinLine" x1="100" y1="106" x2="100" y2="42"/>
+              <line id="handSec" class="handLine handSecLine" x1="100" y1="112" x2="100" y2="36"/>
+            </g>
+
+            <circle cx="100" cy="100" r="7.5" class="analogHub"/>
+            <circle cx="100" cy="100" r="2.2" fill="rgba(255,255,255,.8)"/>
+
+            <text x="100" y="142" class="analogBrand">codeisa</text>
+          </svg>
+        </div>
+
+        <div id="timeStatusText" class="tiny text-amber-200">در حال دریافت…</div>
+      </div>
+    </div>
+  </div>
+
+        <div id="occCard" class="soft p-4 rounded-2xl mt-3">
+          <div class="flex items-center justify-between gap-2 flex-wrap">
             <div class="font-bold">مناسبت‌های امروز</div>
-            <div id="eventsBox" class="muted tiny mt-2">در حال دریافت…</div>
+            <div id="occHolidayBadge" class="tiny font-semibold text-rose-200 hidden">تعطیل</div>
           </div>
+          <div id="occList" class="mt-3 space-y-2"></div>
+          <div id="occHint" class="muted tiny mt-2">این بخش بر اساس تاریخ امروز ایران بارگذاری می‌شود.</div>
         </div>
-      </section>
+</section>
 
-      <!-- ================= Crypto ================= -->
-      <section id="page-crypto" class="hidden space-y-4 md:space-y-5">
-        <div class="card p-4 md:p-5">
-          <div class="flex items-start justify-between gap-3 flex-wrap">
-            <div>
-              <h2 class="text-base md:text-lg font-bold">رمزارزها (قیمت لحظه‌ای)</h2>
-              <p class="muted tiny mt-1">قیمت لحظه‌ای + کمینه/بیشینه ۷ روز + نمودار کوچک. واحد نمایش: تومان.</p>
-            </div>
-            <div class="flex gap-2 flex-wrap">
-              <div class="soft px-3 py-2 tiny"><span class="muted">آپدیت رمزارزها:</span> <b id="cryptoStatus">در حال اتصال…</b></div>
-              <button id="cryptoRefresh" class="btn px-3 py-2 soft focusable">به‌روزرسانی</button>
-            </div>
-          </div>
-
-          <div class="mt-4 soft p-3">
-            <div class="flex items-center justify-between gap-2 flex-wrap">
-              <div class="tiny muted">نرخ دلار (برای تبدیل به تومان)</div>
-              <div class="font-bold" id="usdIrrBox">—</div>
-            </div>
-          </div>
-
-          <div id="cryptoGrid" class="mt-4 grid gap-2"></div>
-          <div class="mt-3 muted tiny" id="cryptoHint"></div>
+      <!-- Crypto Page -->
+<section id="page-crypto" class="hidden space-y-4 md:space-y-5">
+  <div class="card p-4 md:p-5">
+    <div class="flex items-start justify-between gap-3 flex-wrap">
+      <div>
+        <h2 class="text-base md:text-lg font-bold">رمزارزها (قیمت لحظه‌ای)</h2>
+        <p class="muted tiny mt-1">قیمت‌ها از بازار ریالی نوبیتکس دریافت می‌شوند و هر چند ثانیه به‌روزرسانی می‌گردند.</p>
+      </div>
+      <div class="flex items-center gap-2 flex-wrap">
+        <div class="soft px-3 py-2 rounded-xl flex items-center gap-2">
+          <span id="cryptoStatusDot" class="w-2.5 h-2.5 rounded-full bg-amber-400"></span>
+          <span id="cryptoStatusText" class="font-semibold text-amber-200 tiny">در حال اتصال…</span>
         </div>
-      </section>
+        <button type="button" id="cryptoRefreshBtn" class="btn px-3 py-2 soft focusable">به‌روزرسانی</button>
+        <button type="button" id="cryptoCopyAllBtn" class="btn px-3 py-2 soft focusable">کپی همه</button>
+      </div>
+    </div>
 
-      <!-- ================= Iran market ================= -->
-      <section id="page-iran" class="hidden space-y-4 md:space-y-5">
-        <div class="card p-4 md:p-5">
-          <div class="flex items-start justify-between gap-3 flex-wrap">
-            <div>
-              <h2 class="text-base md:text-lg font-bold">بازار ایران (ارز و فلزات)</h2>
-              <p class="muted tiny mt-1">این بخش با چند منبع عمومی تلاش می‌کند قیمت‌ها را بگیرد. اگر یک منبع در دسترس نبود، از منبع بعدی استفاده می‌شود.</p>
-            </div>
-            <div class="flex gap-2 flex-wrap">
-              <div class="soft px-3 py-2 tiny"><span class="muted">وضعیت بازار ایران:</span> <b id="iranStatus">در حال اتصال…</b></div>
-              <button id="iranRefresh" class="btn px-3 py-2 soft focusable">به‌روزرسانی</button>
-            </div>
-          </div>
+    <div class="mt-4 grid sm:grid-cols-2 lg:grid-cols-3 gap-3" id="cryptoGrid"></div>
 
-          <div id="iranGrid" class="mt-4 grid gap-2"></div>
-          <div class="mt-3 muted tiny" id="iranHint"></div>
-        </div>
-      </section>
+    <div class="mt-3 soft p-3 rounded-xl flex items-center justify-between gap-2">
+      <div class="tiny muted">آخرین بروزرسانی: <span id="cryptoUpdatedAt">—</span></div>
+      <div class="tiny muted">واحد: تومان</div>
+    </div>
+  </div>
+</section>
 
-      <!-- ================= Weather ================= -->
-      <section id="page-weather" class="hidden space-y-4 md:space-y-5">
-        <div class="card p-4 md:p-5">
-          <div class="flex items-start justify-between gap-3 flex-wrap">
-            <div>
-              <h2 class="text-base md:text-lg font-bold">آب و هوا</h2>
-              <p class="muted tiny mt-1">بدون GPS: شهر/استان را انتخاب کنید. (داده‌ها از Open‑Meteo دریافت می‌شود.)</p>
-            </div>
-            <div class="flex gap-2 flex-wrap">
-              <div class="soft px-3 py-2 tiny"><span class="muted">وضعیت آب‌وهوا:</span> <b id="wxStatus">انتخاب شهر…</b></div>
-              <button id="wxRefresh" class="btn px-3 py-2 soft focusable">به‌روزرسانی</button>
-            </div>
-          </div>
-
-          <div class="mt-4 grid lg:grid-cols-3 gap-3">
-            <div class="soft p-3 lg:col-span-2">
-              <div class="font-bold">انتخاب سریع مراکز استان</div>
-              <select id="provinceSel" class="w-full mt-2 px-3 py-2.5 rounded-xl focusable soft"></select>
-              <div class="muted tiny mt-2">یا شهر را جستجو کنید (تمام شهرها):</div>
-              <div class="mt-2 flex gap-2">
-                <input id="cityQuery" class="flex-1 px-3 py-2.5 rounded-xl focusable soft" placeholder="مثلاً Shiraz یا شیراز"/>
-                <button id="citySearchBtn" class="btn px-3 py-2.5 soft focusable">جستجو</button>
-              </div>
-              <div id="cityResults" class="mt-2 grid gap-2"></div>
-            </div>
-
-            <div class="soft p-3">
-              <div class="font-bold">شهر انتخاب‌شده</div>
-              <div id="wxCity" class="text-xl font-extrabold mt-2">—</div>
-              <div class="muted tiny mt-2">آخرین به‌روزرسانی: <span id="wxUpdated">—</span></div>
-            </div>
-          </div>
-
-          <div class="mt-4 grid lg:grid-cols-3 gap-3">
-            <div class="soft p-3 lg:col-span-2">
-              <div class="font-bold">وضعیت فعلی</div>
-              <div id="wxCurrent" class="muted tiny mt-2">—</div>
-            </div>
-            <div class="soft p-3">
-              <div class="font-bold">جزئیات</div>
-              <div id="wxKpi" class="muted tiny mt-2">—</div>
-            </div>
-          </div>
-
-          <div class="mt-4 soft p-3">
-            <div class="font-bold">۲۴ ساعت آینده</div>
-            <div id="wxHourly" class="muted tiny mt-2">—</div>
-          </div>
-
-          <div class="mt-4 soft p-3">
-            <div class="font-bold">۷ روز آینده</div>
-            <div id="wxDaily" class="muted tiny mt-2">—</div>
-          </div>
-        </div>
-      </section>
-
-      <!-- ================= Calculator (simple + scientific toggle placeholder) ================= -->
+      <!-- Calculator Page -->
       <section id="page-calculator" class="hidden space-y-4 md:space-y-5">
-        <div class="card p-4 md:p-5">
-          <div class="flex items-start justify-between gap-3 flex-wrap">
+        <div class="calcShell p-4 md:p-6">
+          <div class="relative flex items-start justify-between gap-3">
             <div>
-              <h2 class="text-base md:text-lg font-bold">ماشین حساب</h2>
-              <p class="muted tiny mt-1">ساده + مهندسی (نمایش دکمه‌های اضافی)</p>
+              <h2 class="text-base md:text-lg font-extrabold">ماشین حساب حرفه‌ای</h2>
+              <p class="muted tiny mt-1">نمایشگر طبق انتخاب شما در تنظیمات: فارسی یا انگلیسی</p>
             </div>
             <div class="flex gap-2">
-              <button id="calcModeBtn" class="btn px-3 py-2 soft focusable">حالت: ساده</button>
-              <button id="calcClear" class="btn px-3 py-2 soft focusable">پاک‌کردن</button>
+              <button type="button" id="calcModeBtn" class="btn px-3 py-2 soft focusable">مهندسی</button>
+              <button type="button" id="calcCopyBtn" class="btn px-3 py-2 soft focusable">کپی</button>
+              <button type="button" id="calcClearBtn" class="btn px-3 py-2 soft focusable">پاک‌کردن</button>
             </div>
           </div>
 
-          <div class="mt-4 soft p-3">
-            <div class="muted tiny">عبارت</div>
-            <div id="calcExpr" class="text-lg font-bold mt-1">—</div>
-            <div class="muted tiny mt-2">نتیجه</div>
-            <div id="calcRes" class="text-3xl md:text-5xl font-extrabold mt-1">0</div>
+          <div class="mt-4 calcTop p-4 md:p-5">
+            <div class="flex items-center justify-between gap-3">
+              <div class="muted tiny">عبارت</div>
+              <div class="muted tiny">حافظه: <span id="memBadge" class="font-bold">0</span></div>
+            </div>
+
+            <div class="mt-2 soft p-3">
+              <div id="calcExpr" class="calcDisplay text-base md:text-lg font-semibold min-h-[28px]">—</div>
+              <div class="muted tiny mt-2">نتیجه</div>
+              <div id="calcResult" class="calcDisplay text-3xl md:text-5xl font-extrabold mt-1">0</div>
+            </div>
+
+            <div class="mt-3 text-xs muted text-left">
+              <div class="soft inline-flex items-center gap-2 px-3 py-2">
+                <span class="grad w-2.5 h-2.5 rounded-full"></span>
+                <span>Enter = محاسبه</span>
+              </div>
+            </div>
           </div>
 
           <div class="mt-4 grid grid-cols-4 gap-2 select-none" id="calcPad">
-            <button class="btn soft py-3 focusable" data-k="7">7</button>
-            <button class="btn soft py-3 focusable" data-k="8">8</button>
-            <button class="btn soft py-3 focusable" data-k="9">9</button>
-            <button class="btn soft py-3 focusable" data-k="/">÷</button>
-            <button class="btn soft py-3 focusable" data-k="4">4</button>
-            <button class="btn soft py-3 focusable" data-k="5">5</button>
-            <button class="btn soft py-3 focusable" data-k="6">6</button>
-            <button class="btn soft py-3 focusable" data-k="*">×</button>
-            <button class="btn soft py-3 focusable" data-k="1">1</button>
-            <button class="btn soft py-3 focusable" data-k="2">2</button>
-            <button class="btn soft py-3 focusable" data-k="3">3</button>
-            <button class="btn soft py-3 focusable" data-k="-">−</button>
-            <button class="btn soft py-3 focusable" data-k="0">0</button>
-            <button class="btn soft py-3 focusable" data-k=".">.</button>
-            <button class="btn soft py-3 focusable" data-k="=">=</button>
-            <button class="btn soft py-3 focusable" data-k="+">+</button>
+            <button type="button" class="calcKey calcKeyUtil focusable" data-k="MC">MC</button>
+            <button type="button" class="calcKey calcKeyUtil focusable" data-k="MR">MR</button>
+            <button type="button" class="calcKey calcKeyUtil focusable" data-k="M+">M+</button>
+            <button type="button" class="calcKey calcKeyUtil focusable" data-k="M-">M-</button>
+
+            <button type="button" class="calcKey calcKeyUtil focusable" data-k="(">(</button>
+            <button type="button" class="calcKey calcKeyUtil focusable" data-k=")">)</button>
+            <button type="button" class="calcKey calcKeyUtil focusable" data-k="%">٪</button>
+            <button type="button" class="calcKey calcKeyDanger focusable" data-k="DEL">⌫</button>
+
+            <button type="button" class="calcKey focusable calcDigit" data-k="7" data-fa="۷" data-en="7">۷</button>
+            <button type="button" class="calcKey focusable calcDigit" data-k="8" data-fa="۸" data-en="8">۸</button>
+            <button type="button" class="calcKey focusable calcDigit" data-k="9" data-fa="۹" data-en="9">۹</button>
+            <button type="button" class="calcKey calcKeyOp focusable" data-k="/">÷</button>
+
+            <button type="button" class="calcKey focusable calcDigit" data-k="4" data-fa="۴" data-en="4">۴</button>
+            <button type="button" class="calcKey focusable calcDigit" data-k="5" data-fa="۵" data-en="5">۵</button>
+            <button type="button" class="calcKey focusable calcDigit" data-k="6" data-fa="۶" data-en="6">۶</button>
+            <button type="button" class="calcKey calcKeyOp focusable" data-k="*">×</button>
+
+            <button type="button" class="calcKey focusable calcDigit" data-k="1" data-fa="۱" data-en="1">۱</button>
+            <button type="button" class="calcKey focusable calcDigit" data-k="2" data-fa="۲" data-en="2">۲</button>
+            <button type="button" class="calcKey focusable calcDigit" data-k="3" data-fa="۳" data-en="3">۳</button>
+            <button type="button" class="calcKey calcKeyOp focusable" data-k="-">−</button>
+
+            <button type="button" class="calcKey focusable calcDigit" data-k="0" data-fa="۰" data-en="0">۰</button>
+            <button type="button" class="calcKey focusable" data-k=".">.</button>
+            <button type="button" class="calcKey calcKeyOp focusable" data-k="=">=</button>
+            <button type="button" class="calcKey calcKeyOp focusable" data-k="+">+</button>
           </div>
 
-          <div id="calcSci" class="hidden mt-3 grid grid-cols-4 gap-2">
-            <button class="btn soft py-3 focusable" data-k="(">(</button>
-            <button class="btn soft py-3 focusable" data-k=")">)</button>
-            <button class="btn soft py-3 focusable" data-k="%">%</button>
-            <button class="btn soft py-3 focusable" data-k="DEL">⌫</button>
+<div class="mt-3 hidden grid grid-cols-4 gap-2 select-none" id="calcPadSci">
+  <button type="button" class="calcKey calcKeyUtil focusable" data-k="pi">π</button>
+  <button type="button" class="calcKey calcKeyUtil focusable" data-k="e">e</button>
+  <button type="button" class="calcKey calcKeyUtil focusable" data-k="^">xʸ</button>
+  <button type="button" class="calcKey calcKeyUtil focusable" data-k="sqrt(">√</button>
 
-            <button class="btn soft py-3 focusable" data-k="pow2">x²</button>
-            <button class="btn soft py-3 focusable" data-k="sqrt">√</button>
-            <button class="btn soft py-3 focusable" data-k="sin">sin</button>
-            <button class="btn soft py-3 focusable" data-k="cos">cos</button>
+  <button type="button" class="calcKey calcKeyUtil focusable" data-k="sin(">sin</button>
+  <button type="button" class="calcKey calcKeyUtil focusable" data-k="cos(">cos</button>
+  <button type="button" class="calcKey calcKeyUtil focusable" data-k="tan(">tan</button>
+  <button type="button" class="calcKey calcKeyUtil focusable" data-k="abs(">abs</button>
 
-            <button class="btn soft py-3 focusable" data-k="tan">tan</button>
-            <button class="btn soft py-3 focusable" data-k="ln">ln</button>
-            <button class="btn soft py-3 focusable" data-k="log">log10</button>
-            <button class="btn soft py-3 focusable" data-k="pi">π</button>
+  <button type="button" class="calcKey calcKeyUtil focusable" data-k="log(">log</button>
+  <button type="button" class="calcKey calcKeyUtil focusable" data-k="ln(">ln</button>
+  <button type="button" class="calcKey calcKeyUtil focusable" data-k="pow(">pow</button>
+  <button type="button" class="calcKey calcKeyUtil focusable" data-k=",">,</button>
+</div>
+
+          <div class="mt-4 soft p-3 rounded-xl">
+            <div class="tiny muted">ورود با کیبورد</div>
+            <div class="muted tiny mt-1">۰-۹ یا 0-9، + - * / ( ) . Enter Backspace</div>
           </div>
-
-          <div class="mt-3 muted tiny">نکته: برای عملکرد دقیق‌تر علمی، بعداً می‌توانیم parser را گسترده‌تر کنیم. فعلاً پایه‌ای و پایدار است.</div>
         </div>
       </section>
 
-      <!-- ================= Settings ================= -->
+      <!-- Settings Page -->
       <section id="page-settings" class="hidden space-y-4 md:space-y-5">
         <div class="card p-4 md:p-5">
           <div class="flex items-start justify-between gap-3">
             <div>
-              <h2 class="text-base md:text-lg font-bold">تنظیمات</h2>
-              <p class="muted tiny mt-1">رنگ‌ها و فونت (دو فونت فارسی). لوگو قابل تغییر نیست.</p>
+              <h2 class="text-base md:text-lg font-bold">تنظیمات و شخصی‌سازی</h2>
+              <p class="muted tiny mt-1">ظاهر و رفتار برنامه را مطابق سلیقه خود تغییر دهید. تنظیمات در همین مرورگر ذخیره می‌شود.</p>
             </div>
-            <button id="resetCfg" class="btn px-3 py-2 soft focusable">بازنشانی</button>
+            <button type="button" id="resetBtn" class="btn px-3 py-2 soft focusable">بازنشانی</button>
           </div>
 
           <div class="mt-4 grid md:grid-cols-2 lg:grid-cols-3 gap-3">
             <div class="soft p-3">
-              <div class="muted tiny">فونت</div>
-              <select id="fontSel" class="w-full mt-2 px-3 py-2.5 rounded-xl focusable soft">
-                <option value="vazirmatn">Vazirmatn</option>
-                <option value="sahel">Sahel</option>
+              <label class="tiny muted">رنگ پس‌زمینه</label>
+              <div class="mt-2 flex items-center gap-3">
+                <input id="bgColor" type="color" class="w-12 h-10 rounded-xl focusable" />
+                <input id="bgColorText" class="flex-1 px-3 py-2 rounded-xl focusable" placeholder="#0b1220" />
+              </div>
+            </div>
+
+            <div class="soft p-3">
+              <label class="tiny muted">رنگ کارت‌ها</label>
+              <div class="mt-2 flex items-center gap-3">
+                <input id="surfaceColor" type="color" class="w-12 h-10 rounded-xl focusable" />
+                <input id="surfaceColorText" class="flex-1 px-3 py-2 rounded-xl focusable" placeholder="#0f1b33" />
+              </div>
+            </div>
+
+            <div class="soft p-3">
+              <label class="tiny muted">رنگ متن</label>
+              <div class="mt-2 flex items-center gap-3">
+                <input id="textColor" type="color" class="w-12 h-10 rounded-xl focusable" />
+                <input id="textColorText" class="flex-1 px-3 py-2 rounded-xl focusable" placeholder="#e8eefc" />
+              </div>
+            </div>
+
+            <div class="soft p-3">
+              <label class="tiny muted">رنگ اقدام اصلی</label>
+              <div class="mt-2 flex items-center gap-3">
+                <input id="primaryColor" type="color" class="w-12 h-10 rounded-xl focusable" />
+                <input id="primaryColorText" class="flex-1 px-3 py-2 rounded-xl focusable" placeholder="#38bdf8" />
+              </div>
+            </div>
+
+            <div class="soft p-3">
+              <label class="tiny muted">رنگ اقدام ثانویه</label>
+              <div class="mt-2 flex items-center gap-3">
+                <input id="secondaryColor" type="color" class="w-12 h-10 rounded-xl focusable" />
+                <input id="secondaryColorText" class="flex-1 px-3 py-2 rounded-xl focusable" placeholder="#a78bfa" />
+              </div>
+            </div>
+
+            <div class="soft p-3">
+              <label class="tiny muted">فونت</label>
+              <select id="fontFamily" class="mt-2 w-full px-3 py-2.5 rounded-xl focusable">
+                <option value='ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans"'>پیش‌فرض (سیستمی)</option>
+                <option value='"Vazirmatn", ui-sans-serif, system-ui'>Vazirmatn (اگر نصب باشد)</option>
+                <option value='"IRANSans", ui-sans-serif, system-ui'>IRANSans (اگر نصب باشد)</option>
+                <option value='"Tahoma", ui-sans-serif, system-ui'>Tahoma</option>
+                <option value=\'"Sahel", ui-sans-serif, system-ui\'>Sahel (پیشنهادی)</option>
               </select>
+              <div class="muted tiny mt-2">در صورت نبود فونت، به فونت‌های جایگزین می‌رود.</div>
             </div>
 
             <div class="soft p-3">
-              <div class="muted tiny">رنگ پس‌زمینه</div>
-              <input id="bgColor" type="color" class="w-full mt-2 h-12 rounded-xl focusable"/>
+              <label class="tiny muted">اندازه متن</label>
+              <div class="mt-2 flex items-center gap-3">
+                <input id="fontSize" type="range" min="13" max="20" step="1" class="w-full" />
+                <div id="fontSizeLabel" class="soft px-3 py-2 rounded-xl text-sm w-16 text-center">16</div>
+              </div>
             </div>
 
             <div class="soft p-3">
-              <div class="muted tiny">رنگ کارت</div>
-              <input id="surfaceColor" type="color" class="w-full mt-2 h-12 rounded-xl focusable"/>
+              <label class="tiny muted">گرادیان برجسته (شروع)</label>
+              <div class="mt-2 flex items-center gap-3">
+                <input id="gradA" type="color" class="w-12 h-10 rounded-xl focusable" />
+                <input id="gradAText" class="flex-1 px-3 py-2 rounded-xl focusable" placeholder="#22c55e" />
+              </div>
             </div>
 
             <div class="soft p-3">
-              <div class="muted tiny">رنگ متن</div>
-              <input id="textColor" type="color" class="w-full mt-2 h-12 rounded-xl focusable"/>
+              <label class="tiny muted">گرادیان برجسته (پایان)</label>
+              <div class="mt-2 flex items-center gap-3">
+                <input id="gradB" type="color" class="w-12 h-10 rounded-xl focusable" />
+                <input id="gradBText" class="flex-1 px-3 py-2 rounded-xl focusable" placeholder="#38bdf8" />
+              </div>
             </div>
 
-            <div class="soft p-3">
-              <div class="muted tiny">گرادیان (شروع)</div>
-              <input id="gradA" type="color" class="w-full mt-2 h-12 rounded-xl focusable"/>
-            </div>
-
-            <div class="soft p-3">
-              <div class="muted tiny">گرادیان (پایان)</div>
-              <input id="gradB" type="color" class="w-full mt-2 h-12 rounded-xl focusable"/>
-            </div>
+            
 
             <div class="soft p-3 md:col-span-2 lg:col-span-3">
-              <div class="muted tiny">نکته</div>
-              <div class="tiny mt-1 muted">اگر VPN یا فیلترشکن باعث مشکل در API شد، یک‌بار خاموش/روشن کنید یا دکمه‌های به‌روزرسانی هر بخش را بزنید.</div>
+              <div class="flex items-center justify-between gap-2">
+                <div>
+                  <div class="tiny muted">نمایش اعداد فارسی (در کل برنامه)</div>
+                  <div class="muted tiny mt-1">برای خروجی‌ها و بیشتر نمایش‌ها.</div>
+                </div>
+                <label class="inline-flex items-center cursor-pointer">
+                  <input id="persianDigitsToggle" type="checkbox" class="sr-only">
+                  <span class="w-12 h-7 rounded-full relative soft">
+                    <span id="persianDigitsDot" class="absolute top-1 right-1 w-5 h-5 rounded-full grad transition-all"></span>
+                  </span>
+                </label>
+              </div>
+
+              <div class="mt-3 flex items-center justify-between gap-2">
+                <div>
+                  <div class="tiny muted">کپی با اعداد فارسی</div>
+                  <div class="muted tiny mt-1">اگر روشن باشد، متن کپی‌شده هم فارسی می‌شود.</div>
+                </div>
+                <label class="inline-flex items-center cursor-pointer">
+                  <input id="copyPersianToggle" type="checkbox" class="sr-only">
+                  <span class="w-12 h-7 rounded-full relative soft">
+                    <span id="copyPersianDot" class="absolute top-1 right-1 w-5 h-5 rounded-full grad transition-all"></span>
+                  </span>
+                </label>
+              </div>
+
+              <div class="mt-3 flex items-center justify-between gap-2">
+                <div>
+                  <div class="tiny muted">نمایشگر ماشین حساب</div>
+                  <div class="muted tiny mt-1">عددها و نمایشگر ماشین حساب فارسی یا انگلیسی.</div>
+                </div>
+                <select id="calcDisplayLang" class="px-3 py-2 rounded-xl focusable">
+                  <option value="fa">فارسی</option>
+                  <option value="en">انگلیسی</option>
+                </select>
+              </div>
+
+              <div class="mt-3 flex items-center justify-between gap-2">
+                <div>
+                  <div class="tiny muted">صدای کلیک ماشین حساب</div>
+                  <div class="muted tiny mt-1">صدای ریز هنگام فشردن کلیدها.</div>
+                </div>
+                <label class="inline-flex items-center cursor-pointer">
+                  <input id="soundToggle" type="checkbox" class="sr-only">
+                  <span class="w-12 h-7 rounded-full relative soft">
+                    <span id="soundDot" class="absolute top-1 right-1 w-5 h-5 rounded-full grad transition-all"></span>
+                  </span>
+                </label>
+              </div>
+
+              <div class="mt-3">
+                <div class="tiny muted">شدت صدا</div>
+                <div class="mt-2 flex items-center gap-3">
+                  <input id="soundVolume" type="range" min="0" max="100" step="1" class="w-full" />
+                  <div id="soundVolumeLabel" class="soft px-3 py-2 rounded-xl text-sm w-16 text-center">30</div>
+                </div>
+              </div>
+
+              <div class="mt-4 soft p-3">
+                <div class="font-bold">پیکربندی (Config)</div>
+                <p class="muted tiny mt-1">کپی/وارد کردن پیکربندی برای بکاپ گرفتن از تنظیمات.</p>
+                <div class="mt-2 grid md:grid-cols-2 gap-2">
+                  <button type="button" id="exportConfig" class="btn px-3 py-2 soft focusable">کپی پیکربندی</button>
+                  <button type="button" id="importConfig" class="btn px-3 py-2 soft focusable">وارد کردن پیکربندی</button>
+                </div>
+              </div>
+
             </div>
           </div>
         </div>
       </section>
 
-      <!-- ================= Help ================= -->
-      <section id="page-help" class="hidden space-y-4 md:space-y-5">
-        <div class="card p-4 md:p-5">
-          <h2 class="text-base md:text-lg font-bold">راهنما</h2>
-          <div class="mt-3 space-y-3 leading-7">
-            <div class="soft p-3">
-              <div class="font-bold">رمزارزها</div>
-              <ul class="mt-2 list-disc pr-5 muted">
-                <li>قیمت لحظه‌ای هر ۱۵ ثانیه آپدیت می‌شود.</li>
-                <li>کمینه/بیشینه و نمودار مربوط به ۷ روز گذشته است.</li>
-                <li>اگر «در حال اتصال» ماند، اینترنت/فیلترشکن را بررسی کنید و یک‌بار «به‌روزرسانی» بزنید.</li>
-              </ul>
-            </div>
-            <div class="soft p-3">
-              <div class="font-bold">آب و هوا</div>
-              <ul class="mt-2 list-disc pr-5 muted">
-                <li>بدون نیاز به موقعیت مکانی: مرکز استان را انتخاب کنید یا نام شهر را جستجو کنید.</li>
-                <li>بعد از انتخاب شهر، دکمه «به‌روزرسانی» وضعیت را سریع‌تر آپدیت می‌کند.</li>
-              </ul>
-            </div>
-            <div class="soft p-3">
-              <div class="font-bold">ساعت</div>
-              <ul class="mt-2 list-disc pr-5 muted">
-                <li>ساعت به‌صورت لحظه‌ای حرکت می‌کند و فقط هر چند دقیقه یک‌بار با سرور همگام می‌شود.</li>
-                <li>اگر اختلاف دیدید، چند ثانیه صبر کنید تا همگام‌سازی انجام شود.</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </section>
+      <!-- Help Page -->
+      
+<section id="page-help" class="hidden space-y-4 md:space-y-5">
+  <div class="card p-4 md:p-5">
+    <h2 class="text-base md:text-lg font-bold">راهنما</h2>
+
+    <div class="mt-3 space-y-3 leading-7">
+      <div class="soft p-3">
+        <div class="font-bold">شروع سریع</div>
+        <ul class="mt-2 list-disc pr-5 muted">
+          <li>از نوار بالا بخش موردنظر را انتخاب کنید (تبدیل واحد، سلامتی، تاریخ و ساعت، کریپتو، ماشین حساب، تنظیمات).</li>
+          <li>همه محاسبات داخل مرورگر انجام می‌شود و اطلاعات شما روی سرور ذخیره نمی‌شود (به‌جز دریافت داده‌های آنلاین مثل ساعت و قیمت‌ها).</li>
+        </ul>
+      </div>
+
+      <div class="soft p-3">
+        <div class="font-bold">تبدیل واحد</div>
+        <ul class="mt-2 list-disc pr-5 muted">
+          <li>مقدار را وارد کنید، واحد مبدا و مقصد را انتخاب کنید؛ نتیجه فوری نمایش داده می‌شود.</li>
+          <li>با «جابجایی» واحدها سریع جای مبدا/مقصد را عوض کنید.</li>
+          <li>دقت اعشار را از اسلایدر دقت تنظیم کنید.</li>
+        </ul>
+      </div>
+
+      <div class="soft p-3">
+        <div class="font-bold">تاریخ و ساعت</div>
+        <ul class="mt-2 list-disc pr-5 muted">
+          <li>ساعت ایران و ساعت جهانی از سرویس آنلاین به‌روز می‌شوند.</li>
+          <li>ساعت آنالوگ هر دقیقه همگام می‌شود و ثانیه‌شمار بدون قطع شدن ادامه می‌دهد.</li>
+          <li>مناسبت‌های همان روز نمایش داده می‌شود؛ موارد تعطیل با رنگ قرمز و برچسب «تعطیل» مشخص هستند.</li>
+        </ul>
+      </div>
+
+      <div class="soft p-3">
+        <div class="font-bold">کریپتو</div>
+        <ul class="mt-2 list-disc pr-5 muted">
+          <li>قیمت ارزها به‌صورت زنده نمایش داده می‌شود و هر چند ثانیه یکبار به‌روزرسانی می‌گردد.</li>
+          <li>اگر اینترنت یا سرویس قیمت‌دهی مشکل داشته باشد، ممکن است برای لحظاتی «—» نمایش داده شود.</li>
+        </ul>
+      </div>
+
+      <div class="soft p-3">
+        <div class="font-bold">ماشین حساب</div>
+        <ul class="mt-2 list-disc pr-5 muted">
+          <li>ماشین حساب دو حالت دارد: ساده و مهندسی (با دکمه «مهندسی/ساده» جابجا شوید).</li>
+          <li>با کیبورد هم می‌توانید وارد کنید: ۰-۹ یا 0-9، + - * / ( ) . Enter Backspace</li>
+          <li>نمایشگر و اعداد کلیدها از تنظیمات قابل تغییر بین فارسی و انگلیسی است.</li>
+        </ul>
+      </div>
+
+      <div class="soft p-3">
+        <div class="font-bold">سلامتی</div>
+        <ul class="mt-2 list-disc pr-5 muted">
+          <li>BMI و کالری روزانه برای تخمین استفاده می‌شوند و جایگزین نظر پزشک نیستند.</li>
+          <li>در «راهنمای آزمایش» می‌توانید نام آیتم را انتخاب کنید و یک تفسیر سریع و آموزشی ببینید.</li>
+        </ul>
+      </div>
+
+      <div class="soft p-3">
+        <div class="font-bold">تنظیمات</div>
+        <ul class="mt-2 list-disc pr-5 muted">
+          <li>رنگ‌ها، فونت و نمایش اعداد را شخصی‌سازی کنید؛ تنظیمات در همین مرورگر ذخیره می‌شود.</li>
+          <li>برای برگشت به حالت اولیه از دکمه بازنشانی استفاده کنید.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
     </main>
 
     <!-- Footer -->
     <footer class="mt-6 md:mt-8 pb-6 text-center muted tiny">
-      <div class="flex flex-col gap-3 items-center">
-        <div class="flex items-center gap-3">
-          <span>🎨 طراحی شده توسط FARHAD</span>
-          <a class="tgFab" href="https://t.me/ShadowPsychologist" target="_blank" rel="noopener" title="ارتباط در تلگرام">
-            <!-- Telegram icon (SVG) -->
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <path d="M21.9 5.1 19.4 20c-.2 1.1-.9 1.4-1.8.9l-5-3.7-2.4 2.3c-.3.3-.5.5-1 .5l.4-5.4 9.8-8.9c.4-.4-.1-.6-.7-.2L6.6 13.1 1.9 11.6c-1-.3-1-1 .2-1.5L20.3 3c.9-.4 1.7.2 1.6 2.1Z" fill="currentColor"/>
-            </svg>
-            <span class="font-bold">ارتباط با سازنده</span>
-          </a>
-        </div>
-        <div class="muted tiny">© codeisa</div>
+      <div class="flex flex-col gap-2 items-center">
+        <span id="footerOut">طراحی شده توسط FARHAD 🎨</span>
+        <a class="text-sky-300 underline underline-offset-4" href="https://t.me/ShadowPsychologist" target="_blank" rel="noopener"><span class="inline-flex items-center gap-2"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24"><path fill="#38bdf8" d="M9.04 15.15 8.8 19.1c.37 0 .54-.16.74-.35l1.78-1.7 3.69 2.7c.68.38 1.16.18 1.34-.63l2.43-11.37c.21-.99-.36-1.38-1.02-1.13L3.39 10.13c-.95.37-.94.9-.17 1.14l3.96 1.24 9.2-5.8c.43-.27.82-.12.5.15z"/><path fill="#38bdf8" d="M7.35 12.51 16.3 6.86c.41-.26.79-.12.48.16L9.04 15.15l-.3 3.95c.46 0 .66-.21.92-.47l2.21-2.12 4.6 3.37c.85.47 1.45.23 1.66-.79l2.99-13.8c.24-1.09-.41-1.54-1.18-1.24L2.6 9.9c-1.11.43-1.09 1.05-.19 1.33z"/></svg><span>ارتباط با سازنده</span></span></a>
       </div>
     </footer>
   </div>
 
+  <!-- Toasts -->
+  <div id="toastHost" class="fixed bottom-4 left-4 right-4 md:left-auto md:right-6 md:bottom-6 z-50 space-y-2 w-auto max-w-md"></div>
+
 <script>
 /* ========================= Utilities ========================= */
-const $ = (id) => document.getElementById(id);
-const clamp = (n,min,max)=>Math.min(max,Math.max(min,n));
-const escapeHtml = (s)=>String(s).replace(/[&<>"']/g, m=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[m]));
-const toFaDigits = (str)=>String(str).replace(/\d/g, d => "۰۱۲۳۴۵۶۷۸۹"[d]);
-const toEnDigits = (str)=>String(str).replace(/[۰-۹]/g, d => "0123456789"["۰۱۲۳۴۵۶۷۸۹".indexOf(d)]);
-const formatMoney = (n) => {
-  if(!Number.isFinite(n)) return "—";
-  const s = Math.round(n).toLocaleString("en-US");
-  return toFaDigits(s);
+const clamp=(n,min,max)=>Math.min(max,Math.max(min,n));
+const escapeHtml=(s)=>String(s).replace(/[&<>"']/g, m=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[m]));
+
+const toLatinDigits = (str) => {
+  const map = {
+    '۰':'0','۱':'1','۲':'2','۳':'3','۴':'4','۵':'5','۶':'6','۷':'7','۸':'8','۹':'9',
+    '٠':'0','١':'1','٢':'2','٣':'3','٤':'4','٥':'5','٦':'6','٧':'7','٨':'8','٩':'9',
+    '−':'-','–':'-','—':'-','٫':'.','٬':'',',':''
+  };
+  return String(str ?? '').replace(/[۰-۹٠-٩−–—٫٬,]/g, ch => map[ch] ?? ch);
 };
-const fmtPct = (n) => {
-  if(!Number.isFinite(n)) return "—";
-  const s = (Math.round(n*100)/100).toFixed(2);
-  return toFaDigits(s);
+
+const safeNum=(v)=> {
+  if (typeof v === "number") return Number.isFinite(v) ? v : NaN;
+  const s=toLatinDigits((v??"").toString().trim());
+  if(!s) return NaN;
+  const x=Number(s);
+  return Number.isFinite(x) ? x : NaN;
 };
-const nowFaTime = () => toFaDigits(new Date().toLocaleTimeString("fa-IR",{hour:"2-digit",minute:"2-digit"}));
+
+const toPersianDigits=(str)=>{
+  const map = {'0':'۰','1':'۱','2':'۲','3':'۳','4':'۴','5':'۵','6':'۶','7':'۷','8':'۸','9':'۹','-':'−'};
+  return String(str).replace(/[0-9-]/g, ch => map[ch] ?? ch);
+};
+
+const formatNumber=(n, precision)=>{
+  if(!Number.isFinite(n)) return "—";
+  const p=clamp(precision,0,12);
+  const fixed = n.toFixed(p);
+  const cleaned = (Math.abs(Number(fixed))===0) ? (0).toFixed(p) : fixed;
+  if(p===0) return String(Number(cleaned));
+  return cleaned.replace(/(\.\d*?)0+$/,'$1').replace(/\.$/,'');
+};
+
+const showToast=(msg,type="info")=>{
+  const host=document.getElementById("toastHost");
+  const el=document.createElement("div");
+  const tone = {
+    info: "border-sky-400/40 bg-sky-400/10",
+    ok: "border-emerald-400/40 bg-emerald-400/10",
+    warn: "border-amber-400/40 bg-amber-400/10",
+    err: "border-rose-400/40 bg-rose-400/10"
+  }[type] || "border-sky-400/40 bg-sky-400/10";
+  el.className=`toast card p-3 ${tone}`;
+  el.innerHTML = `<div class="flex items-start gap-3">
+    <div class="grad w-9 h-9 rounded-xl flex items-center justify-center shrink-0">✦</div>
+    <div class="text-sm leading-6">${escapeHtml(msg)}</div>
+  </div>`;
+  host.appendChild(el);
+  setTimeout(()=>{ el.style.opacity="0"; el.style.transform="translateY(6px)"; el.style.transition="250ms"; }, 2400);
+  setTimeout(()=>el.remove(), 2750);
+};
+
+const copyText = async (text, okMsg="کپی شد ✅") => {
+  try{
+    await navigator.clipboard.writeText(text);
+    showToast(okMsg, "ok");
+  }catch{
+    showToast("امکان کپی وجود ندارد. لطفاً مجوز کلیپ‌بورد را بررسی کنید.", "err");
+  }
+};
+
+/* ========================= Config System ========================= */
+const FIXED_FOOTER_TEXT = "طراحی شده توسط FARHAD 🎨";
+
+const defaultConfig = {
+  background_color:"#0b1220",
+  surface_color:"#0f1b33",
+  text_color:"#e8eefc",
+  primary_action:"#38bdf8",
+  secondary_action:"#a78bfa",
+  font_family:'ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji","Segoe UI Emoji"',
+  font_size:16,
+  accent_gradient_start:"#22c55e",
+  accent_gradient_end:"#38bdf8",
+  app_logo_emoji:"🔄",
+  enable_persian_digits:true,
+  copy_with_persian_digits:false,
+  precision:2,
+  enable_click_sound:true,
+  click_volume:30,
+  calculator_display_lang:"fa"
+};
+
+const elementSdk = (() => {
+  const listeners = new Set();
+  let config = loadConfig();
+  function sanitize(partial){
+    const p = {...(partial||{})};
+    if ("footer_text" in p) delete p.footer_text;
+    if ("app_logo_emoji" in p) delete p.app_logo_emoji;
+    return p;
+  }
+  function loadConfig(){
+    try{
+      const raw=localStorage.getItem("proUnitConverter.config");
+      if(!raw) return {...defaultConfig};
+      const parsed=sanitize(JSON.parse(raw));
+      return {...defaultConfig, ...(parsed||{})};
+    }catch{ return {...defaultConfig}; }
+  }
+  function saveConfig(){ localStorage.setItem("proUnitConverter.config", JSON.stringify(config)); }
+  function setConfig(partial){
+    const clean = sanitize(partial);
+    config = {...config, ...(clean||{})};
+    saveConfig();
+    listeners.forEach(fn=>fn(config));
+  }
+  function onConfigChange(fn){ listeners.add(fn); return ()=>listeners.delete(fn); }
+  function mapToCapabilities(cfg){
+    return {
+      theme:{
+        background: cfg.background_color,
+        surface: cfg.surface_color,
+        text: cfg.text_color,
+        primary: cfg.primary_action,
+        secondary: cfg.secondary_action,
+        gradA: cfg.accent_gradient_start,
+        gradB: cfg.accent_gradient_end
+      },
+      typography:{ fontFamily: cfg.font_family, fontSize: cfg.font_size },
+      behavior:{
+        enablePersianDigits: !!cfg.enable_persian_digits,
+        copyWithPersianDigits: !!cfg.copy_with_persian_digits,
+        precision: clamp(Number(cfg.precision ?? 2),0,8)
+      },
+      branding:{ logoEmoji: cfg.app_logo_emoji },
+      sound:{ enabled: !!cfg.enable_click_sound, volume: clamp(Number(cfg.click_volume ?? 30),0,100) },
+      calculator:{ displayLang: (cfg.calculator_display_lang==="en" ? "en" : "fa") }
+    };
+  }
+  function attachExternal(){
+    if (window.elementSdk && window.elementSdk !== api) return;
+    window.elementSdk = api;
+  }
+  const api = { getConfig:()=>({...config}), setConfig, onConfigChange, mapToCapabilities, _attachExternal:attachExternal };
+  attachExternal();
+  return api;
+})();
+
+const displayNum = (x) => {
+  const cfg = elementSdk.getConfig();
+  const s = String(x);
+  return cfg.enable_persian_digits ? toPersianDigits(s) : s;
+};
+
+const setToggleUI = (input, dot, on) => {
+  input.checked = !!on;
+  dot.style.right = on ? "1.75rem" : "0.25rem";
+  dot.style.left = "auto";
+};
+
+const updateCalculatorDigitLabels = (lang) => {
+  document.querySelectorAll(".calcDigit").forEach(btn=>{
+    const fa = btn.getAttribute("data-fa");
+    const en = btn.getAttribute("data-en");
+    btn.textContent = (lang==="en") ? en : fa;
+  });
+};
+
+const applyConfig = (cfg) => {
+  const caps = elementSdk.mapToCapabilities(cfg);
+  const r = document.documentElement.style;
+  r.setProperty("--bg", caps.theme.background);
+  r.setProperty("--surface", caps.theme.surface);
+  r.setProperty("--text", caps.theme.text);
+  r.setProperty("--primary", caps.theme.primary);
+  r.setProperty("--secondary", caps.theme.secondary);
+  r.setProperty("--gradA", caps.theme.gradA);
+  r.setProperty("--gradB", caps.theme.gradB);
+  r.setProperty("--ff", caps.typography.fontFamily);
+  r.setProperty("--fs", `${caps.typography.fontSize}px`);
+
+  document.getElementById("footerOut").textContent = FIXED_FOOTER_TEXT;
+
+  setToggleUI(document.getElementById("persianDigitsToggle"), document.getElementById("persianDigitsDot"), caps.behavior.enablePersianDigits);
+  setToggleUI(document.getElementById("uiPersianDigitsToggle"), document.getElementById("uiPersianDigitsDot"), caps.behavior.enablePersianDigits);
+  setToggleUI(document.getElementById("copyPersianToggle"), document.getElementById("copyPersianDot"), caps.behavior.copyWithPersianDigits);
+
+  setToggleUI(document.getElementById("soundToggle"), document.getElementById("soundDot"), caps.sound.enabled);
+  document.getElementById("soundVolume").value = caps.sound.volume;
+  document.getElementById("soundVolumeLabel").textContent = displayNum(caps.sound.volume);
+
+  document.getElementById("precisionRange").value = caps.behavior.precision;
+  document.getElementById("precisionLabel").textContent = displayNum(caps.behavior.precision);
+
+  document.getElementById("calcDisplayLang").value = caps.calculator.displayLang;
+  updateCalculatorDigitLabels(caps.calculator.displayLang);
+};
 
 /* ========================= Navigation ========================= */
-const pages = ["converter","health","datetime","crypto","iran","weather","calculator","settings","help"];
-function showPage(id){
+const pages = ["converter","health","datetime","crypto","calculator","settings","help"];
+const showPage = (id) => {
   const target = pages.includes(id) ? id : "converter";
-  pages.forEach(p=>{
-    const el = $("page-"+p);
+  for(const p of pages){
+    const el=document.getElementById(`page-${p}`);
     if(el) el.classList.toggle("hidden", p!==target);
-  });
+  }
   document.querySelectorAll(".navBtn").forEach(btn=>{
-    const active = btn.dataset.nav === target;
+    const active = btn.dataset.nav===target;
     btn.classList.toggle("tabActive", active);
     btn.classList.toggle("tabIdle", !active);
   });
   try{ history.replaceState(null,"",`#${target}`); }catch{}
-}
-$("topNav").addEventListener("click", (e)=>{
-  const b = e.target.closest(".navBtn");
-  if(!b) return;
-  showPage(b.dataset.nav);
-});
-showPage((location.hash||"").replace("#","") || "converter");
-
-/* ========================= Settings (simple) ========================= */
-const CFG_KEY="codeisa.cfg.v8";
-const defaultCfg = {
-  font:"vazirmatn",
-  bg:"#0b1220",
-  surface:"#0f1b33",
-  text:"#e8eefc",
-  gradA:"#22c55e",
-  gradB:"#38bdf8"
 };
-function loadCfg(){
-  try{ return {...defaultCfg, ...(JSON.parse(localStorage.getItem(CFG_KEY)||"{}")||{})}; }
-  catch{ return {...defaultCfg}; }
-}
-function saveCfg(cfg){ localStorage.setItem(CFG_KEY, JSON.stringify(cfg)); }
-function applyCfg(cfg){
-  const r=document.documentElement.style;
-  r.setProperty("--bg", cfg.bg);
-  r.setProperty("--surface", cfg.surface);
-  r.setProperty("--text", cfg.text);
-  r.setProperty("--gradA", cfg.gradA);
-  r.setProperty("--gradB", cfg.gradB);
-  r.setProperty("--ff", cfg.font==="sahel" ? '"Sahel", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Tahoma", Arial' :
-                                         '"Vazirmatn", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Tahoma", Arial');
-}
-let cfg = loadCfg();
-applyCfg(cfg);
 
-$("fontSel").value = cfg.font;
-$("bgColor").value = cfg.bg;
-$("surfaceColor").value = cfg.surface;
-$("textColor").value = cfg.text;
-$("gradA").value = cfg.gradA;
-$("gradB").value = cfg.gradB;
-
-["fontSel","bgColor","surfaceColor","textColor","gradA","gradB"].forEach(id=>{
-  $(id).addEventListener("input", ()=>{
-    cfg = {
-      font: $("fontSel").value,
-      bg: $("bgColor").value,
-      surface: $("surfaceColor").value,
-      text: $("textColor").value,
-      gradA: $("gradA").value,
-      gradB: $("gradB").value
-    };
-    saveCfg(cfg);
-    applyCfg(cfg);
-    // redraw sparklines with new theme
-    requestAnimationFrame(()=> renderAllSparks());
+const bindNav = () => {
+  document.getElementById("topNav").addEventListener("click", (e)=>{
+    const btn = e.target.closest(".navBtn");
+    if(!btn) return;
+    showPage(btn.dataset.nav);
   });
-});
-$("resetCfg").addEventListener("click", ()=>{
-  localStorage.removeItem(CFG_KEY);
-  cfg = loadCfg();
-  $("fontSel").value = cfg.font;
-  $("bgColor").value = cfg.bg;
-  $("surfaceColor").value = cfg.surface;
-  $("textColor").value = cfg.text;
-  $("gradA").value = cfg.gradA;
-  $("gradB").value = cfg.gradB;
-  applyCfg(cfg);
+};
+
+const maybePersianForCopy = (txt) => {
+  const cfg=elementSdk.getConfig();
+  return cfg.copy_with_persian_digits ? toPersianDigits(txt) : txt;
+};
+
+/* ========================= Unit Converter Data (10+ دسته) ========================= */
+const UNIT = (label, symbol, toBase, fromBase) => ({label, symbol, toBase, fromBase});
+const linearUnits = (units) => ({type:"linear", units});
+const tempUnits = () => ({
+  type:"temp",
+  units:[
+    {label:"سلسیوس", symbol:"°C", toBase:(c)=>c, fromBase:(c)=>c},
+    {label:"فارنهایت", symbol:"°F", toBase:(f)=>(f-32)*5/9, fromBase:(c)=>c*9/5+32},
+    {label:"کلوین", symbol:"K", toBase:(k)=>k-273.15, fromBase:(c)=>c+273.15},
+  ]
 });
 
-/* ========================= Unit Converter (demo: length m<->km<->cm) ========================= */
-const ucUnits = [
-  {k:"cm", label:"سانتی‌متر", toM:(v)=>v/100, fromM:(m)=>m*100},
-  {k:"m", label:"متر", toM:(v)=>v, fromM:(m)=>m},
-  {k:"km", label:"کیلومتر", toM:(v)=>v*1000, fromM:(m)=>m/1000},
-  {k:"in", label:"اینچ", toM:(v)=>v*0.0254, fromM:(m)=>m/0.0254},
-  {k:"ft", label:"فوت", toM:(v)=>v*0.3048, fromM:(m)=>m/0.3048},
+const CATEGORIES = [
+  { id:"length", name:"طول",
+    def: linearUnits([
+      UNIT("میلی‌متر","mm", v=>v/1000, v=>v*1000),
+      UNIT("سانتی‌متر","cm", v=>v/100, v=>v*100),
+      UNIT("متر","m", v=>v, v=>v),
+      UNIT("کیلومتر","km", v=>v*1000, v=>v/1000),
+      UNIT("اینچ","in", v=>v*0.0254, v=>v/0.0254),
+      UNIT("فوت","ft", v=>v*0.3048, v=>v/0.3048),
+      UNIT("یارد","yd", v=>v*0.9144, v=>v/0.9144),
+      UNIT("مایل","mi", v=>v*1609.344, v=>v/1609.344),
+      UNIT("مایل دریایی","nmi", v=>v*1852, v=>v/1852),
+    ]),
+    quick:[
+      {title:"۱ کیلومتر → متر", value:1, from:"کیلومتر", to:"متر"},
+      {title:"۱ مایل → کیلومتر", value:1, from:"مایل", to:"کیلومتر"},
+      {title:"۳۰ سانتی‌متر → اینچ", value:30, from:"سانتی‌متر", to:"اینچ"},
+      {title:"۶ فوت → سانتی‌متر", value:6, from:"فوت", to:"سانتی‌متر"},
+    ]
+  },
+  { id:"mass", name:"جرم",
+    def: linearUnits([
+      UNIT("میلی‌گرم","mg", v=>v/1e6, v=>v*1e6),
+      UNIT("گرم","g", v=>v/1000, v=>v*1000),
+      UNIT("کیلوگرم","kg", v=>v, v=>v),
+      UNIT("تن","t", v=>v*1000, v=>v/1000),
+      UNIT("اونس","oz", v=>v*0.028349523125, v=>v/0.028349523125),
+      UNIT("پوند","lb", v=>v*0.45359237, v=>v/0.45359237),
+    ]),
+    quick:[
+      {title:"۱ کیلوگرم → گرم", value:1, from:"کیلوگرم", to:"گرم"},
+      {title:"۱ پوند → کیلوگرم", value:1, from:"پوند", to:"کیلوگرم"},
+      {title:"۵۰۰ گرم → پوند", value:500, from:"گرم", to:"پوند"},
+      {title:"۲ اونس → گرم", value:2, from:"اونس", to:"گرم"},
+    ]
+  },
+  { id:"temp", name:"دما", def: tempUnits(),
+    quick:[
+      {title:"۰°C → °F", value:0, from:"سلسیوس", to:"فارنهایت"},
+      {title:"۱۰۰°C → °F", value:100, from:"سلسیوس", to:"فارنهایت"},
+      {title:"۳۷°C → °F", value:37, from:"سلسیوس", to:"فارنهایت"},
+      {title:"۲۷۳.۱۵K → °C", value:273.15, from:"کلوین", to:"سلسیوس"},
+    ]
+  },
+  { id:"area", name:"مساحت",
+    def: linearUnits([
+      UNIT("میلی‌متر مربع","mm²", v=>v/1e6, v=>v*1e6),
+      UNIT("سانتی‌متر مربع","cm²", v=>v/1e4, v=>v*1e4),
+      UNIT("متر مربع","m²", v=>v, v=>v),
+      UNIT("کیلومتر مربع","km²", v=>v*1e6, v=>v/1e6),
+      UNIT("هکتار","ha", v=>v*10000, v=>v/10000),
+      UNIT("اینچ مربع","in²", v=>v*0.00064516, v=>v/0.00064516),
+      UNIT("فوت مربع","ft²", v=>v*0.09290304, v=>v/0.09290304),
+      UNIT("یارد مربع","yd²", v=>v*0.83612736, v=>v/0.83612736),
+      UNIT("ایکر","acre", v=>v*4046.8564224, v=>v/4046.8564224),
+    ]),
+    quick:[
+      {title:"۱ هکتار → متر مربع", value:1, from:"هکتار", to:"متر مربع"},
+      {title:"۱ متر مربع → فوت مربع", value:1, from:"متر مربع", to:"فوت مربع"},
+      {title:"۱ ایکر → متر مربع", value:1, from:"ایکر", to:"متر مربع"},
+      {title:"۵۰ متر مربع → سانتی‌متر مربع", value:50, from:"متر مربع", to:"سانتی‌متر مربع"},
+    ]
+  },
+  { id:"volume", name:"حجم",
+    def: linearUnits([
+      UNIT("میلی‌لیتر","mL", v=>v/1000, v=>v*1000),
+      UNIT("لیتر","L", v=>v, v=>v),
+      UNIT("متر مکعب","m³", v=>v*1000, v=>v/1000),
+      UNIT("سانتی‌متر مکعب","cm³", v=>v/1000, v=>v*1000),
+      UNIT("گالن (آمریکا)","gal", v=>v*3.785411784, v=>v/3.785411784),
+      UNIT("کوارت (آمریکا)","qt", v=>v*0.946352946, v=>v/0.946352946),
+      UNIT("پینت (آمریکا)","pt", v=>v*0.473176473, v=>v/0.473176473),
+      UNIT("فنجان (آمریکا)","cup", v=>v*0.2365882365, v=>v/0.2365882365),
+      UNIT("اونس مایع (آمریکا)","fl oz", v=>v*0.0295735295625, v=>v/0.0295735295625),
+    ]),
+    quick:[
+      {title:"۱ لیتر → میلی‌لیتر", value:1, from:"لیتر", to:"میلی‌لیتر"},
+      {title:"۱ گالن → لیتر", value:1, from:"گالن (آمریکا)", to:"لیتر"},
+      {title:"۲۵۰ میلی‌لیتر → لیتر", value:250, from:"میلی‌لیتر", to:"لیتر"},
+      {title:"۱ متر مکعب → لیتر", value:1, from:"متر مکعب", to:"لیتر"},
+    ]
+  },
+  { id:"speed", name:"سرعت",
+    def: linearUnits([
+      UNIT("متر بر ثانیه","m/s", v=>v, v=>v),
+      UNIT("کیلومتر بر ساعت","km/h", v=>v/3.6, v=>v*3.6),
+      UNIT("مایل بر ساعت","mph", v=>v*0.44704, v=>v/0.44704),
+      UNIT("گره (نات)","kt", v=>v*0.514444, v=>v/0.514444),
+      UNIT("فوت بر ثانیه","ft/s", v=>v*0.3048, v=>v/0.3048),
+    ]),
+    quick:[
+      {title:"۱۰۰ km/h → m/s", value:100, from:"کیلومتر بر ساعت", to:"متر بر ثانیه"},
+      {title:"۱۰ m/s → km/h", value:10, from:"متر بر ثانیه", to:"کیلومتر بر ساعت"},
+      {title:"۶۰ mph → km/h", value:60, from:"مایل بر ساعت", to:"کیلومتر بر ساعت"},
+      {title:"۲۰ kt → km/h", value:20, from:"گره (نات)", to:"کیلومتر بر ساعت"},
+    ]
+  },
+  { id:"time", name:"زمان",
+    def: linearUnits([
+      UNIT("میلی‌ثانیه","ms", v=>v/1000, v=>v*1000),
+      UNIT("ثانیه","s", v=>v, v=>v),
+      UNIT("دقیقه","min", v=>v*60, v=>v/60),
+      UNIT("ساعت","h", v=>v*3600, v=>v/3600),
+      UNIT("روز","day", v=>v*86400, v=>v/86400),
+      UNIT("هفته","week", v=>v*604800, v=>v/604800),
+    ]),
+    quick:[
+      {title:"۹۰ دقیقه → ساعت", value:90, from:"دقیقه", to:"ساعت"},
+      {title:"۱ روز → ساعت", value:1, from:"روز", to:"ساعت"},
+      {title:"۳۶۰۰ ثانیه → ساعت", value:3600, from:"ثانیه", to:"ساعت"},
+      {title:"۲ هفته → روز", value:2, from:"هفته", to:"روز"},
+    ]
+  },
+  { id:"pressure", name:"فشار",
+    def: linearUnits([
+      UNIT("پاسکال","Pa", v=>v, v=>v),
+      UNIT("کیلوپاسکال","kPa", v=>v*1000, v=>v/1000),
+      UNIT("بار","bar", v=>v*100000, v=>v/100000),
+      UNIT("اتمسفر","atm", v=>v*101325, v=>v/101325),
+      UNIT("میلی‌متر جیوه","mmHg", v=>v*133.322368421, v=>v/133.322368421),
+      UNIT("psi","psi", v=>v*6894.757293168, v=>v/6894.757293168),
+    ]),
+    quick:[
+      {title:"۱ atm → kPa", value:1, from:"اتمسفر", to:"کیلوپاسکال"},
+      {title:"۲ bar → psi", value:2, from:"بار", to:"psi"},
+      {title:"۷۶۰ mmHg → atm", value:760, from:"میلی‌متر جیوه", to:"اتمسفر"},
+      {title:"۱۰۰ kPa → bar", value:100, from:"کیلوپاسکال", to:"بار"},
+    ]
+  },
+  { id:"energy", name:"انرژی",
+    def: linearUnits([
+      UNIT("ژول","J", v=>v, v=>v),
+      UNIT("کیلوژول","kJ", v=>v*1000, v=>v/1000),
+      UNIT("کالری","cal", v=>v*4.184, v=>v/4.184),
+      UNIT("کیلوکالری","kcal", v=>v*4184, v=>v/4184),
+      UNIT("وات‌ساعت","Wh", v=>v*3600, v=>v/3600),
+      UNIT("کیلووات‌ساعت","kWh", v=>v*3.6e6, v=>v/3.6e6),
+      UNIT("الکترون‌ولت","eV", v=>v*1.602176634e-19, v=>v/1.602176634e-19),
+    ]),
+    quick:[
+      {title:"۱۰۰۰ J → kJ", value:1000, from:"ژول", to:"کیلوژول"},
+      {title:"۵۰۰ kcal → kJ", value:500, from:"کیلوکالری", to:"کیلوژول"},
+      {title:"۱ kWh → J", value:1, from:"کیلووات‌ساعت", to:"ژول"},
+      {title:"۲۵۰ Wh → kWh", value:250, from:"وات‌ساعت", to:"کیلووات‌ساعت"},
+    ]
+  },
+  { id:"data", name:"داده (حجم فایل)",
+    def: linearUnits([
+      UNIT("بیت","b", v=>v/8, v=>v*8),
+      UNIT("بایت","B", v=>v, v=>v),
+      UNIT("کیلوبایت","KB", v=>v*1000, v=>v/1000),
+      UNIT("مگابایت","MB", v=>v*1e6, v=>v/1e6),
+      UNIT("گیگابایت","GB", v=>v*1e9, v=>v/1e9),
+      UNIT("ترابایت","TB", v=>v*1e12, v=>v/1e12),
+      UNIT("کیبی‌بایت","KiB", v=>v*1024, v=>v/1024),
+      UNIT("مبی‌بایت","MiB", v=>v*1024*1024, v=>v/(1024*1024)),
+      UNIT("گیبی‌بایت","GiB", v=>v*1024*1024*1024, v=>v/(1024*1024*1024)),
+    ]),
+    quick:[
+      {title:"۱۰۲۴ KiB → MiB", value:1024, from:"کیبی‌بایت", to:"مبی‌بایت"},
+      {title:"۱ GB → MB", value:1, from:"گیگابایت", to:"مگابایت"},
+      {title:"۸ بیت → بایت", value:8, from:"بیت", to:"بایت"},
+      {title:"۵۰۰ MB → GB", value:500, from:"مگابایت", to:"گیگابایت"},
+    ]
+  },,
+{ id:"power", name:"توان",
+  def: linearUnits([
+    UNIT("وات","W", v=>v, v=>v),
+    UNIT("کیلووات","kW", v=>v*1000, v=>v/1000),
+    UNIT("مگاوات","MW", v=>v*1e6, v=>v/1e6),
+    UNIT("اسب‌بخار (متریک)","hp", v=>v*735.49875, v=>v/735.49875),
+  ]),
+  quick:[
+    {title:"۱ kW → W", value:1, from:"کیلووات", to:"وات"},
+    {title:"۱ hp → kW", value:1, from:"اسب‌بخار (متریک)", to:"کیلووات"},
+    {title:"۵۰۰ W → kW", value:500, from:"وات", to:"کیلووات"},
+  ]
+},
+{ id:"force", name:"نیرو",
+  def: linearUnits([
+    UNIT("نیوتن","N", v=>v, v=>v),
+    UNIT("کیلو نیوتن","kN", v=>v*1000, v=>v/1000),
+    UNIT("داین","dyn", v=>v*1e-5, v=>v/1e-5),
+    UNIT("کیلوگرم-نیرو","kgf", v=>v*9.80665, v=>v/9.80665),
+    UNIT("پوند-نیرو","lbf", v=>v*4.4482216152605, v=>v/4.4482216152605),
+  ]),
+  quick:[
+    {title:"۱ kgf → N", value:1, from:"کیلوگرم-نیرو", to:"نیوتن"},
+    {title:"۱۰۰ N → kgf", value:100, from:"نیوتن", to:"کیلوگرم-نیرو"},
+    {title:"۱۰ lbf → N", value:10, from:"پوند-نیرو", to:"نیوتن"},
+  ]
+},
+{ id:"angle", name:"زاویه",
+  def: linearUnits([
+    UNIT("درجه","°", v=>v, v=>v),
+    UNIT("رادیان","rad", v=>v*180/Math.PI, v=>v*Math.PI/180),
+    UNIT("گرادیان","gon", v=>v*0.9, v=>v/0.9),
+  ]),
+  quick:[
+    {title:"π رادیان → درجه", value:Math.PI, from:"رادیان", to:"درجه"},
+    {title:"۱۸۰ درجه → رادیان", value:180, from:"درجه", to:"رادیان"},
+  ]
+},
+{ id:"frequency", name:"فرکانس",
+  def: linearUnits([
+    UNIT("هرتز","Hz", v=>v, v=>v),
+    UNIT("کیلوهرتز","kHz", v=>v*1000, v=>v/1000),
+    UNIT("مگاهرتز","MHz", v=>v*1e6, v=>v/1e6),
+    UNIT("گیگاهرتز","GHz", v=>v*1e9, v=>v/1e9),
+  ]),
+  quick:[
+    {title:"۱ GHz → MHz", value:1, from:"گیگاهرتز", to:"مگاهرتز"},
+    {title:"۴۴۱۰۰ Hz → kHz", value:44100, from:"هرتز", to:"کیلوهرتز"},
+  ]
+},
 ];
-function ucInit(){
-  ucUnits.forEach(u=>{
-    const o1=document.createElement("option"); o1.value=u.k; o1.textContent=u.label;
-    const o2=document.createElement("option"); o2.value=u.k; o2.textContent=u.label;
-    $("ucFrom").appendChild(o1); $("ucTo").appendChild(o2);
-  });
-  $("ucFrom").value="m"; $("ucTo").value="km";
-}
-function ucCompute(){
-  const v = Number(toEnDigits($("ucVal").value||"").replace(/,/g,"").trim());
-  if(!Number.isFinite(v)){ $("ucOut").textContent="—"; return; }
-  const f=ucUnits.find(x=>x.k===$("ucFrom").value) || ucUnits[0];
-  const t=ucUnits.find(x=>x.k===$("ucTo").value) || ucUnits[1];
-  const m=f.toM(v);
-  const out=t.fromM(m);
-  $("ucOut").textContent = toFaDigits(out.toLocaleString("en-US",{maximumFractionDigits:8})) + " " + t.label;
-}
-$("ucVal").addEventListener("input", ucCompute);
-$("ucFrom").addEventListener("change", ucCompute);
-$("ucTo").addEventListener("change", ucCompute);
-$("ucSwap").addEventListener("click", ()=>{
-  const a=$("ucFrom").value, b=$("ucTo").value;
-  $("ucFrom").value=b; $("ucTo").value=a;
-  ucCompute();
-});
-$("ucCopy").addEventListener("click", async ()=>{
-  const txt = $("ucOut").textContent;
-  try{ await navigator.clipboard.writeText(toEnDigits(txt)); }catch{}
-});
-ucInit(); ucCompute();
 
-/* ========================= Health (BMI) ========================= */
-function bmiCat(b){
-  if(!Number.isFinite(b)) return "—";
-  if(b<18.5) return "کم‌وزن";
-  if(b<25) return "نرمال";
-  if(b<30) return "اضافه‌وزن";
-  if(b<35) return "چاقی ۱";
-  if(b<40) return "چاقی ۲";
-  return "چاقی ۳";
-}
-function bmiCompute(){
-  const w=Number(toEnDigits($("bmiW").value||"").trim());
-  const h=Number(toEnDigits($("bmiH").value||"").trim());
-  if(!(w>0) || !(h>0)){ $("bmiOut").textContent="—"; $("bmiCat").textContent="—"; return; }
-  const m=h/100;
-  const b=w/(m*m);
-  $("bmiOut").textContent=toFaDigits(b.toFixed(2));
-  $("bmiCat").textContent=bmiCat(b);
-}
-$("bmiW").addEventListener("input", bmiCompute);
-$("bmiH").addEventListener("input", bmiCompute);
-bmiCompute();
-
-/* ========================= DateTime (auto, precise) =========================
-   - Sync with TimeAPI.io every 5 minutes
-   - Run local ticker every second without extra requests
-*/
-const TIMEAPI_BASE="https://timeapi.io/api/Time/current/zone?timeZone=";
-const TZ_IR="Asia/Tehran";
-const TZ_UTC="Etc/UTC";
-
-let timeSync = {
-  ok:false,
-  perf0: performance.now(),
-  utcMillis: null, // base UTC instant at perf0
-  lastSyncText: "—"
+let state = { categoryId: CATEGORIES[0].id, fromLabel: null, toLabel: null };
+const getCategory = (id)=>CATEGORIES.find(c=>c.id===id) || CATEGORIES[0];
+const findUnitByLabel = (cat, label) => cat.def.units.find(u=>u.label===label) || cat.def.units[0];
+const convertValue = (cat, value, fromUnit, toUnit) => {
+  if(!Number.isFinite(value)) return NaN;
+  const base = fromUnit.toBase(value);
+  return toUnit.fromBase(base);
 };
 
-function jalaliFromGregorian(gy,gm,gd){
-  const g_d_m=[0,31,59,90,120,151,181,212,243,273,304,334];
-  let jy;
-  if(gy>1600){ jy=979; gy-=1600; } else { jy=0; gy-=621; }
-  const gy2=(gm>2)?(gy+1):gy;
-  let days=365*gy + Math.floor((gy2+3)/4) - Math.floor((gy2+99)/100) + Math.floor((gy2+399)/400) - 80 + gd + g_d_m[gm-1];
-  jy += 33*Math.floor(days/12053); days%=12053;
-  jy += 4*Math.floor(days/1461); days%=1461;
-  if(days>365){ jy += Math.floor((days-1)/365); days=(days-1)%365; }
-  const jm=(days<186)?(1+Math.floor(days/31)):(7+Math.floor((days-186)/30));
-  const jd=1+((days<186)?(days%31):((days-186)%30));
-  return {jy,jm,jd};
-}
-const pad2=(n)=>String(n).padStart(2,"0");
+const renderQuick = (cat) => {
+  const grid=document.getElementById("quickGrid");
+  grid.innerHTML="";
+  (cat.quick||[]).slice(0,8).forEach(q=>{
+    const b=document.createElement("button");
+    b.type="button";
+    b.className="btn soft px-3 py-2 text-right focusable";
+    b.innerHTML=`<div class="font-semibold text-sm">${escapeHtml(q.title)}</div>
+                 <div class="muted tiny mt-0.5">تنظیم سریع</div>`;
+    b.addEventListener("click", ()=>{
+      document.getElementById("valueInput").value = q.value;
+      const fromSel=document.getElementById("fromUnitSel");
+      const toSel=document.getElementById("toUnitSel");
+      if([...fromSel.options].some(o=>o.value===q.from)) fromSel.value=q.from;
+      if([...toSel.options].some(o=>o.value===q.to)) toSel.value=q.to;
+      state.fromLabel = fromSel.value;
+      state.toLabel = toSel.value;
+      computeConverter();
+      showToast("تنظیم انجام شد ✅", "ok");
+    });
+    grid.appendChild(b);
+  });
+};
 
-async function fetchTimeAPI(tz){
-  const res = await fetch(TIMEAPI_BASE+encodeURIComponent(tz), {cache:"no-store"});
+const setUnitsForCategory = (catId) => {
+  const cat=getCategory(catId);
+  const fromSel=document.getElementById("fromUnitSel");
+  const toSel=document.getElementById("toUnitSel");
+  fromSel.innerHTML=""; toSel.innerHTML="";
+  cat.def.units.forEach(u=>{
+    const o1=document.createElement("option"); o1.value=u.label; o1.textContent=`${u.label} (${u.symbol})`;
+    const o2=document.createElement("option"); o2.value=u.label; o2.textContent=`${u.label} (${u.symbol})`;
+    fromSel.appendChild(o1); toSel.appendChild(o2);
+  });
+  const fromKeep = state.fromLabel && cat.def.units.some(u=>u.label===state.fromLabel) ? state.fromLabel : cat.def.units[0].label;
+  const toKeep   = state.toLabel   && cat.def.units.some(u=>u.label===state.toLabel)   ? state.toLabel   : cat.def.units[Math.min(1,cat.def.units.length-1)].label;
+  fromSel.value = fromKeep;
+  toSel.value = toKeep;
+  state.fromLabel = fromKeep;
+  state.toLabel = toKeep;
+  renderQuick(cat);
+  computeConverter();
+};
+
+const computeConverter = () => {
+  const cfg = elementSdk.getConfig();
+  const cat = getCategory(document.getElementById("categorySel").value);
+  const fromUnit = findUnitByLabel(cat, document.getElementById("fromUnitSel").value);
+  const toUnit = findUnitByLabel(cat, document.getElementById("toUnitSel").value);
+  const inputVal = safeNum(document.getElementById("valueInput").value);
+  const precision = clamp(Number(cfg.precision ?? 2),0,8);
+
+  const result = convertValue(cat, inputVal, fromUnit, toUnit);
+  const rawText = formatNumber(result, precision);
+  const shown = cfg.enable_persian_digits ? toPersianDigits(rawText) : rawText;
+
+  document.getElementById("resultValue").textContent = (Number.isFinite(result) ? shown : "—");
+  document.getElementById("resultUnit").textContent = `${toUnit.label} (${toUnit.symbol})`;
+  document.getElementById("converterNote").textContent = Number.isFinite(inputVal) ? "" : "برای دیدن نتیجه، یک مقدار عددی معتبر وارد کنید.";
+};
+
+const swapUnits = () => {
+  const fromSel=document.getElementById("fromUnitSel");
+  const toSel=document.getElementById("toUnitSel");
+  const a=fromSel.value, b=toSel.value;
+  fromSel.value=b; toSel.value=a;
+  state.fromLabel = fromSel.value;
+  state.toLabel = toSel.value;
+  computeConverter();
+  showToast("واحدها جابجا شدند.", "info");
+};
+
+/* ========================= Health Logic ========================= */
+const bmiCategory = (bmi) => {
+  if(!Number.isFinite(bmi)) return "—";
+  if(bmi < 18.5) return "کم‌وزن";
+  if(bmi < 25) return "نرمال";
+  if(bmi < 30) return "اضافه‌وزن";
+  if(bmi < 35) return "چاقی درجه ۱";
+  if(bmi < 40) return "چاقی درجه ۲";
+  return "چاقی درجه ۳";
+};
+
+const calculateBMI = (wKg, hCm) => {
+  const h = hCm / 100;
+  if(!(wKg>0) || !(h>0)) return NaN;
+  return wKg / (h*h);
+};
+
+const healthyWeightRange = (hCm) => {
+  const h = hCm/100;
+  if(!(h>0)) return {min:NaN,max:NaN};
+  return {min:18.5*h*h, max:24.9*h*h};
+};
+
+const calculateBMR = (sex, wKg, hCm, age) => {
+  if(!(wKg>0) || !(hCm>0) || !(age>0)) return NaN;
+  const base = 10*wKg + 6.25*hCm - 5*age;
+  return sex==="male" ? base + 5 : base - 161;
+};
+
+const calculateTDEE = (bmr, activityFactor) => {
+  if(!Number.isFinite(bmr) || !Number.isFinite(activityFactor)) return NaN;
+  return bmr * activityFactor;
+};
+
+const computeBMIUI = () => {
+  const cfg=elementSdk.getConfig();
+  const p=clamp(Number(cfg.precision ?? 2),0,8);
+  const w=safeNum(document.getElementById("bmiWeight").value);
+  const h=safeNum(document.getElementById("bmiHeight").value);
+  const bmi=calculateBMI(w,h);
+
+  const valRaw = formatNumber(bmi, p);
+  document.getElementById("bmiValue").textContent = (Number.isFinite(bmi) ? (cfg.enable_persian_digits ? toPersianDigits(valRaw) : valRaw) : "—");
+  document.getElementById("bmiCat").textContent = (Number.isFinite(bmi) ? bmiCategory(bmi) : "—");
+
+  const showIdeal = document.getElementById("idealWeightToggle").checked;
+  const box = document.getElementById("idealWeightBox");
+  box.classList.toggle("hidden", !showIdeal);
+  if(showIdeal && Number.isFinite(h) && h>0){
+    const r=healthyWeightRange(h);
+    const minS = formatNumber(r.min, p);
+    const maxS = formatNumber(r.max, p);
+    const out = cfg.enable_persian_digits ? `${toPersianDigits(minS)} تا ${toPersianDigits(maxS)}` : `${minS} تا ${maxS}`;
+    document.getElementById("idealWeightRange").textContent = out;
+  }else if(showIdeal){
+    document.getElementById("idealWeightRange").textContent = "—";
+  }
+
+  const warn=document.getElementById("bmiWarn");
+  warn.classList.add("hidden");
+  warn.className="mt-2 hidden tiny";
+  if((w && w<25) || (w && w>300) || (h && h<100) || (h && h>230)){
+    warn.classList.remove("hidden");
+    warn.classList.add("text-amber-200");
+    warn.textContent = "هشدار: مقادیر وارد شده کمی غیرمعمول به نظر می‌رسند. لطفاً بررسی کنید.";
+  }
+};
+
+const computeCaloriesUI = () => {
+  const cfg=elementSdk.getConfig();
+  const p=clamp(Number(cfg.precision ?? 2),0,8);
+  const sex=document.getElementById("sexSel").value;
+  const age=safeNum(document.getElementById("ageInput").value);
+  const h=safeNum(document.getElementById("calHeight").value);
+  const w=safeNum(document.getElementById("calWeight").value);
+  const activity=safeNum(document.getElementById("activitySel").value);
+  const goalAdj=safeNum(document.getElementById("goalSel").value);
+
+  const err=document.getElementById("calError");
+  err.classList.add("hidden");
+  err.className="hidden mb-2 text-sm font-semibold";
+
+  if((age && age<=0) || (h && h<=0) || (w && w<=0)){
+    err.classList.remove("hidden");
+    err.classList.add("text-rose-200");
+    err.textContent="خطا: سن، قد و وزن باید بزرگتر از صفر باشند.";
+  }
+
+  const bmr=calculateBMR(sex,w,h,age);
+  const tdee=calculateTDEE(bmr,activity);
+  const goal = Number.isFinite(tdee) ? (tdee + (Number.isFinite(goalAdj)?goalAdj:0)) : NaN;
+
+  const bmrS = Number.isFinite(bmr) ? formatNumber(bmr, p) : "—";
+  const tdeeS = Number.isFinite(tdee) ? formatNumber(tdee, p) : "—";
+  const goalS = Number.isFinite(goal) ? formatNumber(goal, p) : "—";
+
+  document.getElementById("bmrOut").textContent = cfg.enable_persian_digits ? toPersianDigits(bmrS) : bmrS;
+  document.getElementById("tdeeOut").textContent = cfg.enable_persian_digits ? toPersianDigits(tdeeS) : tdeeS;
+  document.getElementById("goalOut").textContent = cfg.enable_persian_digits ? toPersianDigits(goalS) : goalS;
+
+  const warn=document.getElementById("calWarn");
+  warn.classList.add("hidden");
+  warn.className="mt-2 hidden tiny";
+  const odd = (age && (age<10 || age>90)) || (h && (h<120 || h>220)) || (w && (w<35 || w>250));
+  if(odd){
+    warn.classList.remove("hidden");
+    warn.classList.add("text-amber-200");
+    warn.textContent="هشدار: اعداد وارد شده ممکن است خارج از محدوده معمول باشند. نتیجه صرفاً تخمینی است.";
+  }
+};
+
+/* ========================= Lab Helper (آموزشی) ========================= */
+const LAB_TESTS = [
+  { id:"fbs", name:"قند ناشتا (FBS)", unit:"mg/dL", ranges:{ any:{min:70,max:99}}, notes:"قند ناشتا معمولاً باید بین ۷۰ تا ۹۹ باشد. اگر بالاتر باشد، ممکن است نیاز به بررسی بیشتر (پیش‌دیابت/دیابت) باشد." },
+  { id:"hba1c", name:"HbA1c (میانگین قند ۳ ماه)", unit:"%", ranges:{ any:{min:4.0,max:5.6}}, notes:"HbA1c زیر ۵.۷ معمولاً نرمال است. ۵.۷ تا ۶.۴ پیش‌دیابت و ۶.۵ به بالا ممکن است دیابت باشد (با تشخیص پزشک)." },
+  { id:"chol", name:"کلسترول تام (Chol)", unit:"mg/dL", ranges:{ any:{min:0,max:199}}, notes:"کلسترول تام زیر ۲۰۰ مطلوب است. ۲۰۰–۲۳۹ مرزی، ۲۴۰ به بالا بالا محسوب می‌شود." },
+  { id:"ldl", name:"LDL (کلسترول بد)", unit:"mg/dL", ranges:{ any:{min:0,max:129}}, notes:"LDL پایین‌تر بهتر است. زیر ۱۳۰ معمولاً قابل قبول است؛ اهداف دقیق به ریسک قلبی بستگی دارد." },
+  { id:"hdl", name:"HDL (کلسترول خوب)", unit:"mg/dL", ranges:{ male:{min:40,max:200}, female:{min:50,max:200}, any:{min:40,max:200}}, notes:"HDL بالاتر بهتر است. در آقایان معمولاً ۴۰ به بالا و در خانم‌ها ۵۰ به بالا مطلوب‌تر است." },
+  { id:"tg", name:"تری‌گلیسرید (TG)", unit:"mg/dL", ranges:{ any:{min:0,max:149}}, notes:"TG زیر ۱۵۰ نرمال است. ۱۵۰–۱۹۹ مرزی و ۲۰۰ به بالا بالا محسوب می‌شود." },
+  { id:"cr", name:"کراتینین (Creatinine)", unit:"mg/dL", ranges:{ male:{min:0.74,max:1.35}, female:{min:0.59,max:1.04}, any:{min:0.6,max:1.3}}, notes:"کراتینین شاخصی از عملکرد کلیه است. رنج‌ها بسته به آزمایشگاه و عضله بدنی فرق می‌کند." },
+  { id:"bun", name:"اوره خون (BUN)", unit:"mg/dL", ranges:{ any:{min:7,max:20}}, notes:"BUN به عملکرد کلیه و وضعیت آب بدن مرتبط است. کم‌آبی می‌تواند آن را بالا ببرد." },
+  { id:"alt", name:"ALT (آنزیم کبد)", unit:"U/L", ranges:{ any:{min:0,max:56}}, notes:"ALT بالا می‌تواند در مشکلات کبدی، چربی کبد، داروها یا التهاب دیده شود." },
+  { id:"ast", name:"AST (آنزیم کبد)", unit:"U/L", ranges:{ any:{min:0,max:40}}, notes:"AST نیز مشابه ALT است اما در عضله هم می‌تواند بالا رود." },
+  { id:"tsh", name:"TSH (تیروئید)", unit:"mIU/L", ranges:{ any:{min:0.4,max:4.0}}, notes:"TSH خارج از محدوده می‌تواند نشانه کم‌کاری/پرکاری تیروئید باشد. تفسیر دقیق با FT4/FT3 انجام می‌شود." },
+  { id:"vitd", name:"ویتامین D (25(OH)D)", unit:"ng/mL", ranges:{ any:{min:30,max:100}}, notes:"کمتر از ۲۰ کمبود، ۲۰–۲۹ ناکافی، ۳۰ به بالا معمولاً کافی در نظر گرفته می‌شود (بسته به منبع)." },
+  { id:"hb", name:"هموگلوبین (Hb)", unit:"g/dL", ranges:{ male:{min:13.5,max:17.5}, female:{min:12.0,max:15.5}, any:{min:12.0,max:17.5}}, notes:"Hb پایین می‌تواند نشان‌دهنده کم‌خونی باشد؛ علت‌ها متنوع است (آهن، B12، خونریزی و…)." },
+  { id:"wbc", name:"WBC (گلبول سفید)", unit:"×10^3/µL", ranges:{ any:{min:4.0,max:11.0}}, notes:"WBC بالا می‌تواند در عفونت/التهاب دیده شود. مقادیر خیلی پایین/بالا نیاز به بررسی دارند." },
+];
+
+const getLabRange = (test, sex) => {
+  const r = test.ranges || {};
+  return (sex && r[sex]) ? r[sex] : (r.any || null);
+};
+
+const labStatusFor = (v, r) => {
+  if(!r || !Number.isFinite(v)) return {label:"—", tone:"muted"};
+  if(v < r.min) return {label:"پایین‌تر از رنج", tone:"warn"};
+  if(v > r.max) return {label:"بالاتر از رنج", tone:"warn"};
+  return {label:"در محدوده نرمال", tone:"ok"};
+};
+
+let labLastText = "";
+
+const computeLabUI = () => {
+  const typeSel = document.getElementById("labType");
+  const valIn = document.getElementById("labValue");
+  const sexSel = document.getElementById("labSex");
+  if(!typeSel || !valIn || !sexSel) return;
+
+  const t = LAB_TESTS.find(x=>x.id===typeSel.value) || LAB_TESTS[0];
+  const sex = sexSel.value || "any";
+  const v = safeNum(valIn.value);
+  const r = getLabRange(t, sex);
+  const st = labStatusFor(v, r);
+
+  const statusEl = document.getElementById("labStatus");
+  const explainEl = document.getElementById("labExplain");
+  const rangeEl = document.getElementById("labRange");
+  const unitEl = document.getElementById("labUnitHint");
+
+  const cfg = elementSdk.getConfig();
+  const valStr = Number.isFinite(v) ? (cfg.enable_persian_digits ? toPersianDigits(String(v)) : String(v)) : "—";
+  unitEl.textContent = `واحد: ${t.unit}`;
+
+  statusEl.textContent = st.label;
+  statusEl.className = "text-lg font-extrabold " + (st.tone==="ok" ? "text-emerald-200" : st.tone==="warn" ? "text-amber-200" : "muted");
+
+  if(!Number.isFinite(v)){
+    explainEl.textContent = "برای شروع، نوع آزمایش و عدد خود را وارد کنید.";
+    rangeEl.textContent = "رنج مرجع: —";
+    labLastText = "";
+    return;
+  }
+
+  const rangeTxt = r ? `${r.min} تا ${r.max} (${t.unit})` : `—`;
+  rangeEl.textContent = `رنج مرجع: ${cfg.enable_persian_digits ? toPersianDigits(rangeTxt) : rangeTxt}`;
+
+  const explain = `${t.notes} (عدد شما: ${valStr} ${t.unit})`;
+  explainEl.textContent = explain;
+
+  labLastText = `${t.name}: ${toLatinDigits(String(v))} ${t.unit}\nوضعیت: ${st.label}\nرنج مرجع: ${rangeTxt}\nیادآوری: این خروجی صرفاً آموزشی است و جایگزین نظر پزشک نیست.`;
+};
+
+/* ========================= Sound ========================= */
+let audioCtx = null;
+const ensureAudio = () => {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (audioCtx.state === "suspended") audioCtx.resume().catch(()=>{});
+};
+const playClick = () => {
+  const cfg = elementSdk.getConfig();
+  if (!cfg.enable_click_sound) return;
+  ensureAudio();
+  const vol = clamp(Number(cfg.click_volume ?? 30),0,100) / 100;
+  try{
+    const t = audioCtx.currentTime;
+    const osc = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    osc.type = "square";
+    osc.frequency.setValueAtTime(1200, t);
+    g.gain.setValueAtTime(0.0001, t);
+    g.gain.exponentialRampToValueAtTime(Math.max(0.0001, vol*0.05), t + 0.005);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.03);
+    osc.connect(g);
+    g.connect(audioCtx.destination);
+    osc.start(t);
+    osc.stop(t + 0.035);
+  }catch{}
+};
+
+/* ========================= Calculator ========================= */
+let calcExpr = "";
+let calcMode = "basic"; // basic | sci
+
+const safeEvalSci = (expr) => {
+  // whitelist expression characters
+  let s = normalizeCalcInput(expr).replace(/\s+/g,'');
+  if(!s) return NaN;
+
+  // percent (rough): replace % with /100
+  s = s.replace(/%/g, "/100");
+
+  // constants
+  // replace standalone pi and e
+  s = s.replace(/\bpi\b/gi, "Math.PI");
+  s = s.replace(/\be\b/g, "Math.E");
+
+  // functions
+  s = s.replace(/\bln\(/gi, "Math.log(");
+  s = s.replace(/\blog\(/gi, "Math.log10(");
+  s = s.replace(/\bsin\(/gi, "Math.sin(");
+  s = s.replace(/\bcos\(/gi, "Math.cos(");
+  s = s.replace(/\btan\(/gi, "Math.tan(");
+  s = s.replace(/\bsqrt\(/gi, "Math.sqrt(");
+  s = s.replace(/\babs\(/gi, "Math.abs(");
+  s = s.replace(/\bpow\(/gi, "Math.pow(");
+
+  // exponent
+  s = s.replace(/\^/g, "**");
+
+  // final whitelist (numbers, operators, dots, commas, parentheses, Math. letters)
+  if(!/^[0-9+\-*/().,**MathPIElog10sinsqrtabspow]*$/.test(s.replace(/Math\./g,"Math"))){
+    // fallback strict check:
+  }
+  // stronger check: allow only these chars after replacements
+  if(!/^[0-9+\-*/().,A-Za-z_]*$/.test(s)) return NaN;
+  // prevent other identifiers
+  const bad = s.match(/\b(?!Math\b)[A-Za-z_]+\b/g);
+  if(bad) return NaN;
+
+  try{
+    // eslint-disable-next-line no-new-func
+    const fn = new Function("Math", `return (${s});`);
+    const v = fn(Math);
+    return Number.isFinite(v) ? v : NaN;
+  }catch{ return NaN; }
+};
+
+const setCalcMode = (mode) => {
+  calcMode = (mode==="sci") ? "sci" : "basic";
+  const sci = document.getElementById("calcPadSci");
+  if(sci) sci.classList.toggle("hidden", calcMode!=="sci");
+  const btn = document.getElementById("calcModeBtn");
+  if(btn) btn.textContent = (calcMode==="sci") ? "معمولی" : "مهندسی";
+  calcEvaluate();
+};
+
+
+let calcMem = 0;
+
+const normalizeCalcInput = (s) => {
+  const latin = toLatinDigits(s)
+    .replace(/×/g,'*').replace(/÷/g,'/')
+    .replace(/٪/g,'%');
+  return latin;
+};
+
+const isOperator = (t) => ["+","-","*","/"].includes(t);
+const precedence = (op) => (op==="+"||op==="-"?1:2);
+
+const tokenize = (expr) => {
+  const s = normalizeCalcInput(expr).replace(/\s+/g,'');
+  const tokens = [];
+  let i=0;
+  while(i<s.length){
+    const ch=s[i];
+    if(/[0-9.]/.test(ch)){
+      let j=i+1;
+      while(j<s.length && /[0-9.]/.test(s[j])) j++;
+      tokens.push({type:"num", value:s.slice(i,j)});
+      i=j; continue;
+    }
+    if(ch==="("||ch===")"){ tokens.push({type:"paren", value:ch}); i++; continue; }
+    if(isOperator(ch)){ tokens.push({type:"op", value:ch}); i++; continue; }
+    if(ch==="%"){ tokens.push({type:"pct", value:"%"}); i++; continue; }
+    i++;
+  }
+  return tokens;
+};
+
+const toRPN = (tokens) => {
+  const out=[], st=[];
+  for(let idx=0; idx<tokens.length; idx++){
+    const t=tokens[idx];
+    if(t.type==="num"){ out.push(t); continue; }
+    if(t.type==="pct"){ out.push(t); continue; }
+
+    if(t.type==="op"){
+      if(t.value==="-" && (idx===0 || (tokens[idx-1].type==="op") || (tokens[idx-1].type==="paren" && tokens[idx-1].value==="("))){
+        out.push({type:"num", value:"0"});
+      }
+      while(st.length){
+        const top=st[st.length-1];
+        if(top.type==="op" && precedence(top.value) >= precedence(t.value)){
+          out.push(st.pop());
+        }else break;
+      }
+      st.push(t);
+      continue;
+    }
+    if(t.type==="paren" && t.value==="("){ st.push(t); continue; }
+    if(t.type==="paren" && t.value===")"){
+      while(st.length && !(st[st.length-1].type==="paren" && st[st.length-1].value==="(")){
+        out.push(st.pop());
+      }
+      if(st.length && st[st.length-1].type==="paren") st.pop();
+      continue;
+    }
+  }
+  while(st.length) out.push(st.pop());
+  return out;
+};
+
+const evalRPN = (rpn) => {
+  const st=[];
+  for(const t of rpn){
+    if(t.type==="num"){
+      const v=Number(t.value);
+      if(!Number.isFinite(v)) return NaN;
+      st.push(v);
+      continue;
+    }
+    if(t.type==="pct"){
+      if(st.length<1) return NaN;
+      const a=st.pop();
+      st.push(a/100);
+      continue;
+    }
+    if(t.type==="op"){
+      if(st.length<2) return NaN;
+      const b=st.pop(), a=st.pop();
+      let r=NaN;
+      if(t.value==="+") r=a+b;
+      else if(t.value==="-") r=a-b;
+      else if(t.value==="*") r=a*b;
+      else if(t.value==="/") r=b===0 ? NaN : a/b;
+      st.push(r);
+      continue;
+    }
+  }
+  return st.length===1 ? st[0] : NaN;
+};
+
+const calcEvaluate = () => {
+  const cfg=elementSdk.getConfig();
+  const caps=elementSdk.mapToCapabilities(cfg);
+  const p=clamp(Number(cfg.precision ?? 2),0,8);
+
+  const lang = caps.calculator.displayLang;
+  const exprShown = calcExpr.trim() ? calcExpr : "—";
+  const memStr = formatNumber(calcMem, 2).replace(/\.0+$/,'');
+
+  document.getElementById("calcExpr").textContent = (lang==="fa" ? toPersianDigits(exprShown) : toLatinDigits(exprShown));
+  document.getElementById("memBadge").textContent = (lang==="fa" ? toPersianDigits(memStr) : toLatinDigits(memStr));
+
+  if(!calcExpr.trim()){
+    document.getElementById("calcResult").textContent = (lang==="fa" ? "۰" : "0");
+    return;
+  }
+
+  const val = (calcMode==="sci") ? safeEvalSci(calcExpr) : evalRPN(toRPN(tokenize(calcExpr)));
+  const out = Number.isFinite(val) ? formatNumber(val, p) : "—";
+  document.getElementById("calcResult").textContent = (lang==="fa" ? toPersianDigits(out) : toLatinDigits(out));
+};
+
+const calcPush = (k) => {
+  playClick();
+  const mapped = (k==="÷")?"/":(k==="×")?"*":(k==="٪")?"%":k;
+
+  if(mapped==="="){
+    const val = (calcMode==="sci") ? safeEvalSci(calcExpr) : evalRPN(toRPN(tokenize(calcExpr)));
+    if(!Number.isFinite(val)){
+      showToast("عبارت نامعتبر است.", "warn");
+      return;
+    }
+    const cfg=elementSdk.getConfig();
+    const p=clamp(Number(cfg.precision ?? 2),0,8);
+    calcExpr = formatNumber(val, p);
+    calcEvaluate();
+    return;
+  }
+
+  if(mapped==="DEL"){
+    calcExpr = calcExpr.slice(0, -1);
+    calcEvaluate();
+    return;
+  }
+
+  if(mapped==="MC"){ calcMem=0; calcEvaluate(); showToast("حافظه پاک شد.", "info"); return; }
+  if(mapped==="MR"){ calcExpr += String(calcMem); calcEvaluate(); return; }
+  if(mapped==="M+" || mapped==="M-"){
+    const val=evalRPN(toRPN(tokenize(calcExpr)));
+    if(!Number.isFinite(val)){ showToast("برای حافظه، ابتدا یک عبارت معتبر وارد کنید.", "warn"); return; }
+    calcMem += (mapped==="M+") ? val : -val;
+    calcEvaluate();
+    showToast("حافظه به‌روزرسانی شد.", "ok");
+    return;
+  }
+
+  // کلیدهای مهندسی
+  if(calcMode==="sci"){
+    const sciTokens = ["pi","e","^","sqrt(","cbrt(","sin(","cos(","tan(","asin(","acos(","atan(","ln(","log(","abs(","exp(","pow(",",",")"];
+    if(sciTokens.includes(mapped)){
+      calcExpr += (mapped==="^" ? "^" : mapped);
+      calcEvaluate();
+      return;
+    }
+  }
+
+  const norm = toLatinDigits(mapped);
+  const allowed = /[0-9+\-*/().%]/;
+  if(norm.length===1 && allowed.test(norm)){
+    calcExpr += norm;
+    calcEvaluate();
+  }
+};
+const calcClear = () => { playClick(); calcExpr=""; calcEvaluate(); };
+
+/* ========================= DateTime via TimeAPI.io (Iran Only + Analog) =========================
+   - دریافت زمان از TimeAPI.io (بدون اتکا به ساعت دستگاه برای زمان مطلق)
+   - ساخت یک "ساعت مرجع" و تیک محلی برای نمایش روان
+*/
+const TIMEAPI_BASE = "https://timeapi.io/api/Time/current/zone";
+const TZ_IR = "Asia/Tehran";
+const TZ_UTC = "Etc/UTC";
+
+
+const HOLIDAY_API = (jy,jm,jd)=>`https://holidayapi.ir/jalali/${jy}/${jm}/${jd}`;
+
+
+const setOccStatus = (state) => {
+  const hint = document.getElementById("occHint");
+  if(!hint) return;
+  if(state==="loading"){
+    hint.textContent = "در حال دریافت مناسبت‌های امروز…";
+    hint.className = "muted leading-7";
+  }else if(state==="ok"){
+    hint.textContent = "به‌روزرسانی شد ✅";
+    hint.className = "text-emerald-200 leading-7";
+  }else{
+    hint.textContent = "امکان دریافت مناسبت‌ها وجود ندارد.";
+    hint.className = "text-amber-200 leading-7";
+  }
+};
+
+
+
+
+const renderOccasions = (events, dayHoliday) => {
+  const listEl = document.getElementById("occList");
+  const badge = document.getElementById("occHolidayBadge");
+  if(!listEl) return;
+
+  if(badge){
+    badge.classList.toggle("hidden", !dayHoliday);
+    if(dayHoliday) badge.textContent = "تعطیل";
+  }
+
+  if(!events || events.length===0){
+    listEl.innerHTML = `<div class="muted leading-7">مناسبتی برای امروز ثبت نشده است.</div>`;
+    return;
+  }
+
+  const ul = document.createElement("ul");
+  ul.className = "space-y-2 leading-7";
+  events.forEach(ev=>{
+    const isH = !!ev.isHoliday;
+    const li = document.createElement("li");
+    li.className = `soft p-3 flex items-start justify-between gap-3 ${isH ? "border border-rose-400/30" : ""}`;
+    li.innerHTML = `
+      <div class="${isH ? "text-rose-200 font-semibold" : ""}">${escapeHtml(ev.title)}</div>
+      ${isH ? `<span class="text-rose-200 tiny font-bold">تعطیل</span>` : ``}
+    `;
+    ul.appendChild(li);
+  });
+
+  listEl.innerHTML = "";
+  listEl.appendChild(ul);
+};
+
+
+
+let occCacheKey = "";
+const fetchOccasions = async (jy,jm,jd) => {
+  const key = `${jy}/${jm}/${jd}`;
+  if(key===occCacheKey) return;
+  occCacheKey = key;
+  try{
+    const res = await fetch(HOLIDAY_API(jy,jm,jd), { cache:"no-store" });
+    if(!res.ok) throw new Error("bad_status");
+    const data = await res.json();
+    renderOccasions(data);
+  }catch{
+    // در صورت خطا، این بخش خالی می‌ماند
+    const list = document.getElementById("occList");
+    if(list) list.innerHTML = `<div class="muted tiny">امکان دریافت مناسبت‌ها وجود ندارد.</div>`;
+    const badge = document.getElementById("occHolidayBadge");
+    if(badge) badge.classList.add("hidden");
+  }
+};
+
+
+let timeTicker = {
+  irBaseEpochMs: null,
+  utcBaseEpochMs: null,
+  fetchedPerfMs: null,
+  lastPayloadIR: null,
+  lastPayloadUTC: null
+};
+
+const pad2 = (n) => String(n).padStart(2,"0");
+
+const fmtMaybeFaDigits = (s) => {
+  const cfg = elementSdk.getConfig();
+  if(s==null || s==="—") return "—";
+  return cfg.enable_persian_digits ? toPersianDigits(String(s)) : String(s);
+};
+
+const gregorianToJalali = (gy, gm, gd) => {
+  const g_d_m = [0,31,59,90,120,151,181,212,243,273,304,334];
+  let jy;
+  if (gy > 1600) { jy = 979; gy -= 1600; } else { jy = 0; gy -= 621; }
+  const gy2 = (gm > 2) ? (gy + 1) : gy;
+  let days = 365*gy
+    + Math.floor((gy2 + 3)/4)
+    - Math.floor((gy2 + 99)/100)
+    + Math.floor((gy2 + 399)/400)
+    - 80
+    + gd
+    + g_d_m[gm-1];
+  jy += 33 * Math.floor(days / 12053);
+  days %= 12053;
+  jy += 4 * Math.floor(days / 1461);
+  days %= 1461;
+  if (days > 365) {
+    jy += Math.floor((days - 1) / 365);
+    days = (days - 1) % 365;
+  }
+  const jm = (days < 186) ? (1 + Math.floor(days / 31)) : (7 + Math.floor((days - 186) / 30));
+  const jd = 1 + ((days < 186) ? (days % 31) : ((days - 186) % 30));
+  return { jy, jm, jd };
+};
+
+const buildTimeString = (h,m,s) => `${pad2(h)}:${pad2(m)}:${pad2(s)}`;
+
+
+let analogBuilt = false;
+
+const buildAnalogSvgOnce = () => {
+  if (analogBuilt) return;
+  const svg = document.getElementById("analogSvg");
+  if (!svg) return;
+
+  const NS = "http://www.w3.org/2000/svg";
+  const ticksG = document.getElementById("analogTicks");
+  const numsG  = document.getElementById("analogNums");
+
+  // Clear (in case of hot reload)
+  ticksG.innerHTML = "";
+  numsG.innerHTML = "";
+
+  // Ticks
+  for (let i = 0; i < 60; i++) {
+    const ang = (i * 6) * Math.PI / 180;
+    const isMajor = (i % 5 === 0);
+    const r1 = isMajor ? 80 : 84;
+    const r2 = 92;
+
+    const x1 = 100 + Math.sin(ang) * r1;
+    const y1 = 100 - Math.cos(ang) * r1;
+    const x2 = 100 + Math.sin(ang) * r2;
+    const y2 = 100 - Math.cos(ang) * r2;
+
+    const line = document.createElementNS(NS, "line");
+    line.setAttribute("x1", x1.toFixed(2));
+    line.setAttribute("y1", y1.toFixed(2));
+    line.setAttribute("x2", x2.toFixed(2));
+    line.setAttribute("y2", y2.toFixed(2));
+    line.setAttribute("stroke-width", isMajor ? "3" : "1.8");
+    line.setAttribute("class", isMajor ? "analogTick analogTickMajor" : "analogTick");
+    ticksG.appendChild(line);
+  }
+
+  // Numbers (1..12)
+  for (let n = 1; n <= 12; n++) {
+    const ang = (n * 30) * Math.PI / 180;
+    const r = 64;
+    const x = 100 + Math.sin(ang) * r;
+    const y = 100 - Math.cos(ang) * r;
+
+    const t = document.createElementNS(NS, "text");
+    t.setAttribute("x", x.toFixed(2));
+    t.setAttribute("y", y.toFixed(2));
+    t.setAttribute("class", "analogNum");
+    t.textContent = n;
+    numsG.appendChild(t);
+  }
+
+  analogBuilt = true;
+};
+
+const setHandRotation = (el, deg) => {
+  if (!el) return;
+  el.setAttribute("transform", `rotate(${deg} 100 100)`);
+};
+
+const renderAnalog = (h, m, s) => {
+  buildAnalogSvgOnce();
+
+  // Normalize
+  const hh = ((Number(h) % 12) + 12) % 12;
+  const mm = ((Number(m) % 60) + 60) % 60;
+  const ss = ((Number(s) % 60) + 60) % 60;
+
+  // Angles
+  const hourDeg = hh * 30 + mm * 0.5 + ss * (0.5 / 60);
+  const minDeg  = mm * 6  + ss * 0.1;
+  const secDeg  = ss * 6;
+
+  setHandRotation(document.getElementById("handHour"), hourDeg);
+  setHandRotation(document.getElementById("handMin"),  minDeg);
+  setHandRotation(document.getElementById("handSec"),  secDeg);
+};
+
+
+const renderTimeUI = (payload, h, m, s) => {
+  // دیجیتال
+  document.getElementById("timeIR").textContent = fmtMaybeFaDigits(buildTimeString(h,m,s));
+
+  // تاریخ
+  if(payload){
+    const g = `${payload.year}-${pad2(payload.month)}-${pad2(payload.day)}`;
+    document.getElementById("todayGreg").textContent = fmtMaybeFaDigits(g);
+
+    const j = gregorianToJalali(payload.year, payload.month, payload.day);
+    const jStr = `${j.jy}/${pad2(j.jm)}/${pad2(j.jd)}`;
+    document.getElementById("todayJalali").textContent = fmtMaybeFaDigits(jStr);
+    fetchOccasions(j.jy, j.jm, j.jd);
+  }
+
+  // بروزرسانی
+  const up = buildTimeString(h,m,s);
+  document.getElementById("timeUpdatedAt").textContent = fmtMaybeFaDigits(up);
+
+  // آنالوگ
+  renderAnalog(h,m,s);
+};
+
+const setTimeStatus = (kind, text) => {
+  const el = document.getElementById("timeStatusText");
+  if(!el) return;
+  if(kind==="ok") el.className="tiny text-emerald-200";
+  else if(kind==="warn") el.className="tiny text-amber-200";
+  else el.className="tiny text-rose-200";
+  el.textContent = text || "—";
+};
+
+const fetchTimeApiZone = async (timeZone) => {
+  const url = `${TIMEAPI_BASE}?timeZone=${encodeURIComponent(timeZone)}`;
+  const res = await fetch(url, { cache:"no-store" });
   if(!res.ok) throw new Error("bad_status");
   const data = await res.json();
-  // prefer dateTime (ISO) if present
-  const iso = data.dateTime || `${data.year}-${pad2(data.month)}-${pad2(data.day)}T${pad2(data.hour)}:${pad2(data.minute)}:${pad2(data.seconds||0)}`;
-  const ms = Date.parse(iso);
-  if(!Number.isFinite(ms)) throw new Error("bad_payload");
-  return {data, ms};
-}
-
-async function syncTime(){
-  try{
-    $("timeStatus").textContent="در حال همگام‌سازی…";
-    const utc = await fetchTimeAPI(TZ_UTC);
-    // store base
-    timeSync.ok=true;
-    timeSync.perf0 = performance.now();
-    timeSync.utcMillis = utc.ms;
-    timeSync.lastSyncText = nowFaTime();
-    $("dtSync").textContent = timeSync.lastSyncText;
-    $("timeStatus").textContent="✓ همگام شد";
-  }catch{
-    timeSync.ok=false;
-    $("timeStatus").textContent="خطا در اتصال";
-  }
-}
-function getNowUTCInstant(){
-  if(!timeSync.ok || !Number.isFinite(timeSync.utcMillis)) return null;
-  return timeSync.utcMillis + (performance.now() - timeSync.perf0);
-}
-function formatInTZ(ms, tz, opt){
-  return new Intl.DateTimeFormat("fa-IR", {timeZone: tz, ...opt}).format(new Date(ms));
-}
-function partsInTZ(ms, tz){
-  const parts = new Intl.DateTimeFormat("en-US", {
-    timeZone: tz, hour12:false,
-    year:"numeric", month:"2-digit", day:"2-digit",
-    hour:"2-digit", minute:"2-digit", second:"2-digit"
-  }).formatToParts(new Date(ms));
-  const obj={};
-  parts.forEach(p=>{ if(p.type!=="literal") obj[p.type]=p.value; });
-  return {
-    y:Number(obj.year), mo:Number(obj.month), d:Number(obj.day),
-    hh:Number(obj.hour), mm:Number(obj.minute), ss:Number(obj.second)
-  };
-}
-function renderClock(){
-  const ms = getNowUTCInstant();
-  if(ms==null) return;
-
-  // Tehran
-  const ir = partsInTZ(ms, TZ_IR);
-  const utc = partsInTZ(ms, TZ_UTC);
-
-  $("dtIR").textContent = toFaDigits(`${pad2(ir.hh)}:${pad2(ir.mm)}:${pad2(ir.ss)}`);
-  $("dtUTC").textContent = toFaDigits(`${pad2(utc.hh)}:${pad2(utc.mm)}:${pad2(utc.ss)}`);
-
-  // Gregorian date (Tehran)
-  const g = `${ir.y}-${pad2(ir.mo)}-${pad2(ir.d)}`;
-  $("dtG").textContent = toFaDigits(g);
-
-  // Jalali date
-  const j = jalaliFromGregorian(ir.y, ir.mo, ir.d);
-  $("dtJ").textContent = toFaDigits(`${j.jy}/${pad2(j.jm)}/${pad2(j.jd)}`);
-
-  // Analog hands
-  const sec = ir.ss;
-  const min = ir.mm + sec/60;
-  const hr = (ir.hh%12) + min/60;
-
-  const degS = sec*6;       // 360/60
-  const degM = min*6;
-  const degH = hr*30;
-
-  $("handS").style.transform = `translate(-50%,-100%) rotate(${degS}deg)`;
-  $("handM").style.transform = `translate(-50%,-100%) rotate(${degM}deg)`;
-  $("handH").style.transform = `translate(-50%,-100%) rotate(${degH}deg)`;
-}
-let __clockLast = 0;
-function buildClockFace(){
-  const el = $("analogClock");
-  if(!el) return;
-
-  // Determine size (responsive)
-  const rect = el.getBoundingClientRect();
-  const size = Math.max(240, Math.min(380, rect.width || 320));
-  if (Math.abs(size - __clockLast) < 2 && el.querySelector(".num")) return; // already built for this size
-  __clockLast = size;
-
-  // Clear old marks
-  el.querySelectorAll(".tick,.num").forEach(n => n.remove());
-
-  const R = size/2;
-  const tickR = R - 18;   // tick ring radius
-  const numR  = R - 52;   // number radius
-
-  // Scale hand lengths/thicknesses
-  const hourLen = R * 0.42;
-  const minLen  = R * 0.60;
-  const secLen  = R * 0.70;
-
-  $("handH").style.height = `${hourLen}px`;
-  $("handM").style.height = `${minLen}px`;
-  $("handS").style.height = `${secLen}px`;
-
-  $("handH").style.width = `${Math.max(7, R*0.05)}px`;
-  $("handM").style.width = `${Math.max(5, R*0.035)}px`;
-  $("handS").style.width = `${Math.max(2, R*0.02)}px`;
-
-  // Create ticks
-  for(let i=0;i<60;i++){
-    const t=document.createElement("div");
-    t.className="tick"+(i%5===0?" big":"");
-    // Place at center and rotate, then push outward
-    t.style.left="50%";
-    t.style.top="50%";
-    t.style.transform = `translateX(-50%) rotate(${i*6}deg) translateY(${-tickR}px)`;
-    el.appendChild(t);
-  }
-
-  // Create numbers 1..12
-  for(let n=1;n<=12;n++){
-    const angle=(n*30-90)*Math.PI/180;
-    const x=R + Math.cos(angle)*numR;
-    const y=R + Math.sin(angle)*numR;
-    const d=document.createElement("div");
-    d.className="num";
-    d.style.left=`${x}px`;
-    d.style.top =`${y}px`;
-    d.textContent = n;
-    el.appendChild(d);
-  }
-
-  // Brand text position stays relative
-  const brand = el.querySelector(".clockBrand");
-  if(brand){
-    brand.style.bottom = `${Math.max(16, R*0.18)}px`;
-  }
-}
-buildClockFace();
-syncTime();
-setInterval(syncTime, 5*60*1000);
-setInterval(renderClock, 250); // smooth
-renderClock();
-  // Rebuild clock marks on resize (fixes mobile/desktop scaling issues)
-  window.addEventListener('resize', ()=>requestAnimationFrame(buildClockFace));
-
-/* ========================= Events (simple: Nager for Iran? fallback message) =========================
-   NOTE: Reliable Persian holiday APIs often need keys.
-   We try a public JSON from GitHub (raw) with CORS, else fallback.
-*/
-async function loadEvents(){
-  const box=$("eventsBox");
-  const ms = getNowUTCInstant();
-  if(ms==null){ box.textContent="—"; return; }
-
-  // Tehran date
-  const ir = partsInTZ(ms, TZ_IR);
-  const iso = `${ir.y}-${pad2(ir.mo)}-${pad2(ir.d)}`;
-
-  // Try a lightweight public source (may fail depending on CORS)
-  const candidates = [
-    // Example community list (may change): kept as best-effort
-    `https://raw.githubusercontent.com/ashkanrad/iranian-holidays/master/holidays.json`,
-  ];
-
-  for(const url of candidates){
-    try{
-      const res = await fetch(url, {cache:"no-store"});
-      if(!res.ok) throw new Error("bad");
-      const data = await res.json();
-      // data: array or object - best effort
-      let items = [];
-      if(Array.isArray(data)){
-        items = data.filter(x => (x.date===iso || x.gregorian===iso || x.iso===iso));
-      }else if(typeof data==="object" && data){
-        if(Array.isArray(data[iso])) items = data[iso];
-        else if(data[iso]) items = [data[iso]];
-      }
-      if(!items.length) { box.innerHTML = `<div class="muted tiny">مناسبتی برای امروز ثبت نشده.</div>`; return; }
-
-      const rows = items.slice(0,10).map(it=>{
-        const title = (it.title || it.name || it.event || JSON.stringify(it)).toString();
-        const isHoliday = !!(it.holiday || it.isHoliday || it.off);
-        return `<div class="mt-1 ${isHoliday?'text-rose-200 font-bold':''}">
-          • ${escapeHtml(title)} ${isHoliday ? '<span class="mr-2">(تعطیل)</span>':''}
-        </div>`;
-      }).join("");
-      box.innerHTML = rows;
-      return;
-    }catch{}
-  }
-
-  box.innerHTML = `<div class="muted tiny">فعلاً منبع مناسبت‌ها در دسترس نیست. (می‌تونم اگر یک API/JSON مطمئن معرفی کنی، دقیقاً وصلش کنم.)</div>`;
-}
-setInterval(loadEvents, 10*60*1000);
-loadEvents();
-
-/* ========================= Crypto (CoinGecko + FX USD->IRR) ========================= */
-const COINS = [
-  {id:"bitcoin",   nxSrc:"btc",  sym:"BTC",  name:"بیت‌کوین",     icon:"₿"},
-  {id:"ethereum",  nxSrc:"eth",  sym:"ETH",  name:"اتریوم",       icon:"◆"},
-  {id:"tether",    nxSrc:"usdt", sym:"USDT", name:"تتر",          icon:"₮"},
-  {id:"toncoin",   nxSrc:"ton",  sym:"TON",  name:"تون",          icon:"◈"},
-  {id:"tron",      nxSrc:"trx",  sym:"TRX",  name:"ترون",         icon:"◎"},
-  {id:"pax-gold",  nxSrc:"paxg", sym:"PAXG", name:"طلای دیجیتال", icon:"⟡"},
-];
-
-// ---- Robust fetch helpers (CORS-friendly) ----
-async function fetchTextAny(url, {timeout=12000} = {}){
-  const targets = [
-    {name:"direct", u:url},
-    // Jina AI proxy returns the remote content with permissive CORS in most cases.
-    {name:"jina", u:`https://r.jina.ai/${url}`},
-    // AllOrigins raw proxy (best-effort).
-    {name:"allorigins", u:`https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`}
-  ];
-  let lastErr = null;
-  for (const t of targets){
-    try{
-      const ctrl = new AbortController();
-      const id = setTimeout(()=>ctrl.abort(), timeout);
-      const res = await fetch(t.u, {cache:"no-store", signal: ctrl.signal});
-      clearTimeout(id);
-      if(!res.ok) throw new Error(`${t.name}_bad_status_${res.status}`);
-      const txt = await res.text();
-      if(!txt || txt.length < 2) throw new Error(`${t.name}_empty`);
-      return txt;
-    }catch(e){
-      lastErr = e;
-    }
-  }
-  throw lastErr || new Error("fetch_failed");
-}
-async function fetchJSONAny(url, opts){
-  const txt = await fetchTextAny(url, opts);
-  // Sometimes proxies prepend BOM / whitespace
-  const clean = txt.replace(/^\uFEFF/, "").trim();
-  return JSON.parse(clean);
-}
-
-async function fetchNobitexStats(src, dst){
-  const url = `https://api.nobitex.ir/market/stats?srcCurrency=${encodeURIComponent(src)}&dstCurrency=${encodeURIComponent(dst)}`;
-  const data = await fetchJSONAny(url, {timeout: 12000});
-  // Expected: {status:"ok", stats:{ "btc-rls": {latest, ...}}}
+  if(!data || typeof data.year !== "number" || typeof data.hour !== "number") throw new Error("bad_payload");
   return data;
-}
+};
 
-// ---- TGJU parsing helpers (robust to schema changes) ----
-function extractTGJURecords(payload){
-  const out = [];
-  const seen = new Set();
+// تبدیل تقریبی داده دریافتی به epoch برای تیک روان
+const payloadToEpochMsApprox = (p) => {
+  // p.dateTime معمولاً رشته ISO است. اگر نبود، با اجزا می‌سازیم.
+  if(p.dateTime){
+    const t = Date.parse(p.dateTime);
+    if(Number.isFinite(t)) return t;
+  }
+  // fallback: ساخت به صورت UTC با فرض اینکه اجزا مربوط به همان zone هستند.
+  // برای نمایش، ما فقط با اختلاف ثانیه جلو می‌رویم؛ در نتیجه حتی اگر آفست دقیق نباشد،
+  // ساعت دیجیتال از روی خود اجزا نمایش داده می‌شود.
+  return Date.now();
+};
 
-  const walk = (obj) => {
-    if(!obj || typeof obj !== "object") return;
-
-    // candidate record
-    const title = obj.title || obj.name || obj.label || obj.slug || obj.symbol;
-    const price = obj.p ?? obj.price ?? obj.value ?? obj.last ?? obj.current ?? obj.latest;
-    const change = obj.dp ?? obj.change_percent ?? obj.percent ?? obj.changePercent ?? obj.change;
-    const high = obj.high ?? obj.max ?? obj.high24 ?? obj.dayHigh;
-    const low  = obj.low  ?? obj.min ?? obj.low24  ?? obj.dayLow;
-
-    if(title && (price!=null) && (typeof price==="number" || typeof price==="string")){
-      const t = String(title).trim();
-      const pr = Number(String(price).replace(/[^\d\.\-]/g,""));
-      if(Number.isFinite(pr)){
-        const id = t+"|"+pr;
-        if(!seen.has(id)){
-          seen.add(id);
-          out.push({
-            title: t,
-            price: pr,
-            changePct: (change!=null && !Number.isNaN(Number(change))) ? Number(change) : null,
-            high: (high!=null && !Number.isNaN(Number(high))) ? Number(high) : null,
-            low:  (low!=null && !Number.isNaN(Number(low)))  ? Number(low) : null,
-          });
-        }
-      }
-    }
-
-    for (const k in obj){
-      if(Object.prototype.hasOwnProperty.call(obj,k)){
-        const v = obj[k];
-        if(Array.isArray(v)) v.forEach(walk);
-        else if(typeof v === "object") walk(v);
-      }
-    }
-  };
-
-  walk(payload);
-  return out;
-}
-
-function makeIranRow(label, code, rec){
-  if(!rec) return null;
-  return {
-    label,
-    code,
-    price: rec.price,
-    changePct: rec.changePct,
-    high: rec.high,
-    low: rec.low,
-    source: "TGJU"
-  };
-}
-
-
-let fx = { usdIrr:null, updatedAt:"—" };
-let coinState = {}; // id -> {usd, chg24, min7, max7, series7:[...], updatedAt}
-
-function coinRowSkeleton(c){
-  return `
-  <div class="soft p-3 flex items-center justify-between gap-3 flex-wrap">
-    <div class="flex items-center gap-3 min-w-[220px]">
-      <div class="w-10 h-10 rounded-2xl grad flex items-center justify-center text-lg font-extrabold">${escapeHtml(c.icon)}</div>
-      <div>
-        <div class="font-extrabold">${escapeHtml(c.name)} <span class="muted tiny">(${escapeHtml(c.sym)})</span></div>
-        <div class="muted tiny">کمینه/بیشینه ۷ روز: <span id="mm-${c.id}">—</span></div>
-      </div>
-    </div>
-
-    <div class="flex items-center gap-3">
-      <div class="text-left">
-        <div class="muted tiny">قیمت لحظه‌ای</div>
-        <div class="text-xl font-extrabold" id="p-${c.id}">—</div>
-      </div>
-      <div class="text-left">
-        <div class="muted tiny">تغییر ۲۴ساعت</div>
-        <div class="font-extrabold" id="c-${c.id}">—</div>
-      </div>
-      <div class="hidden md:block">
-        <canvas class="spark" id="s-${c.id}" width="220" height="72"></canvas>
-      </div>
-    </div>
-  </div>`;
-}
-function renderCryptoGrid(){
-  $("cryptoGrid").innerHTML = COINS.map(coinRowSkeleton).join("");
-}
-renderCryptoGrid();
-
-async function fetchUsdIrr(){
-  // USD ≈ USDT in Iran market; use Nobitex USDT/RLS as the most reliable live rate for our conversions
+const fetchTimeApi = async () => {
   try{
-    const st = await fetchNobitexStats("usdt","rls");
-    const rls = st?.lastPrice ? Number(st.lastPrice) : NaN;
-    return Number.isFinite(rls) ? rls : null;
-  }catch(_){
-    return null;
-  }
-}
-
-async function fetchCoinLive(){
-  const ids = COINS.map(c=>c.id).join(",");
-  const url = `https://api.coingecko.com/api/v3/simple/price?ids=${encodeURIComponent(ids)}&vs_currencies=usd&include_24hr_change=true&include_last_updated_at=true`;
-  const res = await fetch(url, {cache:"no-store"});
-  if(!res.ok) throw new Error("cg_live_fail");
-  const j = await res.json();
-
-  COINS.forEach(c=>{
-    const it = j[c.id];
-    if(!it) return;
-    const usd = Number(it.usd);
-    const chg = Number(it.usd_24h_change);
-    const upd = Number(it.last_updated_at)*1000;
-    coinState[c.id] = {...(coinState[c.id]||{}), usd, chg24: chg, liveAt: upd};
-  });
-}
-
-async function fetchCoin7d(coinId){
-  const url = `https://api.coingecko.com/api/v3/coins/${encodeURIComponent(coinId)}/market_chart?vs_currency=usd&days=7&interval=hourly`;
-  const res = await fetch(url, {cache:"no-store"});
-  if(!res.ok) throw new Error("cg_7d_fail");
-  const j = await res.json();
-  const prices = (j?.prices||[]).map(p=>Number(p[1])).filter(Number.isFinite);
-  if(!prices.length) throw new Error("no_prices");
-  const min7 = Math.min(...prices);
-  const max7 = Math.max(...prices);
-  coinState[coinId] = {...(coinState[coinId]||{}), series7: prices, min7, max7, seriesAt: Date.now()};
-}
-
-function spark(canvasId, series){
-  const c = document.getElementById(canvasId);
-  if(!c || !c.getContext) return;
-  const ctx = c.getContext("2d");
-  const w = c.width, h = c.height;
-  ctx.clearRect(0,0,w,h);
-
-  if(!series || series.length<2){
-    ctx.globalAlpha=.5;
-    ctx.fillText("—", 6, 20);
-    return;
-  }
-  const min = Math.min(...series);
-  const max = Math.max(...series);
-  const range = Math.max(1e-9, max-min);
-
-  // line
-  ctx.lineWidth = 3;
-  ctx.lineJoin = "round";
-  ctx.lineCap = "round";
-
-  // subtle grid
-  ctx.globalAlpha = 0.12;
-  ctx.strokeStyle = "#ffffff";
-  for(let i=1;i<=3;i++){
-    const y = (h/4)*i;
-    ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(w,y); ctx.stroke();
-  }
-  ctx.globalAlpha = 1;
-
-  const accent = getComputedStyle(document.documentElement).getPropertyValue("--primary") || "#38bdf8";
-  ctx.strokeStyle = accent.trim();
-
-  ctx.beginPath();
-  for(let i=0;i<series.length;i++){
-    const x = (i/(series.length-1))*(w-10) + 5;
-    const y = h - (((series[i]-min)/range)*(h-14) + 7);
-    if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
-  }
-  ctx.stroke();
-
-  // last dot
-  const last = series[series.length-1];
-  const lx = w-5;
-  const ly = h - (((last-min)/range)*(h-14) + 7);
-  ctx.fillStyle = accent.trim();
-  ctx.beginPath(); ctx.arc(lx, ly, 4.5, 0, Math.PI*2); ctx.fill();
-}
-
-function renderAllSparks(){
-  COINS.forEach(c=>{
-    const s = coinState[c.id]?.series7;
-    spark(`s-${c.id}`, s);
-  });
-}
-
-function renderCoinUI(){
-  const irr = fx.usdIrr;
-  COINS.forEach(c=>{
-    const st = coinState[c.id] || {};
-    const priceEl = $(`p-${c.id}`);
-    const chgEl = $(`c-${c.id}`);
-    const mmEl = $(`mm-${c.id}`);
-
-    // price
-    if(Number.isFinite(st.usd) && Number.isFinite(irr)){
-      const toman = st.usd * irr / 10;
-      priceEl.textContent = `${formatMoney(toman)} تومان`;
-    }else{
-      priceEl.textContent = "—";
-    }
-
-    // change 24h
-    if(Number.isFinite(st.chg24)){
-      const up = st.chg24 >= 0;
-      chgEl.className = "font-extrabold " + (up ? "text-emerald-300" : "text-rose-300");
-      chgEl.innerHTML = `${up ? "▲" : "▼"} ${fmtPct(Math.abs(st.chg24))}%`;
-    }else{
-      chgEl.className = "font-extrabold";
-      chgEl.textContent = "—";
-    }
-
-    // min/max
-    if(Number.isFinite(st.min7) && Number.isFinite(st.max7) && Number.isFinite(irr)){
-      const minT = st.min7*irr/10, maxT = st.max7*irr/10;
-      mmEl.textContent = `${formatMoney(minT)} تا ${formatMoney(maxT)} تومان`;
-    }else{
-      mmEl.textContent = "—";
-    }
-  });
-
-  renderAllSparks();
-}
-
-async function refreshCrypto(all=false){
-  try{
-    $("cryptoStatus").textContent = "در حال دریافت…";
-    const okFx = await fetchUsdIrr();
-    if(!okFx) $("cryptoHint").textContent = "نرخ دلار پیدا نشد؛ بدون آن امکان تبدیل به تومان نیست.";
-    else $("cryptoHint").textContent = "";
-
-    await fetchCoinLive();
-
-    if(all){
-      // fetch 7d in parallel (limited)
-      for(const c of COINS){
-        try{ await fetchCoin7d(c.id); }catch{}
-      }
-    }else{
-      // refresh 7d occasionally (every 30 minutes)
-      const now=Date.now();
-      for(const c of COINS){
-        const st=coinState[c.id];
-        if(!st?.seriesAt || (now - st.seriesAt) > 30*60*1000){
-          try{ await fetchCoin7d(c.id); }catch{}
-        }
-      }
-    }
-
-    renderCoinUI();
-    $("cryptoStatus").textContent = "✓ به‌روز شد ("+nowFaTime()+")";
-  }catch(e){
-    $("cryptoStatus").textContent = "خطا در دریافت";
-    $("cryptoHint").textContent = "اگر مشکل ادامه داشت، محدودیت/اختلال سرویس یا اینترنت است. چند دقیقه بعد دوباره امتحان کنید.";
-  }
-}
-
-$("cryptoRefresh").addEventListener("click", ()=>refreshCrypto(true));
-refreshCrypto(true);
-setInterval(()=>refreshCrypto(false), 15*1000);
-
-/* ========================= Iran Market (FX-based, best-effort metals) ========================= */
-const IR_ITEMS = [
-  {key:"EUR", name:"یورو", icon:"€"},
-  {key:"GBP", name:"پوند انگلیس", icon:"£"},
-  {key:"TRY", name:"لیر ترکیه", icon:"₺"},
-  {key:"AED", name:"درهم امارات", icon:"د.إ"},
-  {key:"XAU", name:"طلا جهانی (اونس) ~", icon:"Au"},
-  {key:"XAG", name:"نقره جهانی (اونس) ~", icon:"Ag"},
-];
-let fxRates = { base:"USD", rates:null, at:null };
-let metals = { xauUsd:null, xagUsd:null, at:null };
-
-function iranRow(it, valueText, note=""){
-  return `<div class="soft p-3 flex items-center justify-between gap-3 flex-wrap">
-    <div class="flex items-center gap-3">
-      <div class="w-10 h-10 rounded-2xl grad flex items-center justify-center font-extrabold">${escapeHtml(it.icon)}</div>
-      <div>
-        <div class="font-extrabold">${escapeHtml(it.name)}</div>
-        <div class="muted tiny">${escapeHtml(note)}</div>
-      </div>
-    </div>
-    <div class="text-left">
-      <div class="muted tiny">قیمت</div>
-      <div class="text-xl font-extrabold">${valueText}</div>
-    </div>
-  </div>`;
-}
-function renderIranGrid(){
-  const irr = fx.usdIrr;
-  const rates = fxRates.rates;
-  const out=[];
-  if(Number.isFinite(irr) && rates){
-    // For 1 unit of currency in USD:
-    // rates.X is X per USD. so 1 X = 1/rates.X USD
-    const calc = (code)=>{
-      const perUsd = Number(rates[code]); // currency per 1 USD
-      if(!Number.isFinite(perUsd) || perUsd<=0) return null;
-      const usdPer1 = 1/perUsd;
-      return usdPer1 * irr / 10;
-    };
-    for(const it of IR_ITEMS){
-      if(["EUR","GBP","TRY","AED"].includes(it.key)){
-        const t = calc(it.key);
-        out.push(iranRow(it, t?`${formatMoney(t)} تومان`:"—", "تبدیل از نرخ جهانی"));
-      }
-    }
-  }else{
-    out.push(`<div class="soft p-3 muted tiny">برای نمایش قیمت‌های بازار ایران، ابتدا باید نرخ USD→IRR دریافت شود.</div>`);
-  }
-
-  // Metals best-effort
-  if(Number.isFinite(fx.usdIrr)){
-    const irr = fx.usdIrr;
-    const xau = metals.xauUsd;
-    const xag = metals.xagUsd;
-    const xauT = Number.isFinite(xau) ? xau*irr/10 : NaN;
-    const xagT = Number.isFinite(xag) ? xag*irr/10 : NaN;
-    out.push(iranRow(IR_ITEMS.find(x=>x.key==="XAU"), Number.isFinite(xauT)?`${formatMoney(xauT)} تومان`:"—", "تقریبی (اونس جهانی)"));
-    out.push(iranRow(IR_ITEMS.find(x=>x.key==="XAG"), Number.isFinite(xagT)?`${formatMoney(xagT)} تومان`:"—", "تقریبی (اونس جهانی)"));
-  }
-
-  $("iranGrid").innerHTML = out.join("");
-}
-
-async function fetchFxRates(){
-  // re-use USD base sources for more currencies too
-  const sources = [
-    {url:"https://api.exchangerate-api.com/v4/latest/USD", parse:(j)=>j?.rates},
-    {url:"https://open.er-api.com/v6/latest/USD", parse:(j)=>j?.rates},
-  ];
-  for(const s of sources){
-    try{
-      const res = await fetch(s.url, {cache:"no-store"});
-      if(!res.ok) throw new Error("bad");
-      const j = await res.json();
-      const rates = s.parse(j);
-      if(rates && typeof rates==="object"){
-        fxRates.rates = rates;
-        fxRates.at = nowFaTime();
-        return true;
-      }
-    }catch{}
-  }
-  fxRates.rates = null;
-  return false;
-}
-
-async function fetchMetals(){
-  // Best effort; may fail due to CORS on some endpoints
-  const sources = [
-    // metals.live sometimes offers free spot JSON
-    {url:"https://api.metals.live/v1/spot", parse:(j)=>{
-      // expected: [["gold", 2030.12], ["silver", 22.3], ...]
-      if(!Array.isArray(j)) return null;
-      const m = Object.fromEntries(j.map(x=>[String(x[0]).toLowerCase(), Number(x[1])]));
-      return {xau: m.gold, xag: m.silver};
-    }},
-  ];
-  for(const s of sources){
-    try{
-      const res = await fetch(s.url, {cache:"no-store"});
-      if(!res.ok) throw new Error("bad");
-      const j = await res.json();
-      const got = s.parse(j);
-      if(got && Number.isFinite(got.xau)){
-        metals.xauUsd = got.xau;
-        metals.xagUsd = Number(got.xag);
-        metals.at = nowFaTime();
-        return true;
-      }
-    }catch{}
-  }
-  metals.xauUsd = null;
-  metals.xagUsd = null;
-  return false;
-}
-
-async function refreshIran(all=false){
-  const started = Date.now();
-  const btn = $("iranRefresh");
-  if(btn){ btn.disabled = true; btn.textContent = "در حال بروزرسانی…"; }
-  $("iranStatus").textContent = "در حال دریافت قیمت‌های بازار ایران (TGJU)…";
-  $("iranHint").textContent = "اگر چیزی نمایش داده نشد، VPN/اینترنت را بررسی کنید.";
-
-  try{
-    const batch = async (batchName) => {
-    const url = `https://api.tgju.org/v1/market/newsearch?batch=${encodeURIComponent(batchName)}&module=markets.internal`;
-    const data = await fetchJSONAny(url, {timeout: 12000});
-    return data;
-  };
-
-    const results = await Promise.allSettled([
-      batch("internal_currency"),
-      batch("internal_gold"),
-      batch("coin"),
-      batch("silver")
+    setTimeStatus("warn","در حال دریافت…");
+    const [ir, utc] = await Promise.all([
+      fetchTimeApiZone(TZ_IR),
+      fetchTimeApiZone(TZ_UTC)
     ]);
 
-    const records = [];
-    for (const res of results){
-      if(res.status==="fulfilled") records.push(...extractTGJURecords(res.value));
-    }
+    timeTicker.lastPayloadIR = ir;
+    timeTicker.lastPayloadUTC = utc;
+    timeTicker.irBaseEpochMs = payloadToEpochMsApprox(ir);
+    timeTicker.utcBaseEpochMs = payloadToEpochMsApprox(utc);
+    timeTicker.fetchedPerfMs = performance.now();
 
-    const pick = (rxList) => {
-      for (const rx of rxList){
-        const hit = records.find(r => rx.test(r.title));
-        if(hit) return hit;
-      }
-      return null;
-    };
+    // نمایش اولیه (مستقیم از روی hour/minute/seconds)
+    renderTimeUI(ir, ir.hour, ir.minute, ir.seconds ?? 0);
+    const utcText = `${pad2(utc.hour)}:${pad2(utc.minute)}:${pad2(utc.seconds ?? 0)}`;
+    const utcEl = document.getElementById("timeUTC");
+    if(utcEl) utcEl.textContent = fmtMaybeFaDigits(utcText);
 
-    // Note: TGJU prices are usually in ریال. We display تومان by default.
-    const toToman = (v) => (v!=null && Number.isFinite(v)) ? v/10 : null;
-
-    const usd = pick([/دلار/i, /USD/i]);
-    const eur = pick([/یورو/i, /EUR/i]);
-    const gbp = pick([/پوند/i, /GBP/i, /انگلیس/i]);
-    const aed = pick([/درهم/i, /AED/i, /امارات/i]);
-    const tryy = pick([/لیر/i, /TRY/i, /ترکی/i]);
-    const gold18 = pick([/۱۸\s*عیار/i, /۱۸عیار/i, /طلای\s*۱۸/i]);
-    const seke = pick([/سکه\s*امامی/i, /سکه\s*تمام/i, /امامی/i]);
-    const silver = pick([/نقره/i, /Silver/i]);
-
-    const out = [];
-    const add = (key, rec, note="TGJU") => {
-      const it = IR_ITEMS.find(x=>x.key===key);
-      if(!it || !rec) return;
-      const t = toToman(rec.price);
-      const ch = rec.changePct;
-      const arrow = (ch==null) ? "•" : (ch>0 ? "▲" : (ch<0 ? "▼" : "■"));
-      const chTxt = (ch==null) ? "" : ` ${arrow} ${toFaDigits(Math.abs(ch).toFixed(2))}%`;
-      out.push(iranRow(it, t?`${formatMoney(t)} تومان`:"—", note + chTxt));
-    };
-
-    add("USD", usd);
-    add("EUR", eur);
-    add("GBP", gbp);
-    add("TRY", tryy);
-    add("AED", aed);
-    add("G18", gold18);
-    add("SEKE", seke);
-    add("AG", silver);
-
-    $("iranGrid").innerHTML = out.length ? out.join("") : `<div class="note">⚠️ داده‌ای دریافت نشد. (ممکن است سرویس TGJU یا اینترنت محدود باشد)</div>`;
-
-    const elapsed = Math.round((Date.now()-started)/1000);
-    $("iranStatus").textContent = out.length ? `✅ بروزرسانی شد • ${toFaDigits(elapsed)} ثانیه` : "⚠️ دریافت داده ناموفق بود.";
-  }catch(err){
-    console.error(err);
-    $("iranStatus").textContent = "❌ خطا در دریافت بازار ایران. اینترنت/VPN را بررسی کنید.";
-  }finally{
-    if(btn){ btn.disabled=false; btn.textContent="به‌روزرسانی"; }
+    setTimeStatus("ok","به‌روزرسانی شد ✅");
+  }catch{
+    setTimeStatus("err","خطا در دریافت اطلاعات.");
   }
-}
+};
 
+const tickTime = () => {
+  const ir = timeTicker.lastPayloadIR;
+  const utc = timeTicker.lastPayloadUTC;
+  if(!ir || !utc){ return; }
 
-$("iranRefresh").addEventListener("click", ()=>refreshIran(true));
-refreshIran(true);
-setInterval(()=>refreshIran(false), 60*1000);
+  const elapsed = Math.max(0, Math.floor((performance.now() - timeTicker.fetchedPerfMs)/1000));
 
-/* ========================= Weather (NO GPS) ========================= */
-const PROVINCES = [
-  ["تهران", 35.6892, 51.3890],
-  ["مشهد (خراسان رضوی)", 36.2605, 59.6168],
-  ["اصفهان", 32.6539, 51.6660],
-  ["شیراز (فارس)", 29.5918, 52.5837],
-  ["تبریز (آذربایجان شرقی)", 38.0962, 46.2738],
-  ["رشت (گیلان)", 37.2808, 49.5832],
-  ["اهواز (خوزستان)", 31.3183, 48.6706],
-  ["کرج (البرز)", 35.8400, 50.9391],
-  ["قم", 34.6416, 50.8746],
-  ["کرمان", 30.2839, 57.0834],
-  ["یزد", 31.8974, 54.3569],
-  ["ارومیه (آذربایجان غربی)", 37.5527, 45.0760],
-  ["همدان", 34.7983, 48.5148],
-  ["کرمانشاه", 34.3142, 47.0650],
-  ["قزوین", 36.2688, 50.0041],
-  ["ساری (مازندران)", 36.5633, 53.0601],
-  ["سنندج (کردستان)", 35.3149, 46.9988],
-  ["زاهدان (سیستان‌وبلوچستان)", 29.4963, 60.8629],
-  ["بندرعباس (هرمزگان)", 27.1832, 56.2666],
-  ["بوشهر", 28.9220, 50.8203],
-  ["اراک (مرکزی)", 34.0954, 49.7013],
-  ["گرگان (گلستان)", 36.8456, 54.4393],
-  ["بجنورد (خراسان شمالی)", 37.4750, 57.3304],
-  ["بیرجند (خراسان جنوبی)", 32.8649, 59.2262],
-  ["خرم‌آباد (لرستان)", 33.4878, 48.3558],
-  ["زنجان", 36.6736, 48.4787],
-  ["شهرکرد (چهارمحال)", 32.3256, 50.8644],
-  ["یاسوج (کهگیلویه)", 30.6682, 51.5880],
-  ["ایلام", 33.6374, 46.4227],
-  ["اردبیل", 38.2498, 48.2933],
-  ["سمنان", 35.5729, 53.3971],
-  ["قشم (گزینه جایگزین)", 26.9581, 56.2719],
+  const baseSecIR = (ir.hour*3600) + (ir.minute*60) + (ir.seconds ?? 0);
+  const curIR = baseSecIR + elapsed;
+  const hIR = Math.floor(curIR/3600) % 24;
+  const mIR = Math.floor((curIR%3600)/60);
+  const sIR = curIR%60;
+
+  renderTimeUI(ir, hIR, mIR, sIR);
+
+  const baseSecUTC = (utc.hour*3600) + (utc.minute*60) + (utc.seconds ?? 0);
+  const curUTC = baseSecUTC + elapsed;
+  const hU = Math.floor(curUTC/3600) % 24;
+  const mU = Math.floor((curUTC%3600)/60);
+  const sU = curUTC%60;
+  const utcText = `${pad2(hU)}:${pad2(mU)}:${pad2(sU)}`;
+  const utcEl = document.getElementById("timeUTC");
+  if(utcEl) utcEl.textContent = fmtMaybeFaDigits(utcText);
+};
+
+/* ========================= Crypto (Nobitex) =========================
+   - دریافت قیمت لحظه‌ای از API عمومی نوبیتکس (Orderbook)
+   - بازارهای *IRT معمولاً قیمت را به «ریال» برمی‌گردانند؛ اینجا برای نمایش «تومان» عدد را ÷10 می‌کنیم.
+   - به‌روزرسانی هوشمند: هر 15 ثانیه + توقف وقتی تب مخفی است
+   منابع: مستندات API نوبیتکس
+*/
+const NOBITEX_ORDERBOOK = (symbol)=>`https://apiv2.nobitex.ir/v3/orderbook/${encodeURIComponent(symbol)}`;
+
+const CRYPTO_MARKETS = [
+  { key:"BTC",  symbol:"BTCIRT",  name:"بیت‌کوین",          icon:"btc"  },
+  { key:"ETH",  symbol:"ETHIRT",  name:"اتریوم",            icon:"eth"  },
+  { key:"USDT", symbol:"USDTIRT", name:"تتر",               icon:"usdt" },
+  { key:"TON",  symbol:"TONIRT",  name:"تون",               icon:"ton"  },
+  { key:"TRX",  symbol:"TRXIRT",  name:"ترون",              icon:"trx"  },
+  { key:"PAXG", symbol:"PAXGIRT", name:"طلای دیجیتال (PAXG)", icon:"paxg" },
 ];
 
-let wx = { city:null, lat:null, lon:null, last:null };
+const cryptoEl = {
+  grid: () => document.getElementById("cryptoGrid"),
+  status: () => document.getElementById("cryptoStatusText"),
+  updated: () => document.getElementById("cryptoUpdatedAt"),
+};
 
-function wxDescribe(code){
-  if(code===0) return "صاف";
-  if(code===1) return "عمدتاً صاف";
-  if(code===2) return "نیمه ابری";
-  if(code===3) return "ابری";
-  if([45,48].includes(code)) return "مه/غبار";
-  if([51,53,55].includes(code)) return "نم‌نم باران";
-  if([61,63,65].includes(code)) return "بارانی";
-  if([71,73,75,77].includes(code)) return "برفی";
-  if([80,81,82].includes(code)) return "رگبار";
-  if([95,96,99].includes(code)) return "طوفان/رعدوبرق";
-  return "نامشخص";
-}
+const cryptoSvg = (k) => {
+  const common = 'width="28" height="28" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg"';
+  if(k==="btc") return `<svg ${common}><circle cx="32" cy="32" r="28" fill="#F7931A"/><path d="M37.6 19.6c2.2.6 3.6 2 3.9 4.5.4 3.1-1.3 5.2-4 6.2 3.3 1.1 5.3 3.4 4.7 7.2-.7 4.2-4 6-8.4 6.4v5h-3.1v-4.8h-2.5v4.8H25v-5c-.6 0-1.2 0-1.8-.1l-3.8-.2.6-3.7 2.2.1c.8.1 1.3-.2 1.5-.9V22.7c-.1-.5-.4-.9-1.1-.9l-2.2-.1.6-3.6 4 .2h1v-5h3.2v5h2.5v-5h3.1v5.2c1 .1 2 .3 2.8.5Zm-8.3 9.6 4.2.2c2.1 0 3.9-.6 4.2-2.8.3-2.1-1.2-3-3-3.2l-5.4-.3v6.1Zm0 14.1 5.2.3c2.6.1 4.7-.7 5.1-3.3.4-2.5-1.3-3.6-3.7-3.8l-6.6-.4v7.2Z" fill="#0B1220"/></svg>`;
+  if(k==="eth") return `<svg ${common}><circle cx="32" cy="32" r="28" fill="#627EEA"/><path d="M32 10l12 20-12 7-12-7 12-20Zm0 29 12-7-12 17-12-17 12 7Z" fill="#0B1220" opacity=".95"/></svg>`;
+  if(k==="usdt") return `<svg ${common}><circle cx="32" cy="32" r="28" fill="#26A17B"/><path d="M39 18H25v6c-5.4.7-9.5 2.3-9.5 4.2 0 1.9 4.1 3.5 9.5 4.2v13h14V36.6c5.4-.7 9.5-2.3 9.5-4.2 0-1.9-4.1-3.5-9.5-4.2V18Zm-7 18.2c-6.1 0-11-.9-11-2 0-1.1 4.9-2 11-2s11 .9 11 2c0 1.1-4.9 2-11 2Zm0-6.1c-3.9 0-7.1-.4-7.1-.9s3.2-.9 7.1-.9 7.1.4 7.1.9-3.2.9-7.1.9Z" fill="#0B1220" opacity=".95"/></svg>`;
+  if(k==="ton") return `<svg ${common}><circle cx="32" cy="32" r="28" fill="#0098EA"/><path d="M32 16c-7 0-14 2.9-14 8.3 0 3.7 3 7.1 7.4 10.7l3.9 3.2c1.5 1.2 3.9 1.2 5.4 0l3.9-3.2c4.4-3.6 7.4-7 7.4-10.7C46 18.9 39 16 32 16Zm0 20.7-4.3-3.6c-3.6-3-5.7-5.3-5.7-7.8 0-2.6 4-4.7 10-4.7s10 2.1 10 4.7c0 2.5-2.1 4.8-5.7 7.8L32 36.7Z" fill="#0B1220" opacity=".95"/></svg>`;
+  if(k==="trx") return `<svg ${common}><circle cx="32" cy="32" r="28" fill="#EF0027"/><path d="M18 18l28 5-10 28-18-33Zm8.8 7.6 9.2 7.5 6.2-8.7-15.4 1.2Zm7.1 10.9-7.8-6.4 8.9 16.5 5.8-16.2-6.9 6.1Z" fill="#0B1220" opacity=".95"/></svg>`;
+  if(k==="paxg") return `<svg ${common}><circle cx="32" cy="32" r="28" fill="#D4AF37"/><path d="M32 15c6.2 0 11 3 11 8 0 5.6-4.4 11.6-11 26-6.6-14.4-11-20.4-11-26 0-5 4.8-8 11-8Zm0 5.5a4.6 4.6 0 1 0 0 9.2 4.6 4.6 0 0 0 0-9.2Z" fill="#0B1220" opacity=".95"/></svg>`;
+  return `<div class="w-7 h-7 rounded-xl grad"></div>`;
+};
 
-function wxRenderEmpty(){
-  $("wxCurrent").textContent="—";
-  $("wxKpi").textContent="—";
-  $("wxHourly").textContent="—";
-  $("wxDaily").textContent="—";
-}
+let cryptoTimer = null;
+let cryptoLastUpdated = null;
+let cryptoInFlight = false;
+let cryptoLastRows = [];
 
-async function wxFetch(lat, lon){
-  const url =
-    `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}`+
-    `&current_weather=true&timezone=auto`+
-    `&hourly=temperature_2m,weathercode,precipitation,windspeed_10m`+
-    `&daily=weathercode,temperature_2m_max,temperature_2m_min,precipitation_sum&forecast_days=7`;
+const toToman = (rial) => rial / 10;
 
-  const res = await fetch(url, {cache:"no-store"});
-  if(!res.ok) throw new Error("wx_fail");
-  return await res.json();
-}
+const formatMoneyFa = (n) => {
+  const cfg = elementSdk.getConfig();
+  if(!Number.isFinite(n)) return "—";
+  const s = Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  return cfg.enable_persian_digits ? toPersianDigits(s) : s;
+};
 
-function wxRender(data){
-  const cur = data.current_weather;
-  if(!cur){ wxRenderEmpty(); return; }
+const fetchMarket = async (symbol) => {
+  const res = await fetch(NOBITEX_ORDERBOOK(symbol), { cache:"no-store" });
+  if(!res.ok) throw new Error("bad_status");
+  const data = await res.json();
+  if(!data || data.status !== "ok") throw new Error("bad_payload");
+  const p = Number(data.lastTradePrice);
+  const u = Number(data.lastUpdate);
+  if(!Number.isFinite(p)) throw new Error("bad_price");
+  return { price: p, lastUpdate: u };
+};
 
-  const desc = wxDescribe(cur.weathercode);
-  const temp = Number(cur.temperature);
-  const wind = Number(cur.windspeed);
-
-  $("wxUpdated").textContent = nowFaTime();
-  $("wxCurrent").innerHTML = `
-    <div class="flex items-center justify-between gap-3 flex-wrap">
-      <div class="font-extrabold">${escapeHtml(wx.city||"—")} • ${escapeHtml(desc)}</div>
+const renderCrypto = (rows) => {
+  cryptoLastRows = rows;
+  const grid = cryptoEl.grid();
+  if(!grid) return;
+  grid.innerHTML = "";
+  rows.forEach(r=>{
+    const priceText = r.priceToman != null ? `${formatMoneyFa(r.priceToman)} تومان` : "—";
+    const card = document.createElement("div");
+    card.className = "cryptoCard soft p-3 rounded-2xl flex items-center justify-between gap-3";
+    card.innerHTML = `
+      <div class="flex items-center gap-3 min-w-0">
+        <div class="shrink-0">${cryptoSvg(r.icon)}</div>
+        <div class="min-w-0">
+          <div class="font-bold truncate">${escapeHtml(r.name)}</div>
+          <div class="muted tiny mt-0.5">${escapeHtml(r.key)} • ${escapeHtml(r.symbol)}</div>
+        </div>
+      </div>
       <div class="text-left">
-        <div class="text-4xl font-extrabold">${toFaDigits(temp.toFixed(1))}°C</div>
-        <div class="muted tiny">باد: ${toFaDigits(wind.toFixed(0))} km/h</div>
+        <div class="text-lg font-extrabold calcDisplay">${priceText}</div>
+        <button type="button" class="btn px-3 py-1.5 mt-2 soft focusable tiny" data-ccopy="${escapeHtml(r.key)}">کپی</button>
       </div>
-    </div>
-  `;
+    `;
+    grid.appendChild(card);
+  });
 
-  $("wxKpi").innerHTML = `
-    <div class="grid grid-cols-2 gap-2">
-      <div class="soft p-2">
-        <div class="muted tiny">کد وضعیت</div>
-        <div class="font-extrabold">${toFaDigits(cur.weathercode)}</div>
-      </div>
-      <div class="soft p-2">
-        <div class="muted tiny">ساعت محلی</div>
-        <div class="font-extrabold">${toFaDigits(new Date(cur.time).toLocaleTimeString("fa-IR",{hour:"2-digit",minute:"2-digit"}))}</div>
-      </div>
-    </div>
-  `;
+  grid.querySelectorAll("[data-ccopy]").forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      const k = btn.getAttribute("data-ccopy");
+      const row = rows.find(x=>x.key===k);
+      if(!row || row.priceToman==null){ showToast("چیزی برای کپی وجود ندارد.", "warn"); return; }
+      const txt = `${row.key}: ${Math.round(row.priceToman)} تومان`;
+      copyText(maybePersianForCopy(txt), "قیمت کپی شد ✅");
+    });
+  });
+};
 
-  // hourly next 24
-  const times = data.hourly.time;
-  const t2m = data.hourly.temperature_2m;
-  const wcode = data.hourly.weathercode;
-  const pr = data.hourly.precipitation;
-  const ws = data.hourly.windspeed_10m;
+const setCryptoStatus = (msg, type="info") => {
+  const el = cryptoEl.status();
+  if(!el) return;
+  el.className = "tiny " + (type==="ok" ? "text-emerald-200" : type==="err" ? "text-rose-200" : "text-amber-200");
+  el.textContent = msg;
+};
 
-  const nowIso = cur.time;
-  let start = times.indexOf(nowIso);
-  if(start<0) start=0;
-  const end = Math.min(start+24, times.length);
+const updateCrypto = async (force=false) => {
+  if(cryptoInFlight && !force) return;
+  cryptoInFlight = true;
 
-  let hhtml = `<div class="flex gap-2 overflow-auto pb-1">`;
-  for(let i=start;i<end;i++){
-    const d = new Date(times[i]);
-    const hh = String(d.getHours()).padStart(2,"0");
-    hhtml += `
-      <div class="soft p-2 min-w-[92px] text-center">
-        <div class="muted tiny">${toFaDigits(hh)}:۰۰</div>
-        <div class="font-extrabold">${toFaDigits(Number(t2m[i]).toFixed(0))}°</div>
-        <div class="muted tiny">${escapeHtml(wxDescribe(wcode[i]))}</div>
-        <div class="muted tiny">💧 ${toFaDigits(Number(pr[i]).toFixed(1))}</div>
-      </div>`;
-  }
-  hhtml += `</div>`;
-  $("wxHourly").innerHTML = hhtml;
-
-  // daily 7
-  const dtime = data.daily.time;
-  const tmax = data.daily.temperature_2m_max;
-  const tmin = data.daily.temperature_2m_min;
-  const dcode = data.daily.weathercode;
-  const dpr = data.daily.precipitation_sum;
-
-  let dhtml = `<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">`;
-  for(let i=0;i<Math.min(7,dtime.length);i++){
-    dhtml += `
-      <div class="soft p-3">
-        <div class="font-extrabold">${i===0?"امروز":toFaDigits(new Date(dtime[i]).toLocaleDateString("fa-IR",{weekday:"long"}))}</div>
-        <div class="muted tiny">${toFaDigits(new Date(dtime[i]).toLocaleDateString("fa-IR"))}</div>
-        <div class="mt-2">${escapeHtml(wxDescribe(dcode[i]))}</div>
-        <div class="muted tiny mt-1">کمینه ${toFaDigits(Number(tmin[i]).toFixed(0))}° / بیشینه ${toFaDigits(Number(tmax[i]).toFixed(0))}°</div>
-        <div class="muted tiny">بارش: ${toFaDigits(Number(dpr[i]).toFixed(1))}</div>
-      </div>`;
-  }
-  dhtml += `</div>`;
-  $("wxDaily").innerHTML = dhtml;
-}
-
-async function wxUpdate(){
-  if(wx.lat==null || wx.lon==null){
-    $("wxStatus").textContent="انتخاب شهر…";
-    return;
-  }
   try{
-    $("wxStatus").textContent="در حال دریافت…";
-    const data = await wxFetch(wx.lat, wx.lon);
-    wx.last = data;
-    wxRender(data);
-    $("wxStatus").textContent="✓ به‌روز شد ("+nowFaTime()+")";
+    setCryptoStatus("در حال دریافت قیمت‌ها…", "info");
+    const tasks = CRYPTO_MARKETS.map(async m=>{
+      try{
+        const d = await fetchMarket(m.symbol);
+        return { ...m, priceRaw: d.price, priceToman: toToman(d.price), lastUpdate: d.lastUpdate };
+      }catch{
+        return { ...m, priceRaw: null, priceToman: null, lastUpdate: null, _err:true };
+      }
+    });
+
+    const rows = await Promise.all(tasks);
+    renderCrypto(rows);
+
+    const last = rows.map(r=>r.lastUpdate).filter(Boolean).sort((a,b)=>b-a)[0];
+    cryptoLastUpdated = last ? new Date(last) : new Date();
+    const cfg = elementSdk.getConfig();
+    const ts = cryptoLastUpdated ? cryptoLastUpdated.toLocaleTimeString("fa-IR", {hour:"2-digit", minute:"2-digit", second:"2-digit"}) : "—";
+    const shown = cfg.enable_persian_digits ? ts : toLatinDigits(ts);
+
+    if(cryptoEl.updated()) cryptoEl.updated().textContent = shown;
+    setCryptoStatus("قیمت‌ها به‌روزرسانی شد ✅", "ok");
   }catch{
-    $("wxStatus").textContent="خطا";
-    $("wxCurrent").innerHTML = `<div class="text-rose-200 font-bold">خطا در گرفتن اطلاعات آب‌وهوا. اینترنت/فیلترشکن را بررسی کنید.</div>`;
+    setCryptoStatus("خطا در دریافت قیمت‌ها. اینترنت/دسترسی API را بررسی کنید.", "err");
+  }finally{
+    cryptoInFlight = false;
   }
-}
+};
 
-function setWxCity(name, lat, lon){
-  wx.city = name; wx.lat = lat; wx.lon = lon;
-  $("wxCity").textContent = name;
-  $("cityResults").innerHTML = "";
-  wxUpdate();
-}
+const startCryptoAuto = () => {
+  if(cryptoTimer) clearInterval(cryptoTimer);
+  cryptoTimer = setInterval(()=>{ if(!document.hidden) updateCrypto(); }, 15000);
+};
 
-function initProvinces(){
-  const sel=$("provinceSel");
-  sel.innerHTML = `<option value="">— انتخاب مرکز استان —</option>`;
-  PROVINCES.forEach((p, idx)=>{
+document.addEventListener("visibilitychange", ()=>{
+  if(!document.hidden) updateCrypto(true);
+});
+
+/* ========================= Settings helpers ========================= */
+const bindColorPair = (colorInput, textInput, key) => {
+  const syncFromColor = () => { textInput.value = colorInput.value; elementSdk.setConfig({[key]: colorInput.value}); };
+  const syncFromText = () => {
+    const v=textInput.value.trim();
+    if(/^#([0-9a-fA-F]{6})$/.test(v)){ colorInput.value=v; elementSdk.setConfig({[key]: v}); }
+    else showToast("کد رنگ نامعتبر است. مثل: #0b1220", "warn");
+  };
+  colorInput.addEventListener("input", syncFromColor);
+  textInput.addEventListener("change", syncFromText);
+};
+
+const syncSettingsForm = (cfg) => {
+  const setPair=(cId,tId,val)=>{
+    const c=document.getElementById(cId), t=document.getElementById(tId);
+    c.value = val; t.value = val;
+  };
+  setPair("bgColor","bgColorText", cfg.background_color);
+  setPair("surfaceColor","surfaceColorText", cfg.surface_color);
+  setPair("textColor","textColorText", cfg.text_color);
+  setPair("primaryColor","primaryColorText", cfg.primary_action);
+  setPair("secondaryColor","secondaryColorText", cfg.secondary_action);
+  setPair("gradA","gradAText", cfg.accent_gradient_start);
+  setPair("gradB","gradBText", cfg.accent_gradient_end);
+
+  document.getElementById("fontFamily").value = cfg.font_family;
+  document.getElementById("fontSize").value = cfg.font_size;
+  document.getElementById("fontSizeLabel").textContent = displayNum(cfg.font_size);
+
+  setToggleUI(document.getElementById("persianDigitsToggle"), document.getElementById("persianDigitsDot"), !!cfg.enable_persian_digits);
+  setToggleUI(document.getElementById("copyPersianToggle"), document.getElementById("copyPersianDot"), !!cfg.copy_with_persian_digits);
+
+  setToggleUI(document.getElementById("soundToggle"), document.getElementById("soundDot"), !!cfg.enable_click_sound);
+  document.getElementById("soundVolume").value = clamp(Number(cfg.click_volume ?? 30),0,100);
+  document.getElementById("soundVolumeLabel").textContent = displayNum(clamp(Number(cfg.click_volume ?? 30),0,100));
+
+  document.getElementById("calcDisplayLang").value = (cfg.calculator_display_lang==="en" ? "en" : "fa");
+  updateCalculatorDigitLabels(document.getElementById("calcDisplayLang").value);
+};
+
+/* ========================= INIT ========================= */
+(function init(){
+  const cfg=elementSdk.getConfig();
+  applyConfig(cfg);
+  bindNav();
+
+  const hash=(location.hash||"").replace("#","");
+  showPage(pages.includes(hash)?hash:"converter");
+
+  // categories
+  const catSel=document.getElementById("categorySel");
+  CATEGORIES.forEach(c=>{
     const o=document.createElement("option");
-    o.value = String(idx);
-    o.textContent = p[0];
-    sel.appendChild(o);
+    o.value=c.id; o.textContent=c.name;
+    catSel.appendChild(o);
   });
-  sel.addEventListener("change", ()=>{
-    const i = Number(sel.value);
-    if(!Number.isFinite(i)) return;
-    const p = PROVINCES[i];
-    if(!p) return;
-    setWxCity(p[0], p[1], p[2]);
-  });
-}
-initProvinces();
+  catSel.value = CATEGORIES[0].id;
+  setUnitsForCategory(catSel.value);
 
-$("citySearchBtn").addEventListener("click", async ()=>{
-  const q = ($("cityQuery").value||"").trim();
-  if(!q) return;
-  try{
-    $("wxStatus").textContent="در حال جستجو…";
-    const url = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(q)}&count=8&language=fa&format=json`;
-    const res = await fetch(url, {cache:"no-store"});
-    if(!res.ok) throw new Error("geo_fail");
-    const j = await res.json();
-    const arr = j?.results || [];
-    if(!arr.length){
-      $("cityResults").innerHTML = `<div class="soft p-3 muted tiny">نتیجه‌ای پیدا نشد.</div>`;
-      $("wxStatus").textContent="نام شهر را دقیق‌تر وارد کنید.";
-      return;
+  // converter events
+  document.getElementById("valueInput").addEventListener("input", computeConverter);
+  document.getElementById("fromUnitSel").addEventListener("change", ()=>{ state.fromLabel = document.getElementById("fromUnitSel").value; computeConverter(); });
+  document.getElementById("toUnitSel").addEventListener("change", ()=>{ state.toLabel = document.getElementById("toUnitSel").value; computeConverter(); });
+  document.getElementById("swapBtn").addEventListener("click", swapUnits);
+  catSel.addEventListener("change", ()=>{
+    state.categoryId=catSel.value;
+    setUnitsForCategory(catSel.value);
+    showToast("دسته‌بندی تغییر کرد.", "info");
+  });
+
+  document.getElementById("precisionRange").addEventListener("input", (e)=>{
+    const v=clamp(Number(e.target.value),0,8);
+    document.getElementById("precisionLabel").textContent = displayNum(v);
+    elementSdk.setConfig({precision:v});
+  });
+
+  document.getElementById("copyResultBtn").addEventListener("click", ()=>{
+    const cfg=elementSdk.getConfig();
+    const cat=getCategory(catSel.value);
+    const toUnit=findUnitByLabel(cat, document.getElementById("toUnitSel").value);
+    const inputVal=safeNum(document.getElementById("valueInput").value);
+    const fromUnit=findUnitByLabel(cat, document.getElementById("fromUnitSel").value);
+    const toVal=convertValue(cat, inputVal, fromUnit, toUnit);
+    if(!Number.isFinite(toVal)){ showToast("چیزی برای کپی وجود ندارد.", "warn"); return; }
+    const txt = `${formatNumber(toVal, clamp(Number(cfg.precision??2),0,8))} ${toUnit.symbol}`;
+    copyText(maybePersianForCopy(txt), "نتیجه کپی شد ✅");
+  });
+
+  document.getElementById("uiPersianDigitsToggle").addEventListener("change", (e)=>{
+    elementSdk.setConfig({enable_persian_digits: e.target.checked});
+    showToast(e.target.checked ? "نمایش اعداد فارسی فعال شد." : "نمایش اعداد فارسی غیرفعال شد.", "info");
+  });
+
+  // health live
+  ["bmiWeight","bmiHeight","idealWeightToggle"].forEach(id=>document.getElementById(id).addEventListener("input", computeBMIUI));
+  ["sexSel","ageInput","calHeight","calWeight","activitySel","goalSel"].forEach(id=>document.getElementById(id).addEventListener("input", computeCaloriesUI));
+
+  // lab helper init
+  const labTypeSel = document.getElementById("labType");
+  if(labTypeSel){
+    labTypeSel.innerHTML = "";
+    LAB_TESTS.forEach(t=>{
+      const o=document.createElement("option");
+      o.value=t.id; o.textContent=t.name;
+      labTypeSel.appendChild(o);
+    });
+    labTypeSel.value = LAB_TESTS[0].id;
+    ["labType","labValue","labSex"].forEach(id=>{
+      const el=document.getElementById(id);
+      if(el) el.addEventListener("input", computeLabUI);
+      if(el) el.addEventListener("change", computeLabUI);
+    });
+    const copyLabBtn = document.getElementById("copyLabBtn");
+    if(copyLabBtn) copyLabBtn.addEventListener("click", ()=>{
+      if(!labLastText){ showToast("چیزی برای کپی وجود ندارد.", "warn"); return; }
+      copyText(maybePersianForCopy(labLastText), "نتیجه کپی شد ✅");
+    });
+    computeLabUI();
+  }
+
+  document.getElementById("copyBmiBtn").addEventListener("click", ()=>{
+    const cfg=elementSdk.getConfig();
+    const w=safeNum(document.getElementById("bmiWeight").value);
+    const h=safeNum(document.getElementById("bmiHeight").value);
+    const bmi=calculateBMI(w,h);
+    if(!Number.isFinite(bmi)){ showToast("ابتدا وزن و قد معتبر وارد کنید.", "warn"); return; }
+    const txt = `BMI: ${formatNumber(bmi, clamp(Number(cfg.precision??2),0,8))}`;
+    copyText(maybePersianForCopy(txt), "BMI کپی شد ✅");
+  });
+
+  document.getElementById("copyGoalBtn").addEventListener("click", ()=>{
+    const cfg=elementSdk.getConfig();
+    const sex=document.getElementById("sexSel").value;
+    const age=safeNum(document.getElementById("ageInput").value);
+    const h=safeNum(document.getElementById("calHeight").value);
+    const w=safeNum(document.getElementById("calWeight").value);
+    const activity=safeNum(document.getElementById("activitySel").value);
+    const goalAdj=safeNum(document.getElementById("goalSel").value);
+    const bmr=calculateBMR(sex,w,h,age);
+    const tdee=calculateTDEE(bmr,activity);
+    const goal = Number.isFinite(tdee) ? tdee + (Number.isFinite(goalAdj)?goalAdj:0) : NaN;
+    if(!Number.isFinite(goal)){ showToast("ابتدا اطلاعات معتبر وارد کنید.", "warn"); return; }
+    const txt = `کالری هدف: ${formatNumber(goal, clamp(Number(cfg.precision??2),0,8))} کیلوکالری`;
+    copyText(maybePersianForCopy(txt), "کالری هدف کپی شد ✅");
+  });
+
+  // datetime (TimeAPI.io)
+  document.getElementById("timeRefreshBtn").addEventListener("click", ()=>{
+    buildAnalogSvgOnce();
+  fetchTimeApi();
+  tickTime();
+    showToast("درخواست به‌روزرسانی ارسال شد.", "info");
+  });
+  document.getElementById("timeCopyBtn").addEventListener("click", ()=>{
+    const j = toLatinDigits(document.getElementById("todayJalali").textContent);
+    const g = toLatinDigits(document.getElementById("todayGreg").textContent);
+    const ir = toLatinDigits(document.getElementById("timeIR").textContent);
+    const txt = `تاریخ شمسی: ${j}\nتاریخ میلادی: ${g}\nساعت ایران: ${ir}`;
+    copyText(maybePersianForCopy(txt), "اطلاعات کپی شد ✅");
+  });
+
+
+  // calculator pads (basic + scientific)
+  const bindCalcPad = (el) => {
+    if(!el) return;
+    el.addEventListener("click", (e)=>{
+      const btn = e.target.closest("[data-k]");
+      if(!btn) return;
+      calcPush(btn.dataset.k);
+    });
+  };
+  bindCalcPad(document.getElementById("calcPadBasic"));
+  bindCalcPad(document.getElementById("calcPadSci"));
+
+  document.getElementById("calcClearBtn").addEventListener("click", calcClear);
+  document.getElementById("calcCopyBtn").addEventListener("click", ()=>{
+    const out = document.getElementById("calcResult").textContent;
+    const raw = toLatinDigits(out);
+    if(raw==="—"){ showToast("چیزی برای کپی وجود ندارد.", "warn"); return; }
+    copyText(maybePersianForCopy(raw), "نتیجه ماشین حساب کپی شد ✅");
+  });
+  document.getElementById("calcModeBtn").addEventListener("click", ()=>{
+    setCalcMode(calcMode==="sci" ? "basic" : "sci");
+    showToast(calcMode==="sci" ? "حالت مهندسی فعال شد." : "حالت ساده فعال شد.", "info");
+  });
+
+  window.addEventListener("keydown", (e)=>{
+    const onCalc = !document.getElementById("page-calculator").classList.contains("hidden");
+    if(!onCalc) return;
+    const key=e.key;
+    if(key==="Enter"){ e.preventDefault(); calcPush("="); return; }
+    if(key==="Backspace"){ calcPush("DEL"); return; }
+    const allowed = "0123456789+-*/().%^,";
+    if(allowed.includes(key)){ calcPush(key); return; }
+  });
+
+
+  
+
+  
+  // crypto
+  updateCrypto(true);
+  startCryptoAuto();
+  const refreshBtn=document.getElementById("cryptoRefreshBtn");
+  if(refreshBtn) refreshBtn.addEventListener("click", ()=>updateCrypto(true));
+  const copyAllBtn=document.getElementById("cryptoCopyAllBtn");
+  if(copyAllBtn) copyAllBtn.addEventListener("click", ()=>{
+    if(!cryptoLastRows || !cryptoLastRows.length){ showToast("چیزی برای کپی وجود ندارد.", "warn"); return; }
+    const lines = cryptoLastRows.map(r=> r.priceToman==null ? `${r.key}: —` : `${r.key}: ${Math.round(r.priceToman)} تومان`);
+    copyText(maybePersianForCopy(lines.join("\n")), "همه قیمت‌ها کپی شد ✅");
+  });
+// settings bindings
+  bindColorPair(document.getElementById("bgColor"), document.getElementById("bgColorText"), "background_color");
+  bindColorPair(document.getElementById("surfaceColor"), document.getElementById("surfaceColorText"), "surface_color");
+  bindColorPair(document.getElementById("textColor"), document.getElementById("textColorText"), "text_color");
+  bindColorPair(document.getElementById("primaryColor"), document.getElementById("primaryColorText"), "primary_action");
+  bindColorPair(document.getElementById("secondaryColor"), document.getElementById("secondaryColorText"), "secondary_action");
+  bindColorPair(document.getElementById("gradA"), document.getElementById("gradAText"), "accent_gradient_start");
+  bindColorPair(document.getElementById("gradB"), document.getElementById("gradBText"), "accent_gradient_end");
+
+  document.getElementById("fontFamily").addEventListener("change", (e)=>elementSdk.setConfig({font_family: e.target.value}));
+  document.getElementById("fontSize").addEventListener("input", (e)=>{
+    const v=clamp(Number(e.target.value),13,20);
+    document.getElementById("fontSizeLabel").textContent = displayNum(v);
+    elementSdk.setConfig({font_size:v});
+  });
+
+  document.getElementById("persianDigitsToggle").addEventListener("change", (e)=>{
+    elementSdk.setConfig({enable_persian_digits: e.target.checked});
+    showToast(e.target.checked ? "نمایش اعداد فارسی فعال شد." : "نمایش اعداد فارسی غیرفعال شد.", "info");
+  });
+
+  document.getElementById("copyPersianToggle").addEventListener("change", (e)=>{
+    elementSdk.setConfig({copy_with_persian_digits: e.target.checked});
+    showToast(e.target.checked ? "کپی با اعداد فارسی فعال شد." : "کپی با اعداد فارسی غیرفعال شد.", "info");
+  });
+
+  document.getElementById("soundToggle").addEventListener("change", (e)=>{
+    elementSdk.setConfig({enable_click_sound: e.target.checked});
+    showToast(e.target.checked ? "صدای کلیک فعال شد." : "صدای کلیک غیرفعال شد.", "info");
+    if(e.target.checked){ ensureAudio(); playClick(); }
+  });
+
+  document.getElementById("soundVolume").addEventListener("input", (e)=>{
+    const v=clamp(Number(e.target.value),0,100);
+    document.getElementById("soundVolumeLabel").textContent = displayNum(v);
+    elementSdk.setConfig({click_volume:v});
+  });
+
+  document.getElementById("calcDisplayLang").addEventListener("change", (e)=>{
+    elementSdk.setConfig({calculator_display_lang: e.target.value});
+    showToast(e.target.value==="en" ? "نمایشگر ماشین حساب: انگلیسی" : "نمایشگر ماشین حساب: فارسی", "info");
+  });
+
+  document.getElementById("resetBtn").addEventListener("click", ()=>{
+    localStorage.removeItem("proUnitConverter.config");
+    elementSdk.setConfig({...defaultConfig});
+    showToast("تنظیمات بازنشانی شد.", "ok");
+  });
+
+  document.getElementById("exportConfig").addEventListener("click", ()=>{
+    const cfg = elementSdk.getConfig();
+    copyText(JSON.stringify(cfg, null, 2), "پیکربندی کپی شد ✅");
+  });
+
+  document.getElementById("importConfig").addEventListener("click", ()=>{
+    const raw = prompt("پیکربندی را وارد کنید (JSON):");
+    if(!raw) return;
+    try{
+      const parsed = JSON.parse(raw);
+      elementSdk.setConfig(parsed);
+      showToast("پیکربندی اعمال شد ✅", "ok");
+    }catch{
+      showToast("فرمت JSON نامعتبر است.", "err");
     }
-    $("cityResults").innerHTML = arr.map(r=>{
-      const name = `${r.name}${r.admin1 ? "، "+r.admin1 : ""}${r.country ? " ("+r.country+")" : ""}`;
-      return `<button class="btn soft px-3 py-2 text-right focusable" data-lat="${r.latitude}" data-lon="${r.longitude}" data-name="${escapeHtml(name)}">
-        <div class="font-bold">${escapeHtml(name)}</div>
-        <div class="muted tiny">مختصات: ${toFaDigits(r.latitude.toFixed(3))}, ${toFaDigits(r.longitude.toFixed(3))}</div>
-      </button>`;
-    }).join("");
-    $("wxStatus").textContent="یک مورد را انتخاب کنید.";
-  }catch{
-    $("wxStatus").textContent="خطا در جستجو";
-  }
-});
+  });
 
-$("cityResults").addEventListener("click", (e)=>{
-  const btn = e.target.closest("button[data-lat]");
-  if(!btn) return;
-  const lat = Number(btn.getAttribute("data-lat"));
-  const lon = Number(btn.getAttribute("data-lon"));
-  const name = btn.getAttribute("data-name") || "—";
-  if(Number.isFinite(lat) && Number.isFinite(lon)){
-    setWxCity(name, lat, lon);
-  }
-});
+  elementSdk.onConfigChange((newCfg)=>{
+    applyConfig(newCfg);
+    syncSettingsForm(newCfg);
+    computeConverter();
+    computeBMIUI();
+    computeCaloriesUI();
+    calcEvaluate();
+    tickTime();
+    renderCrypto(cryptoLastRows); // بروزرسانی نمایش (بدون درخواست جدید)
+  });
 
-$("wxRefresh").addEventListener("click", wxUpdate);
-wxRenderEmpty();
+  // initial renders
+  syncSettingsForm(cfg);
+  computeConverter();
+  computeBMIUI();
+  computeCaloriesUI();
+  calcEvaluate();
+  setCalcMode("basic");
+  tickTime();
+  updateCrypto(true);
+  startCryptoAuto();
 
-/* ========================= Calculator (simple + small scientific) ========================= */
-let calcMode = "simple";
-let expr = "";
-function calcRender(){
-  $("calcExpr").textContent = expr.trim() ? expr : "—";
-  let val = NaN;
-  try{
-    const safe = expr
-      .replace(/×/g,"*").replace(/÷/g,"/")
-      .replace(/π/g, String(Math.PI));
-    // basic sanitize
-    if(/[^0-9+\-*/().% \sA-Za-z]/.test(safe)) throw new Error("bad");
-    // percent: convert "x%" -> (x/100)
-    const replaced = safe.replace(/(\d+(\.\d+)?)%/g, "($1/100)");
-    // functions
-    const f = new Function("sin","cos","tan","sqrt","ln","log10","return ("+replaced+")");
-    val = f(Math.sin, Math.cos, Math.tan, Math.sqrt, Math.log, (x)=>Math.log10(x));
-  }catch{ val = NaN; }
-  $("calcRes").textContent = Number.isFinite(val) ? val.toLocaleString("en-US",{maximumFractionDigits:10}) : "—";
-}
-function push(k){
-  if(k==="="){
-    calcRender();
-    return;
-  }
-  if(k==="DEL"){
-    expr = expr.slice(0,-1);
-    calcRender();
-    return;
-  }
-  if(k==="pow2"){ expr += "**2"; calcRender(); return; }
-  if(k==="sqrt"){ expr += "sqrt("; calcRender(); return; }
-  if(k==="sin"){ expr += "sin("; calcRender(); return; }
-  if(k==="cos"){ expr += "cos("; calcRender(); return; }
-  if(k==="tan"){ expr += "tan("; calcRender(); return; }
-  if(k==="ln"){ expr += "ln("; calcRender(); return; }
-  if(k==="log"){ expr += "log10("; calcRender(); return; }
-  if(k==="pi"){ expr += "π"; calcRender(); return; }
+  // fetch time (TimeAPI.io)
+  fetchTimeApi();
+  setInterval(fetchTimeApi, 60 * 1000);
 
-  expr += k;
-  calcRender();
-}
-$("calcPad").addEventListener("click",(e)=>{
-  const b = e.target.closest("[data-k]");
-  if(!b) return;
-  const k=b.dataset.k;
-  push(k);
-});
-$("calcSci").addEventListener("click",(e)=>{
-  const b = e.target.closest("[data-k]");
-  if(!b) return;
-  const k=b.dataset.k;
-  push(k);
-});
-$("calcClear").addEventListener("click", ()=>{ expr=""; calcRender(); });
-$("calcModeBtn").addEventListener("click", ()=>{
-  calcMode = (calcMode==="simple") ? "sci" : "simple";
-  $("calcSci").classList.toggle("hidden", calcMode!=="sci");
-  $("calcModeBtn").textContent = "حالت: " + (calcMode==="sci" ? "مهندسی" : "ساده");
-});
-calcRender();
+  setInterval(tickTime, 250);
 
-/* ========================= Boot: make sure initial statuses look ok ========================= */
-$("cryptoStatus").textContent="در حال اتصال…";
-$("iranStatus").textContent="در حال اتصال…";
+  showToast("آماده‌ست! ✅", "ok");
+})();
 </script>
 </body>
 </html>
