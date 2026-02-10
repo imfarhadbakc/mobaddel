@@ -1,13 +1,14 @@
-<!doctype html>
-<html lang="fa" dir="rtl">
+<!DOCTYPE html>
+
+<html dir="rtl" lang="fa">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>codeisa</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- WebSocket (Socket.IO) برای دریافت قیمت لحظه‌ای رمزارزها از والکس -->
-  <script src="https://cdn.socket.io/2.5.0/socket.io.min.js"></script>
-  <style>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<title>codeisa</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<!-- WebSocket (Socket.IO) برای دریافت قیمت لحظه‌ای رمزارزها از والکس -->
+<script src="https://cdn.socket.io/2.5.0/socket.io.min.js"></script>
+<style>
     :root{
       --bg:#0b1220;
       --surface:#0f1b33;
@@ -165,827 +166,798 @@
 
 
     @font-face{font-family:"Sahel";src:url("https://cdn.jsdelivr.net/gh/rastikerdar/sahel-font@v3.4.0/dist/Farsi-Digits/Sahel-FD.woff2") format("woff2");font-weight:400;font-style:normal;font-display:swap;}
+
+/* Responsive fixes */
+*,*::before,*::after{box-sizing:border-box}
+html{scrollbar-gutter: stable;}
+/* prevent accidental horizontal scroll from long text/buttons */
+body{overflow-x:hidden}
+#topNav{gap:.5rem}
+/* make nav buttons wrap nicely on very small screens */
+#topNav .navBtn{white-space:nowrap}
+@media (max-width:420px){
+  #topNav{justify-content:center}
+  #topNav .navBtn{padding:.5rem .65rem;font-size:.85rem}
+  #logoBadge{width:44px;height:44px;border-radius:16px}
+}
+/* Weather hourly cards sizing */
+.weatherHourCard{min-width:78px; flex:0 0 auto}
+@media (min-width:768px){
+  .weatherHourCard{min-width:92px}
+}
+
+/* Hide horizontal scrollbar (mobile) */
+.scrollbar-hide::-webkit-scrollbar{display:none}
+.scrollbar-hide{-ms-overflow-style:none;scrollbar-width:none}
+/* Weather: tighter layout on small screens */
+@media (max-width:640px){
+  #page-weather .calcDisplay{letter-spacing:-.5px}
+  #page-weather #weatherCityTitle{font-size:1.25rem}
+  #page-weather #weatherTemp{display:inline-block;min-width:2.5ch}
+  #page-weather #weatherNarrative{align-items:flex-start;text-align:right}
+  #page-weather #weatherNarrative .tiny{font-size:.78rem}
+  #page-weather #weatherHourly{padding-bottom:.25rem}
+  #page-weather #weatherDaily{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
 </style>
 </head>
-
-<body class="min-h-screen">
-  <div class="w-full mx-auto max-w-none px-4 py-5 md:py-7">
-    <!-- Header -->
-    <header class="glass p-4 md:p-5 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-      <div class="flex items-center gap-3">
-        <div id="logoBadge" class="grad w-12 h-12 rounded-2xl flex items-center justify-center text-xl shadow"><svg aria-hidden="true" viewBox="0 0 64 64" width="28" height="28" class="drop-shadow"><defs><linearGradient id="lgCodeisa" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="var(--gradA)"></stop><stop offset="1" stop-color="var(--gradB)"></stop></linearGradient></defs><path d="M32 6c11 0 20 9 20 20v12c0 11-9 20-20 20S12 49 12 38V26c0-11 9-20 20-20Z" fill="url(#lgCodeisa)" opacity=".95"/><path d="M22 28h20v4H22zm0 10h14v4H22z" fill="rgba(6,16,31,.9)"/><path d="M44 22l6 6-6 6" fill="none" stroke="rgba(6,16,31,.9)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-        <div>
-          <h1 class="text-lg md:text-xl font-bold">codeisa</h1>
-          <p class="muted tiny">تبدیل دقیق واحدها + ابزارهای کاربردی</p>
-        </div>
-      </div>
-
-      <nav id="topNav" class="flex flex-wrap gap-2">
-        <button type="button" data-nav="converter" class="navBtn btn px-3.5 py-2 tabActive focusable">تبدیل واحدها</button>
-        <button type="button" data-nav="health" class="navBtn btn px-3.5 py-2 tabIdle focusable">محاسبات سلامتی</button>
-        <button type="button" data-nav="datetime" class="navBtn btn px-3.5 py-2 tabIdle focusable">تاریخ و ساعت</button>
-        <button type="button" data-nav="weather" class="navBtn btn px-3.5 py-2 tabIdle focusable">آب و هوا</button>
-        <button type="button" data-nav="crypto" class="navBtn btn px-3.5 py-2 tabIdle focusable">رمزارزها</button>
-        <button type="button" data-nav="calculator" class="navBtn btn px-3.5 py-2 tabIdle focusable">ماشین حساب</button>
-        <button type="button" data-nav="settings" class="navBtn btn px-3.5 py-2 tabIdle focusable">تنظیمات</button>
-        <button type="button" data-nav="help" class="navBtn btn px-3.5 py-2 tabIdle focusable">راهنما</button>
-      </nav>
-    </header>
-
-    <!-- Main -->
-    <main class="mt-5 md:mt-7">
-      <!-- Converter Page -->
-      <section id="page-converter" class="space-y-4 md:space-y-5">
-        <div class="grid md:grid-cols-3 gap-4 md:gap-5">
-          <div class="card p-4 md:p-5 md:col-span-2">
-            <div class="flex items-start justify-between gap-3">
-              <div>
-                <h2 class="text-base md:text-lg font-bold">تبدیل واحد</h2>
-                <p class="muted tiny mt-1">مقدار را وارد کنید، واحد مبدا و مقصد را انتخاب کنید. نتیجه فوری محاسبه می‌شود.</p>
-              </div>
-              <button type="button" id="swapBtn" class="btn px-3 py-2 soft focusable" title="جابجایی واحدها">
-                <span class="inline-flex items-center gap-2"><span>جابجایی</span> <span aria-hidden="true">⇄</span></span>
-              </button>
-            </div>
-
-            <div class="mt-4 grid sm:grid-cols-2 gap-3">
-              <div class="space-y-2">
-                <label class="tiny muted" for="categorySel">دسته‌بندی</label>
-                <select id="categorySel" class="w-full px-3 py-2.5 rounded-xl focusable"></select>
-              </div>
-
-              <div class="space-y-2">
-                <label class="tiny muted" for="precisionRange">دقت نمایش (اعشار)</label>
-                <div class="flex items-center gap-3">
-                  <input id="precisionRange" type="range" min="0" max="8" step="1" class="w-full" />
-                  <div id="precisionLabel" class="soft px-3 py-2 rounded-xl text-sm w-16 text-center">2</div>
-                </div>
-              </div>
-
-              <div class="space-y-2">
-                <label class="tiny muted" for="valueInput">مقدار</label>
-                <input id="valueInput" inputmode="decimal" autocomplete="off" placeholder="مثلاً 12.5" class="w-full px-3 py-2.5 rounded-xl focusable" />
-                <div id="valueHint" class="muted tiny">نکته: می‌توانید از نقطه برای اعشار استفاده کنید.</div>
-              </div>
-
-              <div class="space-y-2">
-                <label class="tiny muted" for="fromUnitSel">از</label>
-                <select id="fromUnitSel" class="w-full px-3 py-2.5 rounded-xl focusable"></select>
-              </div>
-
-              <div class="space-y-2">
-                <label class="tiny muted" for="toUnitSel">به</label>
-                <select id="toUnitSel" class="w-full px-3 py-2.5 rounded-xl focusable"></select>
-              </div>
-
-              <div class="space-y-2">
-                <label class="tiny muted">نتیجه</label>
-                <div class="soft p-3 rounded-xl flex items-center justify-between gap-2">
-                  <div>
-                    <div id="resultValue" class="text-lg md:text-xl font-bold">—</div>
-                    <div id="resultUnit" class="muted tiny mt-1">—</div>
-                  </div>
-                  <div class="flex gap-2">
-                    <button type="button" id="copyResultBtn" class="btn px-3 py-2 soft focusable">کپی</button>
-                  </div>
-                </div>
-                <div id="converterNote" class="muted tiny"></div>
-              </div>
-            </div>
-          </div>
-
-          <div class="card p-4 md:p-5">
-            <h3 class="font-bold">تبدیل‌های رایج</h3>
-            <p class="muted tiny mt-1">با یک کلیک، مقادیر نمونه را تنظیم کنید.</p>
-            <div id="quickGrid" class="mt-3 grid gap-2"></div>
-
-            <div class="mt-4 soft p-3">
-              <div class="flex items-center justify-between gap-2">
-                <span class="tiny muted">نمایش اعداد فارسی</span>
-                <label class="inline-flex items-center cursor-pointer">
-                  <input id="uiPersianDigitsToggle" type="checkbox" class="sr-only">
-                  <span class="w-12 h-7 rounded-full relative soft">
-                    <span id="uiPersianDigitsDot" class="absolute top-1 right-1 w-5 h-5 rounded-full grad transition-all"></span>
-                  </span>
-                </label>
-              </div>
-              <div class="muted tiny mt-2">کپی معمولاً با اعداد استاندارد انجام می‌شود.</div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- Health Page -->
-      <section id="page-health" class="hidden space-y-4 md:space-y-5">
-        <div class="grid lg:grid-cols-2 gap-4 md:gap-5">
-          <div class="card p-4 md:p-5">
-            <div class="flex items-start justify-between gap-3">
-              <div>
-                <h2 class="text-base md:text-lg font-bold">شاخص توده بدنی (BMI)</h2>
-                <p class="muted tiny mt-1">BMI = وزن / (قد به متر)^۲</p>
-              </div>
-              <button type="button" id="copyBmiBtn" class="btn px-3 py-2 soft focusable">کپی</button>
-            </div>
-
-            <div class="mt-4 grid sm:grid-cols-2 gap-3">
-              <div class="space-y-2">
-                <label class="tiny muted" for="bmiWeight">وزن (کیلوگرم)</label>
-                <input id="bmiWeight" inputmode="decimal" placeholder="مثلاً 72.5" class="w-full px-3 py-2.5 rounded-xl focusable" />
-                <div class="muted tiny">وزن فعلی خود را وارد کنید.</div>
-              </div>
-              <div class="space-y-2">
-                <label class="tiny muted" for="bmiHeight">قد (سانتی‌متر)</label>
-                <input id="bmiHeight" inputmode="decimal" placeholder="مثلاً 175" class="w-full px-3 py-2.5 rounded-xl focusable" />
-                <div class="muted tiny">قد بدون کفش.</div>
-              </div>
-            </div>
-
-            <div class="mt-3 soft p-3 rounded-xl">
-              <div class="flex items-center justify-between gap-2">
-                <div>
-                  <div class="muted tiny">نتیجه</div>
-                  <div class="text-xl font-bold"><span id="bmiValue">—</span></div>
-                  <div class="muted tiny mt-1">وضعیت: <span id="bmiCat" class="font-semibold">—</span></div>
-                </div>
-                <label class="inline-flex items-center gap-2 cursor-pointer">
-                  <input id="idealWeightToggle" type="checkbox" class="w-4 h-4 rounded focusable">
-                  <span class="tiny">نمایش وزن ایده‌آل</span>
-                </label>
-              </div>
-              <div id="idealWeightBox" class="hidden mt-2 muted tiny">
-                محدوده وزن سالم: <span id="idealWeightRange" class="font-semibold"></span> کیلوگرم
-              </div>
-              <div id="bmiWarn" class="mt-2 hidden tiny"></div>
-            </div>
-          </div>
-
-          <div class="card p-4 md:p-5">
-            <div class="flex items-start justify-between gap-3">
-              <div>
-                <h2 class="text-base md:text-lg font-bold">محاسبه کالری روزانه</h2>
-                <p class="muted tiny mt-1">BMR و TDEE و کالری هدف بر اساس Mifflin–St Jeor</p>
-              </div>
-              <button type="button" id="copyGoalBtn" class="btn px-3 py-2 soft focusable">کپی کالری هدف</button>
-            </div>
-
-            <div class="mt-4 grid sm:grid-cols-2 gap-3">
-              <div class="space-y-2">
-                <label class="tiny muted" for="sexSel">جنسیت</label>
-                <select id="sexSel" class="w-full px-3 py-2.5 rounded-xl focusable">
-                  <option value="male">مرد</option>
-                  <option value="female">زن</option>
-                </select>
-              </div>
-              <div class="space-y-2">
-                <label class="tiny muted" for="ageInput">سن (سال)</label>
-                <input id="ageInput" inputmode="numeric" placeholder="مثلاً 30" class="w-full px-3 py-2.5 rounded-xl focusable" />
-              </div>
-              <div class="space-y-2">
-                <label class="tiny muted" for="calHeight">قد (سانتی‌متر)</label>
-                <input id="calHeight" inputmode="decimal" placeholder="مثلاً 175" class="w-full px-3 py-2.5 rounded-xl focusable" />
-              </div>
-              <div class="space-y-2">
-                <label class="tiny muted" for="calWeight">وزن (کیلوگرم)</label>
-                <input id="calWeight" inputmode="decimal" placeholder="مثلاً 72.5" class="w-full px-3 py-2.5 rounded-xl focusable" />
-              </div>
-
-              <div class="space-y-2 sm:col-span-2">
-                <label class="tiny muted" for="activitySel">سطح فعالیت</label>
-                <select id="activitySel" class="w-full px-3 py-2.5 rounded-xl focusable">
-                  <option value="1.2">کم‌تحرک (1.2)</option>
-                  <option value="1.375">فعالیت سبک (1.375)</option>
-                  <option value="1.55" selected>فعالیت متوسط (1.55)</option>
-                  <option value="1.725">فعالیت زیاد (1.725)</option>
-                  <option value="1.9">خیلی زیاد (1.9)</option>
-                </select>
-              </div>
-
-              <div class="space-y-2 sm:col-span-2">
-                <label class="tiny muted" for="goalSel">هدف</label>
-                <select id="goalSel" class="w-full px-3 py-2.5 rounded-xl focusable">
-                  <option value="0" selected>نگهداری وزن (0)</option>
-                  <option value="-250">کاهش وزن ملایم (−250)</option>
-                  <option value="-500">کاهش وزن (−500)</option>
-                  <option value="250">افزایش وزن ملایم (+250)</option>
-                  <option value="500">افزایش وزن (+500)</option>
-                </select>
-              </div>
-            </div>
-
-            <div class="mt-3 soft p-3 rounded-xl">
-              <div id="calError" class="hidden mb-2 text-sm font-semibold"></div>
-              <div class="grid sm:grid-cols-3 gap-2">
-                <div class="soft p-3">
-                  <div class="muted tiny">BMR</div>
-                  <div class="text-lg font-bold"><span id="bmrOut">—</span> <span class="muted tiny">کیلوکالری</span></div>
-                </div>
-                <div class="soft p-3">
-                  <div class="muted tiny">کالری نگهداری (TDEE)</div>
-                  <div class="text-lg font-bold"><span id="tdeeOut">—</span></div>
-                </div>
-                <div class="soft p-3">
-                  <div class="muted tiny">کالری هدف</div>
-                  <div class="text-lg font-bold"><span id="goalOut">—</span></div>
-                </div>
-              </div>
-              <div id="calWarn" class="mt-2 hidden tiny"></div>
-            </div>
-          </div>
-        </div>
-      
-        <div class="card p-4 md:p-5">
-          <div class="flex items-start justify-between gap-3 flex-wrap">
-            <div>
-              <h2 class="text-base md:text-lg font-bold">راهنمای سریع تفسیر آزمایش‌ها</h2>
-              <p class="muted tiny mt-1">این بخش صرفاً آموزشی است و جایگزین نظر پزشک نیست.</p>
-            </div>
-            <button type="button" id="copyLabBtn" class="btn px-3 py-2 soft focusable">کپی نتیجه</button>
-          </div>
-
-          <div class="mt-4 grid md:grid-cols-3 gap-3">
-            <div class="space-y-2">
-              <label class="tiny muted" for="labType">نوع آزمایش</label>
-              <select id="labType" class="w-full px-3 py-2.5 rounded-xl focusable"></select>
-              <div class="muted tiny" id="labUnitHint">—</div>
-            </div>
-
-            <div class="space-y-2">
-              <label class="tiny muted" for="labValue">عدد شما</label>
-              <input id="labValue" inputmode="decimal" placeholder="مثلاً 95" class="w-full px-3 py-2.5 rounded-xl focusable" />
-              <div class="muted tiny">می‌توانید با اعداد فارسی یا انگلیسی وارد کنید.</div>
-            </div>
-
-            <div class="space-y-2">
-              <label class="tiny muted" for="labSex">جنسیت (در صورت نیاز)</label>
-              <select id="labSex" class="w-full px-3 py-2.5 rounded-xl focusable">
-                <option value="any">فرقی ندارد</option>
-                <option value="male">مرد</option>
-                <option value="female">زن</option>
-              </select>
-              <div class="muted tiny">برخی رنج‌ها وابسته به جنسیت هستند.</div>
-            </div>
-          </div>
-
-          <div class="mt-3 soft p-3 rounded-xl">
-            <div class="grid md:grid-cols-3 gap-2">
-              <div class="soft p-3">
-                <div class="muted tiny">وضعیت</div>
-                <div class="text-lg font-extrabold" id="labStatus">—</div>
-              </div>
-              <div class="soft p-3 md:col-span-2">
-                <div class="muted tiny">توضیح</div>
-                <div class="leading-7" id="labExplain">برای شروع، نوع آزمایش و عدد خود را وارد کنید.</div>
-              </div>
-            </div>
-            <div class="mt-2 muted tiny" id="labRange">رنج مرجع: —</div>
-          </div>
-        </div>
-            <div class="mt-3 grid md:grid-cols-2 gap-2">
-              <details class="soft p-3 rounded-xl">
-                <summary class="cursor-pointer font-bold">نکات مهم</summary>
-                <ul class="mt-2 list-disc pr-5 muted tiny leading-7">
-                  <li>نتیجهٔ آزمایش به سن، شرایط بدنی، داروها و روش آزمایشگاه هم وابسته است.</li>
-                  <li>اگر «خیلی بالا/خیلی پایین» نمایش داده شد یا علائم دارید، برای تفسیر قطعی با پزشک مشورت کنید.</li>
-                  <li>بهتر است چند نتیجه پشت‌سرهم را مقایسه کنید، نه فقط یک عدد.</li>
-                </ul>
-              </details>
-              <details class="soft p-3 rounded-xl">
-                <summary class="cursor-pointer font-bold">راهنمای سریع رنگ‌ها</summary>
-                <div class="mt-2 muted tiny leading-7">
-                  <div><span class="font-bold text-emerald-200">نرمال</span> یعنی در محدوده مرجع.</div>
-                  <div><span class="font-bold text-amber-200">مرزی</span> یعنی نزدیک حد پایین/بالا و نیازمند توجه.</div>
-                  <div><span class="font-bold text-rose-200">غیرنرمال</span> یعنی خارج از محدوده و بهتر است بررسی شود.</div>
-                </div>
-              </details>
-            </div>
-
-
-      </section>
-
-      <!-- DateTime Page -->
-<section id="page-datetime" class="hidden space-y-4 md:space-y-5">
-  <div class="card p-4 md:p-5">
-    <div class="flex items-start justify-between gap-3 flex-wrap">
-      <div>
-        <h2 class="text-base md:text-lg font-bold">تاریخ و ساعت ایران</h2>
-        <p class="muted tiny mt-1">به‌روزرسانی خودکار (با سرویس آنلاین) + ساعت آنالوگ</p>
-      </div>
-      <div class="flex gap-2 flex-wrap">
-        <button type="button" id="timeRefreshBtn" class="btn px-3 py-2 soft focusable">به‌روزرسانی</button>
-        <button type="button" id="timeCopyBtn" class="btn px-3 py-2 soft focusable">کپی</button>
-      </div>
-    </div>
-
-    <div class="mt-4 grid lg:grid-cols-2 gap-3">
-      <div class="soft p-4 rounded-2xl">
-        <div class="flex items-center justify-between gap-2">
-          <div class="font-bold">ساعت ایران</div>
-          <div class="muted tiny">Asia/Tehran</div>
-        </div>
-        <div class="calcDisplay text-4xl md:text-5xl font-extrabold mt-3" id="timeIR">—</div>
-        <div class="mt-2 soft p-3 flex items-center justify-between gap-2">
-          <div class="muted tiny">ساعت جهانی (UTC)</div>
-          <div class="calcDisplay text-xl font-extrabold" id="timeUTC">—</div>
-        </div>
-        <div class="mt-3 grid sm:grid-cols-2 gap-2">
-          <div class="soft p-3">
-            <div class="muted tiny">تاریخ شمسی</div>
-            <div class="calcDisplay text-2xl font-extrabold mt-2" id="todayJalali">—</div>
-          </div>
-          <div class="soft p-3">
-            <div class="muted tiny">تاریخ میلادی</div>
-            <div class="calcDisplay text-2xl font-extrabold mt-2" id="todayGreg">—</div>
-          </div>
-        </div>
-        <div class="muted tiny mt-3">آخرین بروزرسانی: <span id="timeUpdatedAt">—</span></div>
-      </div>
-
-      <div class="soft p-4 rounded-2xl flex flex-col items-center justify-center gap-3">
-        <div class="font-bold">ساعت آنالوگ (ایران)</div>
-        
-        <div class="analogWrap">
-          <svg id="analogSvg" class="analogSvg" viewBox="0 0 200 200" role="img" aria-label="ساعت آنالوگ ایران">
-            <defs>
-              <linearGradient id="gradHub" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0%" stop-color="var(--gradA)"/>
-                <stop offset="100%" stop-color="var(--gradB)"/>
-              </linearGradient>
-              <radialGradient id="dialGlow" cx="35%" cy="25%" r="70%">
-                <stop offset="0%" stop-color="color-mix(in srgb, var(--primary) 22%, transparent 78%)"/>
-                <stop offset="55%" stop-color="transparent"/>
-                <stop offset="100%" stop-color="rgba(0,0,0,.25)"/>
-              </radialGradient>
-            </defs>
-
-            <circle cx="100" cy="100" r="96" fill="url(#dialGlow)"/>
-            <circle cx="100" cy="100" r="86" fill="transparent" class="analogRing"/>
-
-            <g id="analogTicks"></g>
-            <g id="analogNums"></g>
-
-            <!-- Hands (origin: center) -->
-            <g id="hands">
-              <line id="handHour" class="handLine handHourLine" x1="100" y1="104" x2="100" y2="60"/>
-              <line id="handMin" class="handLine handMinLine" x1="100" y1="106" x2="100" y2="42"/>
-              <line id="handSec" class="handLine handSecLine" x1="100" y1="112" x2="100" y2="36"/>
-            </g>
-
-            <circle cx="100" cy="100" r="7.5" class="analogHub"/>
-            <circle cx="100" cy="100" r="2.2" fill="rgba(255,255,255,.8)"/>
-
-            <text x="100" y="142" class="analogBrand">codeisa</text>
-          </svg>
-        </div>
-
-        <div id="timeStatusText" class="tiny text-amber-200">در حال دریافت…</div>
-      </div>
-    </div>
-  </div>
-
-        <div id="occCard" class="soft p-4 rounded-2xl mt-3">
-          <div class="flex items-center justify-between gap-2 flex-wrap">
-            <div class="font-bold">مناسبت‌های امروز</div>
-            <div id="occHolidayBadge" class="tiny font-semibold text-rose-200 hidden">تعطیل</div>
-          </div>
-          <div id="occList" class="mt-3 space-y-2"></div>
-          <div id="occHint" class="muted tiny mt-2">این بخش بر اساس تاریخ امروز ایران بارگذاری می‌شود.</div>
-        </div>
-
-</section>
-
-      <!-- Weather Page -->
-<section id="page-weather" class="hidden space-y-4 md:space-y-5">
-  <div class="card p-4 md:p-5">
-    <div class="flex items-start justify-between gap-3 flex-wrap">
-      <div>
-        <h2 class="text-base md:text-lg font-bold">آب‌ و هوا</h2>
-        <p class="muted tiny mt-1">انتخاب از مراکز استان یا جستجوی شهر (کل ایران) • منبع: Open‑Meteo</p>
-      </div>
-      <div class="flex gap-2 flex-wrap">
-        <button type="button" id="weatherRefreshBtn" class="btn px-3 py-2 soft focusable">به‌روزرسانی</button>
-        <button type="button" id="weatherCopyBtn" class="btn px-3 py-2 soft focusable">کپی</button>
-      </div>
-    </div>
-
-    <div class="mt-4 grid lg:grid-cols-2 gap-3">
-      <div class="soft p-4 rounded-2xl">
-        <div class="font-bold">انتخاب سریع (مراکز استان)</div>
-        <div class="muted tiny mt-1">یکی از مراکز استان را انتخاب کنید.</div>
-        <select id="weatherCapitalSel" class="mt-3 w-full px-3 py-2.5 rounded-xl focusable"></select>
-
-        <div class="mt-4">
-          <div class="font-bold">جستجوی شهر</div>
-          <div class="muted tiny mt-1">نام شهر را تایپ کنید (مثلاً «شیراز» یا «Shiraz»).</div>
-          <input id="weatherSearchInput" autocomplete="off" placeholder="جستجو در شهرهای ایران…" class="mt-3 w-full px-3 py-2.5 rounded-xl focusable" />
-          <div id="weatherSearchResults" class="mt-3 space-y-2"></div>
-        </div>
-
-        <div id="weatherStatus" class="mt-4 tiny text-amber-200">برای شروع، یک شهر انتخاب کنید.</div>
-      </div>
-
-      <div class="soft p-4 rounded-2xl">
-        <div class="flex items-center justify-between gap-2 flex-wrap">
-          <div>
-            <div class="muted tiny">شهر انتخاب‌شده</div>
-            <div id="weatherCityTitle" class="text-xl font-extrabold mt-1">—</div>
-            <div id="weatherSubTitle" class="muted tiny mt-1">—</div>
-          </div>
-          <div id="weatherIcon" class="text-4xl">⛅</div>
-        </div>
-
-        <div class="mt-4 grid sm:grid-cols-2 gap-2">
-          <div class="soft p-3">
-            <div class="muted tiny">دما</div>
-            <div class="text-2xl font-extrabold calcDisplay"><span id="weatherTemp">—</span></div>
-          </div>
-          <div class="soft p-3">
-            <div class="muted tiny">احساس دما</div>
-            <div class="text-2xl font-extrabold calcDisplay"><span id="weatherFeels">—</span></div>
-          </div>
-          <div class="soft p-3">
-            <div class="muted tiny">رطوبت</div>
-            <div class="text-2xl font-extrabold calcDisplay"><span id="weatherHumidity">—</span></div>
-          </div>
-          <div class="soft p-3">
-            <div class="muted tiny">باد</div>
-            <div class="text-2xl font-extrabold calcDisplay"><span id="weatherWind">—</span></div>
-          </div>
-        </div>
-
-        <div class="mt-3 soft p-3 rounded-xl flex items-center justify-between gap-2">
-          <div class="tiny muted">وضعیت: <span id="weatherDesc" class="font-semibold">—</span></div>
-          <div class="tiny muted">آخرین بروزرسانی: <span id="weatherUpdatedAt">—</span></div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-      <!-- Crypto Page -->
-
-<section id="page-crypto" class="hidden space-y-4 md:space-y-5">
-  <div class="card p-4 md:p-5">
-    <div class="flex items-start justify-between gap-3 flex-wrap">
-      <div>
-        <h2 class="text-base md:text-lg font-bold">رمزارزها (قیمت لحظه‌ای)</h2>
-        <p class="muted tiny mt-1">قیمت‌ها از بازار ریالی نوبیتکس دریافت می‌شوند و هر چند ثانیه به‌روزرسانی می‌گردند.</p>
-      </div>
-      <div class="flex items-center gap-2 flex-wrap">
-        <div class="soft px-3 py-2 rounded-xl flex items-center gap-2">
-          <span id="cryptoStatusDot" class="w-2.5 h-2.5 rounded-full bg-amber-400"></span>
-          <span id="cryptoStatusText" class="font-semibold text-amber-200 tiny">در حال اتصال…</span>
-        </div>
-        <button type="button" id="cryptoRefreshBtn" class="btn px-3 py-2 soft focusable">به‌روزرسانی</button>
-        <button type="button" id="cryptoCopyAllBtn" class="btn px-3 py-2 soft focusable">کپی همه</button>
-      </div>
-    </div>
-
-    <div class="mt-4 grid sm:grid-cols-2 lg:grid-cols-3 gap-3" id="cryptoGrid"></div>
-
-    <div class="mt-3 soft p-3 rounded-xl flex items-center justify-between gap-2">
-      <div class="tiny muted">آخرین بروزرسانی: <span id="cryptoUpdatedAt">—</span></div>
-      <div class="tiny muted">واحد: تومان</div>
-    </div>
-  </div>
-</section>
-
-      <!-- Calculator Page -->
-      <section id="page-calculator" class="hidden space-y-4 md:space-y-5">
-        <div class="calcShell p-4 md:p-6">
-          <div class="relative flex items-start justify-between gap-3">
-            <div>
-              <h2 class="text-base md:text-lg font-extrabold">ماشین حساب حرفه‌ای</h2>
-              <p class="muted tiny mt-1">نمایشگر طبق انتخاب شما در تنظیمات: فارسی یا انگلیسی</p>
-            </div>
-            <div class="flex gap-2">
-              <button type="button" id="calcModeBtn" class="btn px-3 py-2 soft focusable">مهندسی</button>
-              <button type="button" id="calcCopyBtn" class="btn px-3 py-2 soft focusable">کپی</button>
-              <button type="button" id="calcClearBtn" class="btn px-3 py-2 soft focusable">پاک‌کردن</button>
-            </div>
-          </div>
-
-          <div class="mt-4 calcTop p-4 md:p-5">
-            <div class="flex items-center justify-between gap-3">
-              <div class="muted tiny">عبارت</div>
-              <div class="muted tiny">حافظه: <span id="memBadge" class="font-bold">0</span></div>
-            </div>
-
-            <div class="mt-2 soft p-3">
-              <div id="calcExpr" class="calcDisplay text-base md:text-lg font-semibold min-h-[28px]">—</div>
-              <div class="muted tiny mt-2">نتیجه</div>
-              <div id="calcResult" class="calcDisplay text-3xl md:text-5xl font-extrabold mt-1">0</div>
-            </div>
-
-            <div class="mt-3 text-xs muted text-left">
-              <div class="soft inline-flex items-center gap-2 px-3 py-2">
-                <span class="grad w-2.5 h-2.5 rounded-full"></span>
-                <span>Enter = محاسبه</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="mt-4 grid grid-cols-4 gap-2 select-none" id="calcPad">
-            <button type="button" class="calcKey calcKeyUtil focusable" data-k="MC">MC</button>
-            <button type="button" class="calcKey calcKeyUtil focusable" data-k="MR">MR</button>
-            <button type="button" class="calcKey calcKeyUtil focusable" data-k="M+">M+</button>
-            <button type="button" class="calcKey calcKeyUtil focusable" data-k="M-">M-</button>
-
-            <button type="button" class="calcKey calcKeyUtil focusable" data-k="(">(</button>
-            <button type="button" class="calcKey calcKeyUtil focusable" data-k=")">)</button>
-            <button type="button" class="calcKey calcKeyUtil focusable" data-k="%">٪</button>
-            <button type="button" class="calcKey calcKeyDanger focusable" data-k="DEL">⌫</button>
-
-            <button type="button" class="calcKey focusable calcDigit" data-k="7" data-fa="۷" data-en="7">۷</button>
-            <button type="button" class="calcKey focusable calcDigit" data-k="8" data-fa="۸" data-en="8">۸</button>
-            <button type="button" class="calcKey focusable calcDigit" data-k="9" data-fa="۹" data-en="9">۹</button>
-            <button type="button" class="calcKey calcKeyOp focusable" data-k="/">÷</button>
-
-            <button type="button" class="calcKey focusable calcDigit" data-k="4" data-fa="۴" data-en="4">۴</button>
-            <button type="button" class="calcKey focusable calcDigit" data-k="5" data-fa="۵" data-en="5">۵</button>
-            <button type="button" class="calcKey focusable calcDigit" data-k="6" data-fa="۶" data-en="6">۶</button>
-            <button type="button" class="calcKey calcKeyOp focusable" data-k="*">×</button>
-
-            <button type="button" class="calcKey focusable calcDigit" data-k="1" data-fa="۱" data-en="1">۱</button>
-            <button type="button" class="calcKey focusable calcDigit" data-k="2" data-fa="۲" data-en="2">۲</button>
-            <button type="button" class="calcKey focusable calcDigit" data-k="3" data-fa="۳" data-en="3">۳</button>
-            <button type="button" class="calcKey calcKeyOp focusable" data-k="-">−</button>
-
-            <button type="button" class="calcKey focusable calcDigit" data-k="0" data-fa="۰" data-en="0">۰</button>
-            <button type="button" class="calcKey focusable" data-k=".">.</button>
-            <button type="button" class="calcKey calcKeyOp focusable" data-k="=">=</button>
-            <button type="button" class="calcKey calcKeyOp focusable" data-k="+">+</button>
-          </div>
-
-<div class="mt-3 hidden grid grid-cols-4 gap-2 select-none" id="calcPadSci">
-  <button type="button" class="calcKey calcKeyUtil focusable" data-k="pi">π</button>
-  <button type="button" class="calcKey calcKeyUtil focusable" data-k="e">e</button>
-  <button type="button" class="calcKey calcKeyUtil focusable" data-k="^">xʸ</button>
-  <button type="button" class="calcKey calcKeyUtil focusable" data-k="sqrt(">√</button>
-
-  <button type="button" class="calcKey calcKeyUtil focusable" data-k="sin(">sin</button>
-  <button type="button" class="calcKey calcKeyUtil focusable" data-k="cos(">cos</button>
-  <button type="button" class="calcKey calcKeyUtil focusable" data-k="tan(">tan</button>
-  <button type="button" class="calcKey calcKeyUtil focusable" data-k="abs(">abs</button>
-
-  <button type="button" class="calcKey calcKeyUtil focusable" data-k="log(">log</button>
-  <button type="button" class="calcKey calcKeyUtil focusable" data-k="ln(">ln</button>
-  <button type="button" class="calcKey calcKeyUtil focusable" data-k="pow(">pow</button>
-  <button type="button" class="calcKey calcKeyUtil focusable" data-k=",">,</button>
+<body class="min-h-screen overflow-x-hidden">
+<div class="w-full mx-auto max-w-6xl px-3 sm:px-4 py-4 md:py-7">
+<!-- Header -->
+<header class="glass p-4 md:p-5 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+<div class="flex items-center gap-3">
+<div class="grad w-12 h-12 rounded-2xl flex items-center justify-center text-xl shadow" id="logoBadge"><svg aria-hidden="true" class="drop-shadow" height="28" viewbox="0 0 64 64" width="28"><defs><lineargradient id="lgCodeisa" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="var(--gradA)"></stop><stop offset="1" stop-color="var(--gradB)"></stop></lineargradient></defs><path d="M32 6c11 0 20 9 20 20v12c0 11-9 20-20 20S12 49 12 38V26c0-11 9-20 20-20Z" fill="url(#lgCodeisa)" opacity=".95"></path><path d="M22 28h20v4H22zm0 10h14v4H22z" fill="rgba(6,16,31,.9)"></path><path d="M44 22l6 6-6 6" fill="none" stroke="rgba(6,16,31,.9)" stroke-linecap="round" stroke-linejoin="round" stroke-width="4"></path></svg></div>
+<div>
+<h1 class="text-lg md:text-xl font-bold">codeisa</h1>
+<p class="muted tiny">تبدیل دقیق واحدها + ابزارهای کاربردی</p>
 </div>
-
-          <div class="mt-4 soft p-3 rounded-xl">
-            <div class="tiny muted">ورود با کیبورد</div>
-            <div class="muted tiny mt-1">۰-۹ یا 0-9، + - * / ( ) . Enter Backspace</div>
-          </div>
-        </div>
-      </section>
-
-      <!-- Settings Page -->
-      <section id="page-settings" class="hidden space-y-4 md:space-y-5">
-        <div class="card p-4 md:p-5">
-          <div class="flex items-start justify-between gap-3">
-            <div>
-              <h2 class="text-base md:text-lg font-bold">تنظیمات و شخصی‌سازی</h2>
-              <p class="muted tiny mt-1">ظاهر و رفتار برنامه را مطابق سلیقه خود تغییر دهید. تنظیمات در همین مرورگر ذخیره می‌شود.</p>
-            </div>
-            <button type="button" id="resetBtn" class="btn px-3 py-2 soft focusable">بازنشانی</button>
-          </div>
-
-          <div class="mt-4 grid md:grid-cols-2 lg:grid-cols-3 gap-3">
-            <div class="soft p-3">
-              <label class="tiny muted">رنگ پس‌زمینه</label>
-              <div class="mt-2 flex items-center gap-3">
-                <input id="bgColor" type="color" class="w-12 h-10 rounded-xl focusable" />
-                <input id="bgColorText" class="flex-1 px-3 py-2 rounded-xl focusable" placeholder="#0b1220" />
-              </div>
-            </div>
-
-            <div class="soft p-3">
-              <label class="tiny muted">رنگ کارت‌ها</label>
-              <div class="mt-2 flex items-center gap-3">
-                <input id="surfaceColor" type="color" class="w-12 h-10 rounded-xl focusable" />
-                <input id="surfaceColorText" class="flex-1 px-3 py-2 rounded-xl focusable" placeholder="#0f1b33" />
-              </div>
-            </div>
-
-            <div class="soft p-3">
-              <label class="tiny muted">رنگ متن</label>
-              <div class="mt-2 flex items-center gap-3">
-                <input id="textColor" type="color" class="w-12 h-10 rounded-xl focusable" />
-                <input id="textColorText" class="flex-1 px-3 py-2 rounded-xl focusable" placeholder="#e8eefc" />
-              </div>
-            </div>
-
-            <div class="soft p-3">
-              <label class="tiny muted">رنگ اقدام اصلی</label>
-              <div class="mt-2 flex items-center gap-3">
-                <input id="primaryColor" type="color" class="w-12 h-10 rounded-xl focusable" />
-                <input id="primaryColorText" class="flex-1 px-3 py-2 rounded-xl focusable" placeholder="#38bdf8" />
-              </div>
-            </div>
-
-            <div class="soft p-3">
-              <label class="tiny muted">رنگ اقدام ثانویه</label>
-              <div class="mt-2 flex items-center gap-3">
-                <input id="secondaryColor" type="color" class="w-12 h-10 rounded-xl focusable" />
-                <input id="secondaryColorText" class="flex-1 px-3 py-2 rounded-xl focusable" placeholder="#a78bfa" />
-              </div>
-            </div>
-
-            <div class="soft p-3">
-              <label class="tiny muted">فونت</label>
-              <select id="fontFamily" class="mt-2 w-full px-3 py-2.5 rounded-xl focusable">
-                <option value='ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans"'>پیش‌فرض (سیستمی)</option>
-                <option value='"Vazirmatn", ui-sans-serif, system-ui'>Vazirmatn (اگر نصب باشد)</option>
-                <option value='"IRANSans", ui-sans-serif, system-ui'>IRANSans (اگر نصب باشد)</option>
-                <option value='"Tahoma", ui-sans-serif, system-ui'>Tahoma</option>
-                <option value=\'"Sahel", ui-sans-serif, system-ui\'>Sahel (پیشنهادی)</option>
-              </select>
-              <div class="muted tiny mt-2">در صورت نبود فونت، به فونت‌های جایگزین می‌رود.</div>
-            </div>
-
-            <div class="soft p-3">
-              <label class="tiny muted">اندازه متن</label>
-              <div class="mt-2 flex items-center gap-3">
-                <input id="fontSize" type="range" min="13" max="20" step="1" class="w-full" />
-                <div id="fontSizeLabel" class="soft px-3 py-2 rounded-xl text-sm w-16 text-center">16</div>
-              </div>
-            </div>
-
-            <div class="soft p-3">
-              <label class="tiny muted">گرادیان برجسته (شروع)</label>
-              <div class="mt-2 flex items-center gap-3">
-                <input id="gradA" type="color" class="w-12 h-10 rounded-xl focusable" />
-                <input id="gradAText" class="flex-1 px-3 py-2 rounded-xl focusable" placeholder="#22c55e" />
-              </div>
-            </div>
-
-            <div class="soft p-3">
-              <label class="tiny muted">گرادیان برجسته (پایان)</label>
-              <div class="mt-2 flex items-center gap-3">
-                <input id="gradB" type="color" class="w-12 h-10 rounded-xl focusable" />
-                <input id="gradBText" class="flex-1 px-3 py-2 rounded-xl focusable" placeholder="#38bdf8" />
-              </div>
-            </div>
-
-            
-
-            <div class="soft p-3 md:col-span-2 lg:col-span-3">
-              <div class="flex items-center justify-between gap-2">
-                <div>
-                  <div class="tiny muted">نمایش اعداد فارسی (در کل برنامه)</div>
-                  <div class="muted tiny mt-1">برای خروجی‌ها و بیشتر نمایش‌ها.</div>
-                </div>
-                <label class="inline-flex items-center cursor-pointer">
-                  <input id="persianDigitsToggle" type="checkbox" class="sr-only">
-                  <span class="w-12 h-7 rounded-full relative soft">
-                    <span id="persianDigitsDot" class="absolute top-1 right-1 w-5 h-5 rounded-full grad transition-all"></span>
-                  </span>
-                </label>
-              </div>
-
-              <div class="mt-3 flex items-center justify-between gap-2">
-                <div>
-                  <div class="tiny muted">کپی با اعداد فارسی</div>
-                  <div class="muted tiny mt-1">اگر روشن باشد، متن کپی‌شده هم فارسی می‌شود.</div>
-                </div>
-                <label class="inline-flex items-center cursor-pointer">
-                  <input id="copyPersianToggle" type="checkbox" class="sr-only">
-                  <span class="w-12 h-7 rounded-full relative soft">
-                    <span id="copyPersianDot" class="absolute top-1 right-1 w-5 h-5 rounded-full grad transition-all"></span>
-                  </span>
-                </label>
-              </div>
-
-              <div class="mt-3 flex items-center justify-between gap-2">
-                <div>
-                  <div class="tiny muted">نمایشگر ماشین حساب</div>
-                  <div class="muted tiny mt-1">عددها و نمایشگر ماشین حساب فارسی یا انگلیسی.</div>
-                </div>
-                <select id="calcDisplayLang" class="px-3 py-2 rounded-xl focusable">
-                  <option value="fa">فارسی</option>
-                  <option value="en">انگلیسی</option>
-                </select>
-              </div>
-
-              <div class="mt-3 flex items-center justify-between gap-2">
-                <div>
-                  <div class="tiny muted">صدای کلیک ماشین حساب</div>
-                  <div class="muted tiny mt-1">صدای ریز هنگام فشردن کلیدها.</div>
-                </div>
-                <label class="inline-flex items-center cursor-pointer">
-                  <input id="soundToggle" type="checkbox" class="sr-only">
-                  <span class="w-12 h-7 rounded-full relative soft">
-                    <span id="soundDot" class="absolute top-1 right-1 w-5 h-5 rounded-full grad transition-all"></span>
-                  </span>
-                </label>
-              </div>
-
-              <div class="mt-3">
-                <div class="tiny muted">شدت صدا</div>
-                <div class="mt-2 flex items-center gap-3">
-                  <input id="soundVolume" type="range" min="0" max="100" step="1" class="w-full" />
-                  <div id="soundVolumeLabel" class="soft px-3 py-2 rounded-xl text-sm w-16 text-center">30</div>
-                </div>
-              </div>
-
-              <div class="mt-4 soft p-3">
-                <div class="font-bold">پیکربندی (Config)</div>
-                <p class="muted tiny mt-1">کپی/وارد کردن پیکربندی برای بکاپ گرفتن از تنظیمات.</p>
-                <div class="mt-2 grid md:grid-cols-2 gap-2">
-                  <button type="button" id="exportConfig" class="btn px-3 py-2 soft focusable">کپی پیکربندی</button>
-                  <button type="button" id="importConfig" class="btn px-3 py-2 soft focusable">وارد کردن پیکربندی</button>
-                </div>
-              </div>
-
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- Help Page -->
-      
-<section id="page-help" class="hidden space-y-4 md:space-y-5">
-  <div class="card p-4 md:p-5">
-    <h2 class="text-base md:text-lg font-bold">راهنما</h2>
-
-    <div class="mt-3 space-y-3 leading-7">
-      <div class="soft p-3">
-        <div class="font-bold">شروع سریع</div>
-        <ul class="mt-2 list-disc pr-5 muted">
-          <li>از نوار بالا بخش موردنظر را انتخاب کنید (تبدیل واحد، سلامتی، تاریخ و ساعت، کریپتو، ماشین حساب، تنظیمات).</li>
-          <li>همه محاسبات داخل مرورگر انجام می‌شود و اطلاعات شما روی سرور ذخیره نمی‌شود (به‌جز دریافت داده‌های آنلاین مثل ساعت و قیمت‌ها).</li>
-        </ul>
-      </div>
-
-      <div class="soft p-3">
-        <div class="font-bold">تبدیل واحد</div>
-        <ul class="mt-2 list-disc pr-5 muted">
-          <li>مقدار را وارد کنید، واحد مبدا و مقصد را انتخاب کنید؛ نتیجه فوری نمایش داده می‌شود.</li>
-          <li>با «جابجایی» واحدها سریع جای مبدا/مقصد را عوض کنید.</li>
-          <li>دقت اعشار را از اسلایدر دقت تنظیم کنید.</li>
-        </ul>
-      </div>
-
-      <div class="soft p-3">
-        <div class="font-bold">تاریخ و ساعت</div>
-        <ul class="mt-2 list-disc pr-5 muted">
-          <li>ساعت ایران و ساعت جهانی از سرویس آنلاین به‌روز می‌شوند.</li>
-          <li>ساعت آنالوگ هر دقیقه همگام می‌شود و ثانیه‌شمار بدون قطع شدن ادامه می‌دهد.</li>
-          <li>مناسبت‌های همان روز نمایش داده می‌شود؛ موارد تعطیل با رنگ قرمز و برچسب «تعطیل» مشخص هستند.</li>
-        </ul>
-      </div>
-
-      <div class="soft p-3">
-        <div class="font-bold">کریپتو</div>
-        <ul class="mt-2 list-disc pr-5 muted">
-          <li>قیمت ارزها به‌صورت زنده نمایش داده می‌شود و هر چند ثانیه یکبار به‌روزرسانی می‌گردد.</li>
-          <li>اگر اینترنت یا سرویس قیمت‌دهی مشکل داشته باشد، ممکن است برای لحظاتی «—» نمایش داده شود.</li>
-        </ul>
-      </div>
-
-      <div class="soft p-3">
-        <div class="font-bold">ماشین حساب</div>
-        <ul class="mt-2 list-disc pr-5 muted">
-          <li>ماشین حساب دو حالت دارد: ساده و مهندسی (با دکمه «مهندسی/ساده» جابجا شوید).</li>
-          <li>با کیبورد هم می‌توانید وارد کنید: ۰-۹ یا 0-9، + - * / ( ) . Enter Backspace</li>
-          <li>نمایشگر و اعداد کلیدها از تنظیمات قابل تغییر بین فارسی و انگلیسی است.</li>
-        </ul>
-      </div>
-
-      <div class="soft p-3">
-        <div class="font-bold">سلامتی</div>
-        <ul class="mt-2 list-disc pr-5 muted">
-          <li>BMI و کالری روزانه برای تخمین استفاده می‌شوند و جایگزین نظر پزشک نیستند.</li>
-          <li>در «راهنمای آزمایش» می‌توانید نام آیتم را انتخاب کنید و یک تفسیر سریع و آموزشی ببینید.</li>
-        </ul>
-      </div>
-
-      <div class="soft p-3">
-        <div class="font-bold">تنظیمات</div>
-        <ul class="mt-2 list-disc pr-5 muted">
-          <li>رنگ‌ها، فونت و نمایش اعداد را شخصی‌سازی کنید؛ تنظیمات در همین مرورگر ذخیره می‌شود.</li>
-          <li>برای برگشت به حالت اولیه از دکمه بازنشانی استفاده کنید.</li>
-        </ul>
-      </div>
-    </div>
-  </div>
+</div>
+<nav class="flex flex-wrap gap-2" id="topNav">
+<button class="navBtn btn px-3.5 py-2 tabActive focusable" data-nav="converter" type="button">تبدیل واحدها</button>
+<button class="navBtn btn px-3.5 py-2 tabIdle focusable" data-nav="health" type="button">محاسبات سلامتی</button>
+<button class="navBtn btn px-3.5 py-2 tabIdle focusable" data-nav="datetime" type="button">تاریخ و ساعت</button>
+<button class="navBtn btn px-3.5 py-2 tabIdle focusable" data-nav="weather" type="button">آب و هوا</button>
+<button class="navBtn btn px-3.5 py-2 tabIdle focusable" data-nav="crypto" type="button">رمزارزها</button>
+<button class="navBtn btn px-3.5 py-2 tabIdle focusable" data-nav="calculator" type="button">ماشین حساب</button>
+<button class="navBtn btn px-3.5 py-2 tabIdle focusable" data-nav="settings" type="button">تنظیمات</button>
+<button class="navBtn btn px-3.5 py-2 tabIdle focusable" data-nav="help" type="button">راهنما</button>
+</nav>
+</header>
+<!-- Main -->
+<main class="mt-5 md:mt-7">
+<!-- Converter Page -->
+<section class="space-y-4 md:space-y-5" id="page-converter">
+<div class="grid md:grid-cols-3 gap-4 md:gap-5">
+<div class="card p-4 md:p-5 md:col-span-2">
+<div class="flex items-start justify-between gap-3">
+<div>
+<h2 class="text-base md:text-lg font-bold">تبدیل واحد</h2>
+<p class="muted tiny mt-1">مقدار را وارد کنید، واحد مبدا و مقصد را انتخاب کنید. نتیجه فوری محاسبه می‌شود.</p>
+</div>
+<button class="btn px-3 py-2 soft focusable" id="swapBtn" title="جابجایی واحدها" type="button">
+<span class="inline-flex items-center gap-2"><span>جابجایی</span> <span aria-hidden="true">⇄</span></span>
+</button>
+</div>
+<div class="mt-4 grid sm:grid-cols-2 gap-3">
+<div class="space-y-2">
+<label class="tiny muted" for="categorySel">دسته‌بندی</label>
+<select class="w-full px-3 py-2.5 rounded-xl focusable" id="categorySel"></select>
+</div>
+<div class="space-y-2">
+<label class="tiny muted" for="precisionRange">دقت نمایش (اعشار)</label>
+<div class="flex items-center gap-3">
+<input class="w-full" id="precisionRange" max="8" min="0" step="1" type="range"/>
+<div class="soft px-3 py-2 rounded-xl text-sm w-16 text-center" id="precisionLabel">2</div>
+</div>
+</div>
+<div class="space-y-2">
+<label class="tiny muted" for="valueInput">مقدار</label>
+<input autocomplete="off" class="w-full px-3 py-2.5 rounded-xl focusable" id="valueInput" inputmode="decimal" placeholder="مثلاً 12.5"/>
+<div class="muted tiny" id="valueHint">نکته: می‌توانید از نقطه برای اعشار استفاده کنید.</div>
+</div>
+<div class="space-y-2">
+<label class="tiny muted" for="fromUnitSel">از</label>
+<select class="w-full px-3 py-2.5 rounded-xl focusable" id="fromUnitSel"></select>
+</div>
+<div class="space-y-2">
+<label class="tiny muted" for="toUnitSel">به</label>
+<select class="w-full px-3 py-2.5 rounded-xl focusable" id="toUnitSel"></select>
+</div>
+<div class="space-y-2">
+<label class="tiny muted">نتیجه</label>
+<div class="soft p-3 rounded-xl flex items-center justify-between gap-2">
+<div>
+<div class="text-lg md:text-xl font-bold" id="resultValue">—</div>
+<div class="muted tiny mt-1" id="resultUnit">—</div>
+</div>
+<div class="flex gap-2">
+<button class="btn px-3 py-2 soft focusable" id="copyResultBtn" type="button">کپی</button>
+</div>
+</div>
+<div class="muted tiny" id="converterNote"></div>
+</div>
+</div>
+</div>
+<div class="card p-4 md:p-5">
+<h3 class="font-bold">تبدیل‌های رایج</h3>
+<p class="muted tiny mt-1">با یک کلیک، مقادیر نمونه را تنظیم کنید.</p>
+<div class="mt-3 grid gap-2" id="quickGrid"></div>
+<div class="mt-4 soft p-3">
+<div class="flex items-center justify-between gap-2">
+<span class="tiny muted">نمایش اعداد فارسی</span>
+<label class="inline-flex items-center cursor-pointer">
+<input class="sr-only" id="uiPersianDigitsToggle" type="checkbox"/>
+<span class="w-12 h-7 rounded-full relative soft">
+<span class="absolute top-1 right-1 w-5 h-5 rounded-full grad transition-all" id="uiPersianDigitsDot"></span>
+</span>
+</label>
+</div>
+<div class="muted tiny mt-2">کپی معمولاً با اعداد استاندارد انجام می‌شود.</div>
+</div>
+</div>
+</div>
 </section>
-
-    </main>
-
-    <!-- Footer -->
-    <footer class="mt-6 md:mt-8 pb-6 text-center muted tiny">
-      <div class="flex flex-col gap-2 items-center">
-        <span id="footerOut">طراحی شده توسط FARHAD 🎨</span>
-        <a class="text-sky-300 underline underline-offset-4" href="https://t.me/ShadowPsychologist" target="_blank" rel="noopener"><span class="inline-flex items-center gap-2"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24"><path fill="#38bdf8" d="M9.04 15.15 8.8 19.1c.37 0 .54-.16.74-.35l1.78-1.7 3.69 2.7c.68.38 1.16.18 1.34-.63l2.43-11.37c.21-.99-.36-1.38-1.02-1.13L3.39 10.13c-.95.37-.94.9-.17 1.14l3.96 1.24 9.2-5.8c.43-.27.82-.12.5.15z"/><path fill="#38bdf8" d="M7.35 12.51 16.3 6.86c.41-.26.79-.12.48.16L9.04 15.15l-.3 3.95c.46 0 .66-.21.92-.47l2.21-2.12 4.6 3.37c.85.47 1.45.23 1.66-.79l2.99-13.8c.24-1.09-.41-1.54-1.18-1.24L2.6 9.9c-1.11.43-1.09 1.05-.19 1.33z"/></svg><span>ارتباط با سازنده</span></span></a>
-      </div>
-    </footer>
-  </div>
-
-  <!-- Toasts -->
-  <div id="toastHost" class="fixed bottom-4 left-4 right-4 md:left-auto md:right-6 md:bottom-6 z-50 space-y-2 w-auto max-w-md"></div>
-
+<!-- Health Page -->
+<section class="hidden space-y-4 md:space-y-5" id="page-health">
+<div class="grid lg:grid-cols-2 gap-4 md:gap-5">
+<div class="card p-4 md:p-5">
+<div class="flex items-start justify-between gap-3">
+<div>
+<h2 class="text-base md:text-lg font-bold">شاخص توده بدنی (BMI)</h2>
+<p class="muted tiny mt-1">BMI = وزن / (قد به متر)^۲</p>
+</div>
+<button class="btn px-3 py-2 soft focusable" id="copyBmiBtn" type="button">کپی</button>
+</div>
+<div class="mt-4 grid sm:grid-cols-2 gap-3">
+<div class="space-y-2">
+<label class="tiny muted" for="bmiWeight">وزن (کیلوگرم)</label>
+<input class="w-full px-3 py-2.5 rounded-xl focusable" id="bmiWeight" inputmode="decimal" placeholder="مثلاً 72.5"/>
+<div class="muted tiny">وزن فعلی خود را وارد کنید.</div>
+</div>
+<div class="space-y-2">
+<label class="tiny muted" for="bmiHeight">قد (سانتی‌متر)</label>
+<input class="w-full px-3 py-2.5 rounded-xl focusable" id="bmiHeight" inputmode="decimal" placeholder="مثلاً 175"/>
+<div class="muted tiny">قد بدون کفش.</div>
+</div>
+</div>
+<div class="mt-3 soft p-3 rounded-xl">
+<div class="flex items-center justify-between gap-2">
+<div>
+<div class="muted tiny">نتیجه</div>
+<div class="text-xl font-bold"><span id="bmiValue">—</span></div>
+<div class="muted tiny mt-1">وضعیت: <span class="font-semibold" id="bmiCat">—</span></div>
+</div>
+<label class="inline-flex items-center gap-2 cursor-pointer">
+<input class="w-4 h-4 rounded focusable" id="idealWeightToggle" type="checkbox"/>
+<span class="tiny">نمایش وزن ایده‌آل</span>
+</label>
+</div>
+<div class="hidden mt-2 muted tiny" id="idealWeightBox">
+                محدوده وزن سالم: <span class="font-semibold" id="idealWeightRange"></span> کیلوگرم
+              </div>
+<div class="mt-2 hidden tiny" id="bmiWarn"></div>
+</div>
+</div>
+<div class="card p-4 md:p-5">
+<div class="flex items-start justify-between gap-3">
+<div>
+<h2 class="text-base md:text-lg font-bold">محاسبه کالری روزانه</h2>
+<p class="muted tiny mt-1">BMR و TDEE و کالری هدف بر اساس Mifflin–St Jeor</p>
+</div>
+<button class="btn px-3 py-2 soft focusable" id="copyGoalBtn" type="button">کپی کالری هدف</button>
+</div>
+<div class="mt-4 grid sm:grid-cols-2 gap-3">
+<div class="space-y-2">
+<label class="tiny muted" for="sexSel">جنسیت</label>
+<select class="w-full px-3 py-2.5 rounded-xl focusable" id="sexSel">
+<option value="male">مرد</option>
+<option value="female">زن</option>
+</select>
+</div>
+<div class="space-y-2">
+<label class="tiny muted" for="ageInput">سن (سال)</label>
+<input class="w-full px-3 py-2.5 rounded-xl focusable" id="ageInput" inputmode="numeric" placeholder="مثلاً 30"/>
+</div>
+<div class="space-y-2">
+<label class="tiny muted" for="calHeight">قد (سانتی‌متر)</label>
+<input class="w-full px-3 py-2.5 rounded-xl focusable" id="calHeight" inputmode="decimal" placeholder="مثلاً 175"/>
+</div>
+<div class="space-y-2">
+<label class="tiny muted" for="calWeight">وزن (کیلوگرم)</label>
+<input class="w-full px-3 py-2.5 rounded-xl focusable" id="calWeight" inputmode="decimal" placeholder="مثلاً 72.5"/>
+</div>
+<div class="space-y-2 sm:col-span-2">
+<label class="tiny muted" for="activitySel">سطح فعالیت</label>
+<select class="w-full px-3 py-2.5 rounded-xl focusable" id="activitySel">
+<option value="1.2">کم‌تحرک (1.2)</option>
+<option value="1.375">فعالیت سبک (1.375)</option>
+<option selected="" value="1.55">فعالیت متوسط (1.55)</option>
+<option value="1.725">فعالیت زیاد (1.725)</option>
+<option value="1.9">خیلی زیاد (1.9)</option>
+</select>
+</div>
+<div class="space-y-2 sm:col-span-2">
+<label class="tiny muted" for="goalSel">هدف</label>
+<select class="w-full px-3 py-2.5 rounded-xl focusable" id="goalSel">
+<option selected="" value="0">نگهداری وزن (0)</option>
+<option value="-250">کاهش وزن ملایم (−250)</option>
+<option value="-500">کاهش وزن (−500)</option>
+<option value="250">افزایش وزن ملایم (+250)</option>
+<option value="500">افزایش وزن (+500)</option>
+</select>
+</div>
+</div>
+<div class="mt-3 soft p-3 rounded-xl">
+<div class="hidden mb-2 text-sm font-semibold" id="calError"></div>
+<div class="grid sm:grid-cols-3 gap-2">
+<div class="soft p-3">
+<div class="muted tiny">BMR</div>
+<div class="text-lg font-bold"><span id="bmrOut">—</span> <span class="muted tiny">کیلوکالری</span></div>
+</div>
+<div class="soft p-3">
+<div class="muted tiny">کالری نگهداری (TDEE)</div>
+<div class="text-lg font-bold"><span id="tdeeOut">—</span></div>
+</div>
+<div class="soft p-3">
+<div class="muted tiny">کالری هدف</div>
+<div class="text-lg font-bold"><span id="goalOut">—</span></div>
+</div>
+</div>
+<div class="mt-2 hidden tiny" id="calWarn"></div>
+</div>
+</div>
+</div>
+<div class="card p-4 md:p-5">
+<div class="flex items-start justify-between gap-3 flex-wrap">
+<div>
+<h2 class="text-base md:text-lg font-bold">راهنمای سریع تفسیر آزمایش‌ها</h2>
+<p class="muted tiny mt-1">این بخش صرفاً آموزشی است و جایگزین نظر پزشک نیست.</p>
+</div>
+<button class="btn px-3 py-2 soft focusable" id="copyLabBtn" type="button">کپی نتیجه</button>
+</div>
+<div class="mt-4 grid md:grid-cols-3 gap-3">
+<div class="space-y-2">
+<label class="tiny muted" for="labType">نوع آزمایش</label>
+<select class="w-full px-3 py-2.5 rounded-xl focusable" id="labType"></select>
+<div class="muted tiny" id="labUnitHint">—</div>
+</div>
+<div class="space-y-2">
+<label class="tiny muted" for="labValue">عدد شما</label>
+<input class="w-full px-3 py-2.5 rounded-xl focusable" id="labValue" inputmode="decimal" placeholder="مثلاً 95"/>
+<div class="muted tiny">می‌توانید با اعداد فارسی یا انگلیسی وارد کنید.</div>
+</div>
+<div class="space-y-2">
+<label class="tiny muted" for="labSex">جنسیت (در صورت نیاز)</label>
+<select class="w-full px-3 py-2.5 rounded-xl focusable" id="labSex">
+<option value="any">فرقی ندارد</option>
+<option value="male">مرد</option>
+<option value="female">زن</option>
+</select>
+<div class="muted tiny">برخی رنج‌ها وابسته به جنسیت هستند.</div>
+</div>
+</div>
+<div class="mt-3 soft p-3 rounded-xl">
+<div class="grid md:grid-cols-3 gap-2">
+<div class="soft p-3">
+<div class="muted tiny">وضعیت</div>
+<div class="text-lg font-extrabold" id="labStatus">—</div>
+</div>
+<div class="soft p-3 md:col-span-2">
+<div class="muted tiny">توضیح</div>
+<div class="leading-7" id="labExplain">برای شروع، نوع آزمایش و عدد خود را وارد کنید.</div>
+</div>
+</div>
+<div class="mt-2 muted tiny" id="labRange">رنج مرجع: —</div>
+</div>
+</div>
+<div class="mt-3 grid md:grid-cols-2 gap-2">
+<details class="soft p-3 rounded-xl min-w-0">
+<summary class="cursor-pointer font-bold">نکات مهم</summary>
+<ul class="mt-2 list-disc pr-5 muted tiny leading-7">
+<li>نتیجهٔ آزمایش به سن، شرایط بدنی، داروها و روش آزمایشگاه هم وابسته است.</li>
+<li>اگر «خیلی بالا/خیلی پایین» نمایش داده شد یا علائم دارید، برای تفسیر قطعی با پزشک مشورت کنید.</li>
+<li>بهتر است چند نتیجه پشت‌سرهم را مقایسه کنید، نه فقط یک عدد.</li>
+</ul>
+</details>
+<details class="soft p-3 rounded-xl min-w-0">
+<summary class="cursor-pointer font-bold">راهنمای سریع رنگ‌ها</summary>
+<div class="mt-2 muted tiny leading-7">
+<div><span class="font-bold text-emerald-200">نرمال</span> یعنی در محدوده مرجع.</div>
+<div><span class="font-bold text-amber-200">مرزی</span> یعنی نزدیک حد پایین/بالا و نیازمند توجه.</div>
+<div><span class="font-bold text-rose-200">غیرنرمال</span> یعنی خارج از محدوده و بهتر است بررسی شود.</div>
+</div>
+</details>
+</div>
+</section>
+<!-- DateTime Page -->
+<section class="hidden space-y-4 md:space-y-5" id="page-datetime">
+<div class="card p-4 md:p-5">
+<div class="flex items-start justify-between gap-3 flex-wrap">
+<div>
+<h2 class="text-base md:text-lg font-bold">تاریخ و ساعت ایران</h2>
+<p class="muted tiny mt-1">به‌روزرسانی خودکار (با سرویس آنلاین) + ساعت آنالوگ</p>
+</div>
+<div class="flex gap-2 flex-wrap">
+<button class="btn px-3 py-2 soft focusable" id="timeRefreshBtn" type="button">به‌روزرسانی</button>
+<button class="btn px-3 py-2 soft focusable" id="timeCopyBtn" type="button">کپی</button>
+</div>
+</div>
+<div class="mt-4 grid lg:grid-cols-2 gap-3">
+<div class="soft p-4 rounded-2xl">
+<div class="flex items-center justify-between gap-2">
+<div class="font-bold">ساعت ایران</div>
+<div class="muted tiny">Asia/Tehran</div>
+</div>
+<div class="calcDisplay text-4xl md:text-5xl font-extrabold mt-3" id="timeIR">—</div>
+<div class="mt-2 soft p-3 flex items-center justify-between gap-2">
+<div class="muted tiny">ساعت جهانی (UTC)</div>
+<div class="calcDisplay text-xl font-extrabold" id="timeUTC">—</div>
+</div>
+<div class="mt-3 grid sm:grid-cols-2 gap-2">
+<div class="soft p-3">
+<div class="muted tiny">تاریخ شمسی</div>
+<div class="calcDisplay text-2xl font-extrabold mt-2" id="todayJalali">—</div>
+</div>
+<div class="soft p-3">
+<div class="muted tiny">تاریخ میلادی</div>
+<div class="calcDisplay text-2xl font-extrabold mt-2" id="todayGreg">—</div>
+</div>
+</div>
+<div class="muted tiny mt-3">آخرین بروزرسانی: <span id="timeUpdatedAt">—</span></div>
+</div>
+<div class="soft p-4 rounded-2xl flex flex-col items-center justify-center gap-3">
+<div class="font-bold">ساعت آنالوگ (ایران)</div>
+<div class="analogWrap">
+<svg aria-label="ساعت آنالوگ ایران" class="analogSvg" id="analogSvg" role="img" viewbox="0 0 200 200">
+<defs>
+<lineargradient id="gradHub" x1="0" x2="1" y1="0" y2="1">
+<stop offset="0%" stop-color="var(--gradA)"></stop>
+<stop offset="100%" stop-color="var(--gradB)"></stop>
+</lineargradient>
+<radialgradient cx="35%" cy="25%" id="dialGlow" r="70%">
+<stop offset="0%" stop-color="color-mix(in srgb, var(--primary) 22%, transparent 78%)"></stop>
+<stop offset="55%" stop-color="transparent"></stop>
+<stop offset="100%" stop-color="rgba(0,0,0,.25)"></stop>
+</radialgradient>
+</defs>
+<circle cx="100" cy="100" fill="url(#dialGlow)" r="96"></circle>
+<circle class="analogRing" cx="100" cy="100" fill="transparent" r="86"></circle>
+<g id="analogTicks"></g>
+<g id="analogNums"></g>
+<!-- Hands (origin: center) -->
+<g id="hands">
+<line class="handLine handHourLine" id="handHour" x1="100" x2="100" y1="104" y2="60"></line>
+<line class="handLine handMinLine" id="handMin" x1="100" x2="100" y1="106" y2="42"></line>
+<line class="handLine handSecLine" id="handSec" x1="100" x2="100" y1="112" y2="36"></line>
+</g>
+<circle class="analogHub" cx="100" cy="100" r="7.5"></circle>
+<circle cx="100" cy="100" fill="rgba(255,255,255,.8)" r="2.2"></circle>
+<text class="analogBrand" x="100" y="142">codeisa</text>
+</svg>
+</div>
+<div class="tiny text-amber-200" id="timeStatusText">در حال دریافت…</div>
+</div>
+</div>
+</div>
+<div class="soft p-4 rounded-2xl mt-3" id="occCard">
+<div class="flex items-center justify-between gap-2 flex-wrap">
+<div class="font-bold">مناسبت‌های امروز</div>
+<div class="tiny font-semibold text-rose-200 hidden" id="occHolidayBadge">تعطیل</div>
+</div>
+<div class="mt-3 space-y-2" id="occList"></div>
+<div class="muted tiny mt-2" id="occHint">این بخش بر اساس تاریخ امروز ایران بارگذاری می‌شود.</div>
+</div>
+</section>
+<!-- Weather Page -->
+<section class="hidden space-y-4 md:space-y-5" id="page-weather">
+<div class="card p-4 md:p-5">
+<div class="flex items-start justify-between gap-3 flex-wrap">
+<div>
+<h2 class="text-base md:text-lg font-bold">آب‌ و هوا</h2>
+<p class="muted tiny mt-1">نمایش جزئیات شبیه Google Weather (با داده‌های Open‑Meteo) • مراکز استان + جستجوی شهرهای ایران</p>
+</div>
+<div class="flex gap-2 flex-wrap">
+<button class="btn px-3 py-2 soft focusable" id="weatherRefreshBtn" type="button">به‌روزرسانی</button>
+<button class="btn px-3 py-2 soft focusable" id="weatherCopyBtn" type="button">کپی</button>
+</div>
+</div>
+<div class="mt-4 grid grid-cols-1 lg:grid-cols-2 gap-3 items-start">
+<!-- Left: choose city -->
+<div class="soft p-4 rounded-2xl min-w-0 w-full overflow-hidden">
+<div class="font-bold">انتخاب سریع (مراکز استان)</div>
+<div class="muted tiny mt-1">یکی از مراکز استان را انتخاب کنید.</div>
+<select class="mt-3 w-full px-3 py-2.5 rounded-xl focusable" id="weatherCapitalSel"></select>
+<div class="mt-4">
+<div class="font-bold">جستجوی شهر</div>
+<div class="muted tiny mt-1">نام شهر را تایپ کنید (مثلاً «شیراز» یا «Shiraz»).</div>
+<input autocomplete="off" class="mt-3 w-full px-3 py-2.5 rounded-xl focusable" id="weatherSearchInput" placeholder="جستجو در شهرهای ایران…"/>
+<div class="mt-3 space-y-2" id="weatherSearchResults"></div>
+</div>
+<div class="mt-4 tiny text-amber-200" id="weatherStatus">برای شروع، یک شهر انتخاب کنید.</div>
+</div>
+<!-- Right: weather details -->
+<div class="soft p-4 rounded-2xl min-w-0 w-full overflow-hidden">
+<div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 min-w-0">
+<div>
+<div class="muted tiny">شهر انتخاب‌شده</div>
+<div class="text-xl md:text-2xl font-extrabold mt-1" id="weatherCityTitle">—</div>
+<div class="muted tiny mt-1" id="weatherSubTitle">—</div>
+</div>
+<div class="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-start">
+<div class="text-5xl sm:text-6xl leading-none shrink-0" id="weatherIcon">⛅</div>
+<div class="text-right min-w-0">
+<div class="muted tiny">اکنون</div>
+<div class="text-4xl sm:text-5xl font-extrabold calcDisplay"><span id="weatherTemp">—</span></div>
+<div class="muted tiny mt-1">دمای احساسی: <span class="font-semibold" id="weatherFeels">—</span></div>
+</div>
+</div>
+</div>
+<!-- Narrative banner -->
+<div class="mt-4 soft p-3 rounded-xl flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2" id="weatherNarrative">
+<div class="flex items-center gap-2">
+<span class="text-xl">☂️</span>
+<div class="tiny">
+<div class="font-semibold" id="weatherNarrativeTitle">—</div>
+<div class="muted" id="weatherNarrativeSub">—</div>
+</div>
+</div>
+<div class="tiny muted">آخرین بروزرسانی: <span id="weatherUpdatedAt">—</span></div>
+</div>
+<!-- small stats row -->
+<div class="mt-3 grid sm:grid-cols-3 gap-2">
+<div class="soft p-3">
+<div class="muted tiny">رطوبت</div>
+<div class="text-xl font-extrabold calcDisplay"><span id="weatherHumidity">—</span></div>
+</div>
+<div class="soft p-3">
+<div class="muted tiny">باد</div>
+<div class="text-xl font-extrabold calcDisplay"><span id="weatherWind">—</span></div>
+</div>
+<div class="soft p-3">
+<div class="muted tiny">وضعیت</div>
+<div class="text-xl font-extrabold calcDisplay"><span id="weatherDesc">—</span></div>
+</div>
+</div>
+<!-- Tabs -->
+<div class="mt-4 flex gap-2 flex-wrap">
+<button class="weatherTab btn px-3 py-2 focusable tabActive" data-wtab="overview" type="button">نمای کلی</button>
+<button class="weatherTab btn px-3 py-2 focusable tabIdle" data-wtab="precip" type="button">بارش</button>
+<button class="weatherTab btn px-3 py-2 focusable tabIdle" data-wtab="wind" type="button">باد</button>
+<button class="weatherTab btn px-3 py-2 focusable tabIdle" data-wtab="humidity" type="button">رطوبت</button>
+</div>
+<!-- Hourly strip -->
+<div class="mt-3 soft p-3 rounded-2xl">
+<div class="flex items-center justify-between gap-2">
+<div class="font-bold">ساعتی (۱۲ ساعت آینده)</div>
+<div class="muted tiny" id="weatherHourlyHint">—</div>
+</div>
+<div class="mt-3 flex gap-2 overflow-x-auto pb-2 -mx-1 px-1 scrollbar-hide snap-x snap-mandatory" id="weatherHourly"></div>
+</div>
+<!-- Daily cards -->
+<div class="mt-3 soft p-3 rounded-2xl">
+<div class="font-bold">چند روز آینده</div>
+<div class="mt-3 grid grid-cols-2 sm:grid-cols-3 gap-2" id="weatherDaily"></div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Crypto Page -->
+<section class="hidden space-y-4 md:space-y-5" id="page-crypto">
+<div class="card p-4 md:p-5">
+<div class="flex items-start justify-between gap-3 flex-wrap">
+<div>
+<h2 class="text-base md:text-lg font-bold">رمزارزها (قیمت لحظه‌ای)</h2>
+<p class="muted tiny mt-1">قیمت‌ها از بازار ریالی نوبیتکس دریافت می‌شوند و هر چند ثانیه به‌روزرسانی می‌گردند.</p>
+</div>
+<div class="flex items-center gap-2 flex-wrap">
+<div class="soft px-3 py-2 rounded-xl flex items-center gap-2">
+<span class="w-2.5 h-2.5 rounded-full bg-amber-400" id="cryptoStatusDot"></span>
+<span class="font-semibold text-amber-200 tiny" id="cryptoStatusText">در حال اتصال…</span>
+</div>
+<button class="btn px-3 py-2 soft focusable" id="cryptoRefreshBtn" type="button">به‌روزرسانی</button>
+<button class="btn px-3 py-2 soft focusable" id="cryptoCopyAllBtn" type="button">کپی همه</button>
+</div>
+</div>
+<div class="mt-4 grid sm:grid-cols-2 lg:grid-cols-3 gap-3" id="cryptoGrid"></div>
+<div class="mt-3 soft p-3 rounded-xl flex items-center justify-between gap-2">
+<div class="tiny muted">آخرین بروزرسانی: <span id="cryptoUpdatedAt">—</span></div>
+<div class="tiny muted">واحد: تومان</div>
+</div>
+</div>
+</section>
+<!-- Calculator Page -->
+<section class="hidden space-y-4 md:space-y-5" id="page-calculator">
+<div class="calcShell p-4 md:p-6">
+<div class="relative flex items-start justify-between gap-3">
+<div>
+<h2 class="text-base md:text-lg font-extrabold">ماشین حساب حرفه‌ای</h2>
+<p class="muted tiny mt-1">نمایشگر طبق انتخاب شما در تنظیمات: فارسی یا انگلیسی</p>
+</div>
+<div class="flex gap-2">
+<button class="btn px-3 py-2 soft focusable" id="calcModeBtn" type="button">مهندسی</button>
+<button class="btn px-3 py-2 soft focusable" id="calcCopyBtn" type="button">کپی</button>
+<button class="btn px-3 py-2 soft focusable" id="calcClearBtn" type="button">پاک‌کردن</button>
+</div>
+</div>
+<div class="mt-4 calcTop p-4 md:p-5">
+<div class="flex items-center justify-between gap-3">
+<div class="muted tiny">عبارت</div>
+<div class="muted tiny">حافظه: <span class="font-bold" id="memBadge">0</span></div>
+</div>
+<div class="mt-2 soft p-3">
+<div class="calcDisplay text-base md:text-lg font-semibold min-h-[28px]" id="calcExpr">—</div>
+<div class="muted tiny mt-2">نتیجه</div>
+<div class="calcDisplay text-3xl md:text-5xl font-extrabold mt-1" id="calcResult">0</div>
+</div>
+<div class="mt-3 text-xs muted text-left">
+<div class="soft inline-flex items-center gap-2 px-3 py-2">
+<span class="grad w-2.5 h-2.5 rounded-full"></span>
+<span>Enter = محاسبه</span>
+</div>
+</div>
+</div>
+<div class="mt-4 grid grid-cols-4 gap-2 select-none" id="calcPad">
+<button class="calcKey calcKeyUtil focusable" data-k="MC" type="button">MC</button>
+<button class="calcKey calcKeyUtil focusable" data-k="MR" type="button">MR</button>
+<button class="calcKey calcKeyUtil focusable" data-k="M+" type="button">M+</button>
+<button class="calcKey calcKeyUtil focusable" data-k="M-" type="button">M-</button>
+<button class="calcKey calcKeyUtil focusable" data-k="(" type="button">(</button>
+<button class="calcKey calcKeyUtil focusable" data-k=")" type="button">)</button>
+<button class="calcKey calcKeyUtil focusable" data-k="%" type="button">٪</button>
+<button class="calcKey calcKeyDanger focusable" data-k="DEL" type="button">⌫</button>
+<button class="calcKey focusable calcDigit" data-en="7" data-fa="۷" data-k="7" type="button">۷</button>
+<button class="calcKey focusable calcDigit" data-en="8" data-fa="۸" data-k="8" type="button">۸</button>
+<button class="calcKey focusable calcDigit" data-en="9" data-fa="۹" data-k="9" type="button">۹</button>
+<button class="calcKey calcKeyOp focusable" data-k="/" type="button">÷</button>
+<button class="calcKey focusable calcDigit" data-en="4" data-fa="۴" data-k="4" type="button">۴</button>
+<button class="calcKey focusable calcDigit" data-en="5" data-fa="۵" data-k="5" type="button">۵</button>
+<button class="calcKey focusable calcDigit" data-en="6" data-fa="۶" data-k="6" type="button">۶</button>
+<button class="calcKey calcKeyOp focusable" data-k="*" type="button">×</button>
+<button class="calcKey focusable calcDigit" data-en="1" data-fa="۱" data-k="1" type="button">۱</button>
+<button class="calcKey focusable calcDigit" data-en="2" data-fa="۲" data-k="2" type="button">۲</button>
+<button class="calcKey focusable calcDigit" data-en="3" data-fa="۳" data-k="3" type="button">۳</button>
+<button class="calcKey calcKeyOp focusable" data-k="-" type="button">−</button>
+<button class="calcKey focusable calcDigit" data-en="0" data-fa="۰" data-k="0" type="button">۰</button>
+<button class="calcKey focusable" data-k="." type="button">.</button>
+<button class="calcKey calcKeyOp focusable" data-k="=" type="button">=</button>
+<button class="calcKey calcKeyOp focusable" data-k="+" type="button">+</button>
+</div>
+<div class="mt-3 hidden grid grid-cols-4 gap-2 select-none" id="calcPadSci">
+<button class="calcKey calcKeyUtil focusable" data-k="pi" type="button">π</button>
+<button class="calcKey calcKeyUtil focusable" data-k="e" type="button">e</button>
+<button class="calcKey calcKeyUtil focusable" data-k="^" type="button">xʸ</button>
+<button class="calcKey calcKeyUtil focusable" data-k="sqrt(" type="button">√</button>
+<button class="calcKey calcKeyUtil focusable" data-k="sin(" type="button">sin</button>
+<button class="calcKey calcKeyUtil focusable" data-k="cos(" type="button">cos</button>
+<button class="calcKey calcKeyUtil focusable" data-k="tan(" type="button">tan</button>
+<button class="calcKey calcKeyUtil focusable" data-k="abs(" type="button">abs</button>
+<button class="calcKey calcKeyUtil focusable" data-k="log(" type="button">log</button>
+<button class="calcKey calcKeyUtil focusable" data-k="ln(" type="button">ln</button>
+<button class="calcKey calcKeyUtil focusable" data-k="pow(" type="button">pow</button>
+<button class="calcKey calcKeyUtil focusable" data-k="," type="button">,</button>
+</div>
+<div class="mt-4 soft p-3 rounded-xl">
+<div class="tiny muted">ورود با کیبورد</div>
+<div class="muted tiny mt-1">۰-۹ یا 0-9، + - * / ( ) . Enter Backspace</div>
+</div>
+</div>
+</section>
+<!-- Settings Page -->
+<section class="hidden space-y-4 md:space-y-5" id="page-settings">
+<div class="card p-4 md:p-5">
+<div class="flex items-start justify-between gap-3">
+<div>
+<h2 class="text-base md:text-lg font-bold">تنظیمات و شخصی‌سازی</h2>
+<p class="muted tiny mt-1">ظاهر و رفتار برنامه را مطابق سلیقه خود تغییر دهید. تنظیمات در همین مرورگر ذخیره می‌شود.</p>
+</div>
+<button class="btn px-3 py-2 soft focusable" id="resetBtn" type="button">بازنشانی</button>
+</div>
+<div class="mt-4 grid md:grid-cols-2 lg:grid-cols-3 gap-3">
+<div class="soft p-3">
+<label class="tiny muted">رنگ پس‌زمینه</label>
+<div class="mt-2 flex items-center gap-3">
+<input class="w-12 h-10 rounded-xl focusable" id="bgColor" type="color"/>
+<input class="flex-1 px-3 py-2 rounded-xl focusable" id="bgColorText" placeholder="#0b1220"/>
+</div>
+</div>
+<div class="soft p-3">
+<label class="tiny muted">رنگ کارت‌ها</label>
+<div class="mt-2 flex items-center gap-3">
+<input class="w-12 h-10 rounded-xl focusable" id="surfaceColor" type="color"/>
+<input class="flex-1 px-3 py-2 rounded-xl focusable" id="surfaceColorText" placeholder="#0f1b33"/>
+</div>
+</div>
+<div class="soft p-3">
+<label class="tiny muted">رنگ متن</label>
+<div class="mt-2 flex items-center gap-3">
+<input class="w-12 h-10 rounded-xl focusable" id="textColor" type="color"/>
+<input class="flex-1 px-3 py-2 rounded-xl focusable" id="textColorText" placeholder="#e8eefc"/>
+</div>
+</div>
+<div class="soft p-3">
+<label class="tiny muted">رنگ اقدام اصلی</label>
+<div class="mt-2 flex items-center gap-3">
+<input class="w-12 h-10 rounded-xl focusable" id="primaryColor" type="color"/>
+<input class="flex-1 px-3 py-2 rounded-xl focusable" id="primaryColorText" placeholder="#38bdf8"/>
+</div>
+</div>
+<div class="soft p-3">
+<label class="tiny muted">رنگ اقدام ثانویه</label>
+<div class="mt-2 flex items-center gap-3">
+<input class="w-12 h-10 rounded-xl focusable" id="secondaryColor" type="color"/>
+<input class="flex-1 px-3 py-2 rounded-xl focusable" id="secondaryColorText" placeholder="#a78bfa"/>
+</div>
+</div>
+<div class="soft p-3">
+<label class="tiny muted">فونت</label>
+<select class="mt-2 w-full px-3 py-2.5 rounded-xl focusable" id="fontFamily">
+<option value='ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans"'>پیش‌فرض (سیستمی)</option>
+<option value='"Vazirmatn", ui-sans-serif, system-ui'>Vazirmatn (اگر نصب باشد)</option>
+<option value='"IRANSans", ui-sans-serif, system-ui'>IRANSans (اگر نصب باشد)</option>
+<option value='"Tahoma", ui-sans-serif, system-ui'>Tahoma</option>
+<option system-ui\'="" ui-sans-serif,="" value="\'&quot;Sahel&quot;,">Sahel (پیشنهادی)</option>
+</select>
+<div class="muted tiny mt-2">در صورت نبود فونت، به فونت‌های جایگزین می‌رود.</div>
+</div>
+<div class="soft p-3">
+<label class="tiny muted">اندازه متن</label>
+<div class="mt-2 flex items-center gap-3">
+<input class="w-full" id="fontSize" max="20" min="13" step="1" type="range"/>
+<div class="soft px-3 py-2 rounded-xl text-sm w-16 text-center" id="fontSizeLabel">16</div>
+</div>
+</div>
+<div class="soft p-3">
+<label class="tiny muted">گرادیان برجسته (شروع)</label>
+<div class="mt-2 flex items-center gap-3">
+<input class="w-12 h-10 rounded-xl focusable" id="gradA" type="color"/>
+<input class="flex-1 px-3 py-2 rounded-xl focusable" id="gradAText" placeholder="#22c55e"/>
+</div>
+</div>
+<div class="soft p-3">
+<label class="tiny muted">گرادیان برجسته (پایان)</label>
+<div class="mt-2 flex items-center gap-3">
+<input class="w-12 h-10 rounded-xl focusable" id="gradB" type="color"/>
+<input class="flex-1 px-3 py-2 rounded-xl focusable" id="gradBText" placeholder="#38bdf8"/>
+</div>
+</div>
+<div class="soft p-3 md:col-span-2 lg:col-span-3">
+<div class="flex items-center justify-between gap-2">
+<div>
+<div class="tiny muted">نمایش اعداد فارسی (در کل برنامه)</div>
+<div class="muted tiny mt-1">برای خروجی‌ها و بیشتر نمایش‌ها.</div>
+</div>
+<label class="inline-flex items-center cursor-pointer">
+<input class="sr-only" id="persianDigitsToggle" type="checkbox"/>
+<span class="w-12 h-7 rounded-full relative soft">
+<span class="absolute top-1 right-1 w-5 h-5 rounded-full grad transition-all" id="persianDigitsDot"></span>
+</span>
+</label>
+</div>
+<div class="mt-3 flex items-center justify-between gap-2">
+<div>
+<div class="tiny muted">کپی با اعداد فارسی</div>
+<div class="muted tiny mt-1">اگر روشن باشد، متن کپی‌شده هم فارسی می‌شود.</div>
+</div>
+<label class="inline-flex items-center cursor-pointer">
+<input class="sr-only" id="copyPersianToggle" type="checkbox"/>
+<span class="w-12 h-7 rounded-full relative soft">
+<span class="absolute top-1 right-1 w-5 h-5 rounded-full grad transition-all" id="copyPersianDot"></span>
+</span>
+</label>
+</div>
+<div class="mt-3 flex items-center justify-between gap-2">
+<div>
+<div class="tiny muted">نمایشگر ماشین حساب</div>
+<div class="muted tiny mt-1">عددها و نمایشگر ماشین حساب فارسی یا انگلیسی.</div>
+</div>
+<select class="px-3 py-2 rounded-xl focusable" id="calcDisplayLang">
+<option value="fa">فارسی</option>
+<option value="en">انگلیسی</option>
+</select>
+</div>
+<div class="mt-3 flex items-center justify-between gap-2">
+<div>
+<div class="tiny muted">صدای کلیک ماشین حساب</div>
+<div class="muted tiny mt-1">صدای ریز هنگام فشردن کلیدها.</div>
+</div>
+<label class="inline-flex items-center cursor-pointer">
+<input class="sr-only" id="soundToggle" type="checkbox"/>
+<span class="w-12 h-7 rounded-full relative soft">
+<span class="absolute top-1 right-1 w-5 h-5 rounded-full grad transition-all" id="soundDot"></span>
+</span>
+</label>
+</div>
+<div class="mt-3">
+<div class="tiny muted">شدت صدا</div>
+<div class="mt-2 flex items-center gap-3">
+<input class="w-full" id="soundVolume" max="100" min="0" step="1" type="range"/>
+<div class="soft px-3 py-2 rounded-xl text-sm w-16 text-center" id="soundVolumeLabel">30</div>
+</div>
+</div>
+<div class="mt-4 soft p-3">
+<div class="font-bold">پیکربندی (Config)</div>
+<p class="muted tiny mt-1">کپی/وارد کردن پیکربندی برای بکاپ گرفتن از تنظیمات.</p>
+<div class="mt-2 grid md:grid-cols-2 gap-2">
+<button class="btn px-3 py-2 soft focusable" id="exportConfig" type="button">کپی پیکربندی</button>
+<button class="btn px-3 py-2 soft focusable" id="importConfig" type="button">وارد کردن پیکربندی</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Help Page -->
+<section class="hidden space-y-4 md:space-y-5" id="page-help">
+<div class="card p-4 md:p-5">
+<h2 class="text-base md:text-lg font-bold">راهنما</h2>
+<div class="mt-3 space-y-3 leading-7">
+<div class="soft p-3">
+<div class="font-bold">شروع سریع</div>
+<ul class="mt-2 list-disc pr-5 muted">
+<li>از نوار بالا بخش موردنظر را انتخاب کنید (تبدیل واحد، سلامتی، تاریخ و ساعت، کریپتو، ماشین حساب، تنظیمات).</li>
+<li>همه محاسبات داخل مرورگر انجام می‌شود و اطلاعات شما روی سرور ذخیره نمی‌شود (به‌جز دریافت داده‌های آنلاین مثل ساعت و قیمت‌ها).</li>
+</ul>
+</div>
+<div class="soft p-3">
+<div class="font-bold">تبدیل واحد</div>
+<ul class="mt-2 list-disc pr-5 muted">
+<li>مقدار را وارد کنید، واحد مبدا و مقصد را انتخاب کنید؛ نتیجه فوری نمایش داده می‌شود.</li>
+<li>با «جابجایی» واحدها سریع جای مبدا/مقصد را عوض کنید.</li>
+<li>دقت اعشار را از اسلایدر دقت تنظیم کنید.</li>
+</ul>
+</div>
+<div class="soft p-3">
+<div class="font-bold">تاریخ و ساعت</div>
+<ul class="mt-2 list-disc pr-5 muted">
+<li>ساعت ایران و ساعت جهانی از سرویس آنلاین به‌روز می‌شوند.</li>
+<li>ساعت آنالوگ هر دقیقه همگام می‌شود و ثانیه‌شمار بدون قطع شدن ادامه می‌دهد.</li>
+<li>مناسبت‌های همان روز نمایش داده می‌شود؛ موارد تعطیل با رنگ قرمز و برچسب «تعطیل» مشخص هستند.</li>
+</ul>
+</div>
+<div class="soft p-3">
+<div class="font-bold">کریپتو</div>
+<ul class="mt-2 list-disc pr-5 muted">
+<li>قیمت ارزها به‌صورت زنده نمایش داده می‌شود و هر چند ثانیه یکبار به‌روزرسانی می‌گردد.</li>
+<li>اگر اینترنت یا سرویس قیمت‌دهی مشکل داشته باشد، ممکن است برای لحظاتی «—» نمایش داده شود.</li>
+</ul>
+</div>
+<div class="soft p-3">
+<div class="font-bold">ماشین حساب</div>
+<ul class="mt-2 list-disc pr-5 muted">
+<li>ماشین حساب دو حالت دارد: ساده و مهندسی (با دکمه «مهندسی/ساده» جابجا شوید).</li>
+<li>با کیبورد هم می‌توانید وارد کنید: ۰-۹ یا 0-9، + - * / ( ) . Enter Backspace</li>
+<li>نمایشگر و اعداد کلیدها از تنظیمات قابل تغییر بین فارسی و انگلیسی است.</li>
+</ul>
+</div>
+<div class="soft p-3">
+<div class="font-bold">سلامتی</div>
+<ul class="mt-2 list-disc pr-5 muted">
+<li>BMI و کالری روزانه برای تخمین استفاده می‌شوند و جایگزین نظر پزشک نیستند.</li>
+<li>در «راهنمای آزمایش» می‌توانید نام آیتم را انتخاب کنید و یک تفسیر سریع و آموزشی ببینید.</li>
+</ul>
+</div>
+<div class="soft p-3">
+<div class="font-bold">تنظیمات</div>
+<ul class="mt-2 list-disc pr-5 muted">
+<li>رنگ‌ها، فونت و نمایش اعداد را شخصی‌سازی کنید؛ تنظیمات در همین مرورگر ذخیره می‌شود.</li>
+<li>برای برگشت به حالت اولیه از دکمه بازنشانی استفاده کنید.</li>
+</ul>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="mt-6 md:mt-8 pb-6 text-center muted tiny">
+<div class="flex flex-col gap-2 items-center">
+<span id="footerOut">طراحی شده توسط FARHAD 🎨</span>
+<a class="text-sky-300 underline underline-offset-4" href="https://t.me/ShadowPsychologist" rel="noopener" target="_blank"><span class="inline-flex items-center gap-2"><svg aria-hidden="true" height="18" viewbox="0 0 24 24" width="18"><path d="M9.04 15.15 8.8 19.1c.37 0 .54-.16.74-.35l1.78-1.7 3.69 2.7c.68.38 1.16.18 1.34-.63l2.43-11.37c.21-.99-.36-1.38-1.02-1.13L3.39 10.13c-.95.37-.94.9-.17 1.14l3.96 1.24 9.2-5.8c.43-.27.82-.12.5.15z" fill="#38bdf8"></path><path d="M7.35 12.51 16.3 6.86c.41-.26.79-.12.48.16L9.04 15.15l-.3 3.95c.46 0 .66-.21.92-.47l2.21-2.12 4.6 3.37c.85.47 1.45.23 1.66-.79l2.99-13.8c.24-1.09-.41-1.54-1.18-1.24L2.6 9.9c-1.11.43-1.09 1.05-.19 1.33z" fill="#38bdf8"></path></svg><span>ارتباط با سازنده</span></span></a>
+</div>
+</footer>
+</div>
+<!-- Toasts -->
+<div class="fixed bottom-4 left-4 right-4 md:left-auto md:right-6 md:bottom-6 z-50 space-y-2 w-auto max-w-md" id="toastHost"></div>
 <script>
 /* ========================= Utilities ========================= */
 const clamp=(n,min,max)=>Math.min(max,Math.max(min,n));
@@ -2028,6 +2000,7 @@ const fetchOccasions = async (jy,jm,jd) => {
     const res = await fetch(HOLIDAY_API(jy,jm,jd), { cache:"no-store" });
     if(!res.ok) throw new Error("bad_status");
     const data = await res.json();
+    weatherState.lastData = data;
     renderOccasions(data);
   }catch{
     // در صورت خطا، این بخش خالی می‌ماند
@@ -2199,6 +2172,7 @@ const fetchTimeApiZone = async (timeZone) => {
   const res = await fetch(url, { cache:"no-store" });
   if(!res.ok) throw new Error("bad_status");
   const data = await res.json();
+    weatherState.lastData = data;
   if(!data || typeof data.year !== "number" || typeof data.hour !== "number") throw new Error("bad_payload");
   return data;
 };
@@ -2284,6 +2258,8 @@ const IRAN_CAPITALS = [
 
 let weatherState = {
   place: null, // {name, admin1, admin2, lat, lon}
+  tab: "overview",
+  lastData: null,
   lastText: ""
 };
 
@@ -2338,6 +2314,7 @@ const weatherGeocode = async (q) => {
   const res = await fetch(url, {cache:"no-store"});
   if(!res.ok) throw new Error("bad_status");
   const data = await res.json();
+    weatherState.lastData = data;
   const results = (data && Array.isArray(data.results)) ? data.results : [];
   return results.map(r=>({
     name: r.name,
@@ -2388,15 +2365,192 @@ const weatherFmt = (n, unit) => {
   return cfg.enable_persian_digits ? toPersianDigits(s) : s;
 };
 
+const weatherBuildNarrative = (hourly, tz) => {
+  // خروجی: {title, sub, umbrellaEmoji}
+  try{
+    const times = hourly.time || [];
+    const prob = hourly.precipitation_probability || [];
+    const prec = hourly.precipitation || [];
+    const code = hourly.weather_code || [];
+
+    const now = new Date();
+    // فقط 12 ساعت اول
+    const N = Math.min(12, times.length, prob.length, prec.length);
+    if(N <= 0) return { title:"—", sub:"—", umbrellaEmoji:"☂️" };
+
+    let maxP = 0;
+    let maxI = 0;
+    for(let i=0;i<N;i++){
+      const p = Number(prob[i]);
+      if(Number.isFinite(p) && p>maxP){ maxP=p; maxI=i; }
+    }
+
+    const maxPrec = Math.max(...prec.slice(0,N).map(x=>Number(x)||0));
+    const info = weatherCodeInfo(Number(code[maxI]));
+    const umb = (maxP>=40 || maxPrec>0) ? "☂️" : "🌤️";
+
+    // تلاش برای پیدا کردن زمان پایان بارش (وقتی احتمال برای 2 ساعت پشت سر هم پایین بیاد)
+    let endAt = null;
+    if(maxP >= 50 || maxPrec > 0){
+      for(let i=maxI;i<N-2;i++){
+        const p1 = Number(prob[i+1])||0;
+        const p2 = Number(prob[i+2])||0;
+        if(p1 < 30 && p2 < 30){
+          endAt = times[i+1];
+          break;
+        }
+      }
+    }
+
+    const fmtTime = (iso)=>{
+      try{
+        const d = new Date(iso);
+        const hh = String(d.getHours()).padStart(2,"0");
+        const mm = String(d.getMinutes()).padStart(2,"0");
+        return fmtMaybeFaDigits(`${hh}:${mm}`);
+      }catch{ return "—"; }
+    };
+
+    if(maxP >= 70 || maxPrec >= 1){
+      const title = "بارش (احتمال زیاد)";
+      const sub = endAt ? `احتمال بارش تا حدود ${fmtTime(endAt)} بالاست • وضعیت غالب: ${info.text}` : `احتمال بارش در ساعات آینده بالاست • وضعیت غالب: ${info.text}`;
+      return { title, sub, umbrellaEmoji: umb };
+    }
+    if(maxP >= 40 || maxPrec > 0){
+      const title = "بارش پراکنده";
+      const sub = endAt ? `ممکن است بارش تا حدود ${fmtTime(endAt)} ادامه داشته باشد • وضعیت: ${info.text}` : `در برخی ساعات احتمال بارش وجود دارد • وضعیت: ${info.text}`;
+      return { title, sub, umbrellaEmoji: umb };
+    }
+    return { title:"بارشی انتظار نمی‌رود", sub:`در ۱۲ ساعت آینده احتمال بارش کم است • وضعیت: ${info.text}`, umbrellaEmoji: umb };
+  }catch{
+    return { title:"—", sub:"—", umbrellaEmoji:"☂️" };
+  }
+};
+
+const weatherRenderHourly = (data, mode) => {
+  const box = document.getElementById("weatherHourly");
+  const hint = document.getElementById("weatherHourlyHint");
+  if(!box) return;
+  box.innerHTML = "";
+
+  const h = data && data.hourly ? data.hourly : null;
+  if(!h || !h.time){ box.innerHTML = `<div class="muted tiny">داده‌ی ساعتی در دسترس نیست.</div>`; return; }
+
+  const times = h.time;
+  const temp = h.temperature_2m || [];
+  const prob = h.precipitation_probability || [];
+  const prec = h.precipitation || [];
+  const hum  = h.relative_humidity_2m || [];
+  const wind = h.wind_speed_10m || [];
+  const code = h.weather_code || [];
+
+  const N = Math.min(12, times.length);
+  const label = (mode==="precip") ? "بارش" : (mode==="wind") ? "باد" : (mode==="humidity") ? "رطوبت" : "دما";
+  if(hint) hint.textContent = label + " • ۱۲ ساعت آینده";
+
+  const mkVal = (i)=>{
+    if(mode==="precip"){
+      const p = Number(prob[i]);
+      const mm = Number(prec[i]);
+      const a = Number.isFinite(p) ? `${Math.round(p)}%` : "—";
+      const b = Number.isFinite(mm) ? `${(mm||0).toFixed(1)}mm` : "";
+      return (b && b!=="0.0mm") ? `${a} • ${b}` : a;
+    }
+    if(mode==="wind"){
+      const w = Number(wind[i]);
+      return Number.isFinite(w) ? `${Math.round(w)} km/h` : "—";
+    }
+    if(mode==="humidity"){
+      const r = Number(hum[i]);
+      return Number.isFinite(r) ? `${Math.round(r)}%` : "—";
+    }
+    const t = Number(temp[i]);
+    return Number.isFinite(t) ? `${Math.round(t)}°` : "—";
+  };
+
+  for(let i=0;i<N;i++){
+    const d = new Date(times[i]);
+    const hh = String(d.getHours()).padStart(2,"0");
+    const tlabel = fmtMaybeFaDigits(`${hh}:00`);
+    const info = weatherCodeInfo(Number(code[i]));
+
+    const el = document.createElement("div");
+    el.className = "soft px-3 py-2 rounded-2xl weatherHourCard snap-start text-center";
+    el.innerHTML = `
+      <div class="tiny muted">${tlabel}</div>
+      <div class="text-2xl mt-1">${info.emoji}</div>
+      <div class="tiny font-semibold mt-1">${escapeHtml(mkVal(i))}</div>
+    `;
+    box.appendChild(el);
+  }
+};
+
+const weatherRenderDaily = (data) => {
+  const box = document.getElementById("weatherDaily");
+  if(!box) return;
+  box.innerHTML = "";
+
+  const d = data && data.daily ? data.daily : null;
+  if(!d || !d.time){ box.innerHTML = `<div class="muted tiny">داده‌ی روزانه در دسترس نیست.</div>`; return; }
+
+  const days = d.time;
+  const tmax = d.temperature_2m_max || [];
+  const tmin = d.temperature_2m_min || [];
+  const code = d.weather_code || [];
+  const pmax = d.precipitation_probability_max || [];
+  const psum = d.precipitation_sum || [];
+
+  const N = Math.min(6, days.length);
+  const wdFa = ["یکشنبه","دوشنبه","سه‌شنبه","چهارشنبه","پنجشنبه","جمعه","شنبه"];
+
+  const fmtDay = (iso)=>{
+    try{
+      const dt = new Date(iso);
+      return wdFa[dt.getDay()] || "—";
+    }catch{ return "—"; }
+  };
+
+  for(let i=0;i<N;i++){
+    const info = weatherCodeInfo(Number(code[i]));
+    const max = Number(tmax[i]);
+    const min = Number(tmin[i]);
+    const pr = Number(pmax[i]);
+    const mm = Number(psum[i]);
+
+    const card = document.createElement("div");
+    card.className = "soft p-3 rounded-2xl text-center";
+    const lineTemp = `${Math.round(max)}° / ${Math.round(min)}°`;
+    const lineProb = Number.isFinite(pr) ? `${Math.round(pr)}%` : "—";
+    const lineMm = Number.isFinite(mm) ? `${(mm||0).toFixed(1)}mm` : "";
+
+    card.innerHTML = `
+      <div class="tiny muted">${escapeHtml(fmtDay(days[i]))}</div>
+      <div class="text-2xl mt-1">${info.emoji}</div>
+      <div class="tiny font-semibold mt-1">${fmtMaybeFaDigits(lineTemp)}</div>
+      <div class="tiny muted mt-1">${(lineMm && lineMm!=="0.0mm") ? (fmtMaybeFaDigits(lineProb)+" • "+lineMm) : fmtMaybeFaDigits(lineProb)}</div>
+    `;
+    box.appendChild(card);
+  }
+};
+
 const weatherFetchAndRender = async () => {
   const p = weatherState.place;
   if(!p){ setWeatherStatus("warn","یک شهر انتخاب کنید."); return; }
+
   try{
     setWeatherStatus("warn","در حال دریافت…");
-    const url = `${OM_FORECAST}?latitude=${encodeURIComponent(p.lat)}&longitude=${encodeURIComponent(p.lon)}&current=temperature_2m,relative_humidity_2m,apparent_temperature,wind_speed_10m,weather_code&timezone=${encodeURIComponent(WEATHER_TZ)}`;
+
+    const url =
+      `${OM_FORECAST}?latitude=${encodeURIComponent(p.lat)}&longitude=${encodeURIComponent(p.lon)}`
+      + `&current=temperature_2m,relative_humidity_2m,apparent_temperature,wind_speed_10m,weather_code`
+      + `&hourly=temperature_2m,relative_humidity_2m,wind_speed_10m,precipitation_probability,precipitation,weather_code`
+      + `&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,precipitation_probability_max`
+      + `&timezone=${encodeURIComponent(WEATHER_TZ)}`;
+
     const res = await fetch(url, {cache:"no-store"});
     if(!res.ok) throw new Error("bad_status");
     const data = await res.json();
+    weatherState.lastData = data;
     const cur = data && data.current ? data.current : null;
 
     const t = cur ? Number(cur.temperature_2m) : NaN;
@@ -2424,8 +2578,26 @@ const weatherFetchAndRender = async () => {
     const up = `${hh}:${mm}:${ss}`;
     document.getElementById("weatherUpdatedAt").textContent = fmtMaybeFaDigits(up);
 
+    // Narrative
+    const nar = weatherBuildNarrative(data.hourly || {}, WEATHER_TZ);
+    const nt = document.getElementById("weatherNarrativeTitle");
+    const ns = document.getElementById("weatherNarrativeSub");
+    const nb = document.getElementById("weatherNarrative");
+    if(nb){
+      const umb = nb.querySelector("span.text-xl");
+      if(umb) umb.textContent = nar.umbrellaEmoji;
+    }
+    if(nt) nt.textContent = nar.title;
+    if(ns) ns.textContent = nar.sub;
+
+    // Hourly + Daily
+    const tab = weatherState.tab || "overview";
+    weatherRenderHourly(data, tab);
+    weatherRenderDaily(data);
+
     // برای کپی
-    weatherState.lastText = `${p.name}${p.admin1?(" - "+p.admin1):""}: ${Math.round(t)}°C، ${info.text}، رطوبت ${Math.round(hum)}٪، باد ${Math.round(wind)} km/h`;
+    weatherState.lastText = `${p.name}${p.admin1?(" - "+p.admin1):""}: ${Math.round(t)}°C، ${info.text}، دمای احساسی ${Math.round(feels)}°C، رطوبت ${Math.round(hum)}٪، باد ${Math.round(wind)} km/h. ${nar.title}: ${nar.sub}`;
+
     setWeatherStatus("ok","به‌روزرسانی شد ✅");
   }catch{
     setWeatherStatus("err","خطا در دریافت آب‌ و هوا. اینترنت یا سرویس را بررسی کنید.");
@@ -2439,6 +2611,26 @@ const initWeather = () => {
   const refBtn = document.getElementById("weatherRefreshBtn");
 
   if(!capSel || !searchIn) return;
+
+  // تب‌ها (نمای کلی / بارش / باد / رطوبت)
+  weatherState.tab = weatherState.tab || "overview";
+  const tabBtns = Array.from(document.querySelectorAll(".weatherTab"));
+  const setTabUI = (key)=>{
+    weatherState.tab = key;
+    tabBtns.forEach(b=>{
+      const isOn = b.dataset.wtab === key;
+      b.classList.toggle("tabActive", isOn);
+      b.classList.toggle("tabIdle", !isOn);
+    });
+    if(weatherState.lastData){
+      weatherRenderHourly(weatherState.lastData, key);
+    }
+  };
+  tabBtns.forEach(b=>{
+    b.addEventListener("click", ()=> setTabUI(b.dataset.wtab || "overview"));
+  });
+  setTabUI(weatherState.tab);
+
 
   capSel.innerHTML = `<option value="">— انتخاب کنید —</option>` + IRAN_CAPITALS.map(c=>`<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join("");
 
@@ -2557,6 +2749,7 @@ const fetchMarket = async (symbol) => {
   const res = await fetch(NOBITEX_ORDERBOOK(symbol), { cache:"no-store" });
   if(!res.ok) throw new Error("bad_status");
   const data = await res.json();
+    weatherState.lastData = data;
   if(!data || data.status !== "ok") throw new Error("bad_payload");
   const p = Number(data.lastTradePrice);
   const u = Number(data.lastUpdate);
@@ -2960,4 +3153,3 @@ const syncSettingsForm = (cfg) => {
 </script>
 </body>
 </html>
- 
