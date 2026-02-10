@@ -184,6 +184,7 @@
         <button type="button" data-nav="converter" class="navBtn btn px-3.5 py-2 tabActive focusable">تبدیل واحدها</button>
         <button type="button" data-nav="health" class="navBtn btn px-3.5 py-2 tabIdle focusable">محاسبات سلامتی</button>
         <button type="button" data-nav="datetime" class="navBtn btn px-3.5 py-2 tabIdle focusable">تاریخ و ساعت</button>
+        <button type="button" data-nav="weather" class="navBtn btn px-3.5 py-2 tabIdle focusable">آب و هوا</button>
         <button type="button" data-nav="crypto" class="navBtn btn px-3.5 py-2 tabIdle focusable">رمزارزها</button>
         <button type="button" data-nav="calculator" class="navBtn btn px-3.5 py-2 tabIdle focusable">ماشین حساب</button>
         <button type="button" data-nav="settings" class="navBtn btn px-3.5 py-2 tabIdle focusable">تنظیمات</button>
@@ -549,9 +550,79 @@
           <div id="occList" class="mt-3 space-y-2"></div>
           <div id="occHint" class="muted tiny mt-2">این بخش بر اساس تاریخ امروز ایران بارگذاری می‌شود.</div>
         </div>
+
+</section>
+
+      <!-- Weather Page -->
+<section id="page-weather" class="hidden space-y-4 md:space-y-5">
+  <div class="card p-4 md:p-5">
+    <div class="flex items-start justify-between gap-3 flex-wrap">
+      <div>
+        <h2 class="text-base md:text-lg font-bold">آب‌ و هوا</h2>
+        <p class="muted tiny mt-1">انتخاب از مراکز استان یا جستجوی شهر (کل ایران) • منبع: Open‑Meteo</p>
+      </div>
+      <div class="flex gap-2 flex-wrap">
+        <button type="button" id="weatherRefreshBtn" class="btn px-3 py-2 soft focusable">به‌روزرسانی</button>
+        <button type="button" id="weatherCopyBtn" class="btn px-3 py-2 soft focusable">کپی</button>
+      </div>
+    </div>
+
+    <div class="mt-4 grid lg:grid-cols-2 gap-3">
+      <div class="soft p-4 rounded-2xl">
+        <div class="font-bold">انتخاب سریع (مراکز استان)</div>
+        <div class="muted tiny mt-1">یکی از مراکز استان را انتخاب کنید.</div>
+        <select id="weatherCapitalSel" class="mt-3 w-full px-3 py-2.5 rounded-xl focusable"></select>
+
+        <div class="mt-4">
+          <div class="font-bold">جستجوی شهر</div>
+          <div class="muted tiny mt-1">نام شهر را تایپ کنید (مثلاً «شیراز» یا «Shiraz»).</div>
+          <input id="weatherSearchInput" autocomplete="off" placeholder="جستجو در شهرهای ایران…" class="mt-3 w-full px-3 py-2.5 rounded-xl focusable" />
+          <div id="weatherSearchResults" class="mt-3 space-y-2"></div>
+        </div>
+
+        <div id="weatherStatus" class="mt-4 tiny text-amber-200">برای شروع، یک شهر انتخاب کنید.</div>
+      </div>
+
+      <div class="soft p-4 rounded-2xl">
+        <div class="flex items-center justify-between gap-2 flex-wrap">
+          <div>
+            <div class="muted tiny">شهر انتخاب‌شده</div>
+            <div id="weatherCityTitle" class="text-xl font-extrabold mt-1">—</div>
+            <div id="weatherSubTitle" class="muted tiny mt-1">—</div>
+          </div>
+          <div id="weatherIcon" class="text-4xl">⛅</div>
+        </div>
+
+        <div class="mt-4 grid sm:grid-cols-2 gap-2">
+          <div class="soft p-3">
+            <div class="muted tiny">دما</div>
+            <div class="text-2xl font-extrabold calcDisplay"><span id="weatherTemp">—</span></div>
+          </div>
+          <div class="soft p-3">
+            <div class="muted tiny">احساس دما</div>
+            <div class="text-2xl font-extrabold calcDisplay"><span id="weatherFeels">—</span></div>
+          </div>
+          <div class="soft p-3">
+            <div class="muted tiny">رطوبت</div>
+            <div class="text-2xl font-extrabold calcDisplay"><span id="weatherHumidity">—</span></div>
+          </div>
+          <div class="soft p-3">
+            <div class="muted tiny">باد</div>
+            <div class="text-2xl font-extrabold calcDisplay"><span id="weatherWind">—</span></div>
+          </div>
+        </div>
+
+        <div class="mt-3 soft p-3 rounded-xl flex items-center justify-between gap-2">
+          <div class="tiny muted">وضعیت: <span id="weatherDesc" class="font-semibold">—</span></div>
+          <div class="tiny muted">آخرین بروزرسانی: <span id="weatherUpdatedAt">—</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
 </section>
 
       <!-- Crypto Page -->
+
 <section id="page-crypto" class="hidden space-y-4 md:space-y-5">
   <div class="card p-4 md:p-5">
     <div class="flex items-start justify-between gap-3 flex-wrap">
@@ -1108,7 +1179,7 @@ const applyConfig = (cfg) => {
 };
 
 /* ========================= Navigation ========================= */
-const pages = ["converter","health","datetime","crypto","calculator","settings","help"];
+const pages = ["converter","health","datetime","weather","crypto","calculator","settings","help"];
 const showPage = (id) => {
   const target = pages.includes(id) ? id : "converter";
   for(const p of pages){
@@ -2196,6 +2267,244 @@ const tickTime = () => {
   if(utcEl) utcEl.textContent = fmtMaybeFaDigits(utcText);
 };
 
+
+/* ========================= Weather (Open-Meteo) =========================
+   - جستجوی شهرهای ایران با Geocoding عمومی Open‑Meteo (بدون کلید)
+   - دریافت وضعیت لحظه‌ای با Forecast API (current)
+*/
+const OM_GEO = "https://geocoding-api.open-meteo.com/v1/search";
+const OM_FORECAST = "https://api.open-meteo.com/v1/forecast";
+const WEATHER_TZ = "Asia/Tehran";
+
+const IRAN_CAPITALS = [
+  "تهران","کرج","قم","اراک","اصفهان","اهواز","ایلام","اردبیل","تبریز","بندرعباس",
+  "بوشهر","بیرجند","زاهدان","زنجان","سمنان","سنندج","شهرکرد","شیراز","قزوین","گرگان",
+  "مشهد","کرمان","کرمانشاه","یاسوج","رشت","خرم‌آباد","همدان","یزد","ارومیه","بجنورد","ساری"
+];
+
+let weatherState = {
+  place: null, // {name, admin1, admin2, lat, lon}
+  lastText: ""
+};
+
+const weatherCodeInfo = (code) => {
+  const c = Number(code);
+  // بر اساس مستندات WMO weather codes در Open‑Meteo
+  if(c===0) return {emoji:"☀️", text:"صاف"};
+  if([1,2].includes(c)) return {emoji:"⛅", text:"کمی ابری"};
+  if(c===3) return {emoji:"☁️", text:"ابری"};
+  if([45,48].includes(c)) return {emoji:"🌫️", text:"مه‌آلود"};
+  if([51,53,55].includes(c)) return {emoji:"🌦️", text:"نم‌نم باران"};
+  if([56,57].includes(c)) return {emoji:"🌧️", text:"باران یخ‌زده"};
+  if([61,63,65].includes(c)) return {emoji:"🌧️", text:"بارانی"};
+  if([66,67].includes(c)) return {emoji:"🌧️", text:"باران یخ‌زده"};
+  if([71,73,75,77].includes(c)) return {emoji:"🌨️", text:"برفی"};
+  if([80,81,82].includes(c)) return {emoji:"🌧️", text:"رگبار"};
+  if([85,86].includes(c)) return {emoji:"🌨️", text:"رگبار برف"};
+  if([95,96,99].includes(c)) return {emoji:"⛈️", text:"رعد و برق"};
+  return {emoji:"🌡️", text:"نامشخص"};
+};
+
+const setWeatherStatus = (kind, text) => {
+  const el = document.getElementById("weatherStatus");
+  if(!el) return;
+  if(kind==="ok") el.className="mt-4 tiny text-emerald-200";
+  else if(kind==="warn") el.className="mt-4 tiny text-amber-200";
+  else el.className="mt-4 tiny text-rose-200";
+  el.textContent = text || "—";
+};
+
+const weatherPersist = () => {
+  try{
+    if(weatherState.place){
+      localStorage.setItem("codeisa.weather.last", JSON.stringify(weatherState.place));
+    }else{
+      localStorage.removeItem("codeisa.weather.last");
+    }
+  }catch{}
+};
+const weatherRestore = () => {
+  try{
+    const raw = localStorage.getItem("codeisa.weather.last");
+    if(!raw) return null;
+    const p = JSON.parse(raw);
+    if(p && Number.isFinite(Number(p.lat)) && Number.isFinite(Number(p.lon)) && p.name) return p;
+  }catch{}
+  return null;
+};
+
+const weatherGeocode = async (q) => {
+  const url = `${OM_GEO}?name=${encodeURIComponent(q)}&count=8&language=fa&format=json&country=IR`;
+  const res = await fetch(url, {cache:"no-store"});
+  if(!res.ok) throw new Error("bad_status");
+  const data = await res.json();
+  const results = (data && Array.isArray(data.results)) ? data.results : [];
+  return results.map(r=>({
+    name: r.name,
+    admin1: r.admin1 || "",
+    admin2: r.admin2 || "",
+    lat: Number(r.latitude),
+    lon: Number(r.longitude)
+  })).filter(x=>x.name && Number.isFinite(x.lat) && Number.isFinite(x.lon));
+};
+
+const weatherSetPlace = async (place) => {
+  weatherState.place = place;
+  weatherPersist();
+  const title = document.getElementById("weatherCityTitle");
+  const sub = document.getElementById("weatherSubTitle");
+  if(title) title.textContent = place ? place.name : "—";
+  if(sub) sub.textContent = place ? [place.admin2, place.admin1].filter(Boolean).join(" • ") || "ایران" : "—";
+};
+
+const weatherRenderSearchResults = (items) => {
+  const box = document.getElementById("weatherSearchResults");
+  if(!box) return;
+  box.innerHTML = "";
+  if(!items || items.length===0){
+    box.innerHTML = `<div class="muted tiny">نتیجه‌ای پیدا نشد.</div>`;
+    return;
+  }
+  items.forEach(it=>{
+    const btn = document.createElement("button");
+    btn.type="button";
+    btn.className="btn soft px-3 py-2 w-full text-right focusable";
+    const meta = [it.admin2, it.admin1].filter(Boolean).join(" • ");
+    btn.innerHTML = `<div class="font-semibold">${escapeHtml(it.name)}</div><div class="muted tiny mt-0.5">${escapeHtml(meta || "ایران")}</div>`;
+    btn.addEventListener("click", async ()=>{
+      await weatherSetPlace(it);
+      await weatherFetchAndRender();
+      showToast("شهر انتخاب شد ✅", "ok");
+      box.innerHTML = "";
+    });
+    box.appendChild(btn);
+  });
+};
+
+const weatherFmt = (n, unit) => {
+  const cfg = elementSdk.getConfig();
+  if(!Number.isFinite(n)) return "—";
+  const s = `${Math.round(n)}${unit||""}`;
+  return cfg.enable_persian_digits ? toPersianDigits(s) : s;
+};
+
+const weatherFetchAndRender = async () => {
+  const p = weatherState.place;
+  if(!p){ setWeatherStatus("warn","یک شهر انتخاب کنید."); return; }
+  try{
+    setWeatherStatus("warn","در حال دریافت…");
+    const url = `${OM_FORECAST}?latitude=${encodeURIComponent(p.lat)}&longitude=${encodeURIComponent(p.lon)}&current=temperature_2m,relative_humidity_2m,apparent_temperature,wind_speed_10m,weather_code&timezone=${encodeURIComponent(WEATHER_TZ)}`;
+    const res = await fetch(url, {cache:"no-store"});
+    if(!res.ok) throw new Error("bad_status");
+    const data = await res.json();
+    const cur = data && data.current ? data.current : null;
+
+    const t = cur ? Number(cur.temperature_2m) : NaN;
+    const feels = cur ? Number(cur.apparent_temperature) : NaN;
+    const hum = cur ? Number(cur.relative_humidity_2m) : NaN;
+    const wind = cur ? Number(cur.wind_speed_10m) : NaN;
+    const code = cur ? Number(cur.weather_code) : NaN;
+
+    const info = weatherCodeInfo(code);
+    const icon = document.getElementById("weatherIcon");
+    if(icon) icon.textContent = info.emoji;
+
+    const desc = document.getElementById("weatherDesc");
+    if(desc) desc.textContent = info.text;
+
+    document.getElementById("weatherTemp").textContent = weatherFmt(t, "°C");
+    document.getElementById("weatherFeels").textContent = weatherFmt(feels, "°C");
+    document.getElementById("weatherHumidity").textContent = weatherFmt(hum, "%");
+    document.getElementById("weatherWind").textContent = weatherFmt(wind, " km/h");
+
+    const now = new Date();
+    const hh = String(now.getHours()).padStart(2,"0");
+    const mm = String(now.getMinutes()).padStart(2,"0");
+    const ss = String(now.getSeconds()).padStart(2,"0");
+    const up = `${hh}:${mm}:${ss}`;
+    document.getElementById("weatherUpdatedAt").textContent = fmtMaybeFaDigits(up);
+
+    // برای کپی
+    weatherState.lastText = `${p.name}${p.admin1?(" - "+p.admin1):""}: ${Math.round(t)}°C، ${info.text}، رطوبت ${Math.round(hum)}٪، باد ${Math.round(wind)} km/h`;
+    setWeatherStatus("ok","به‌روزرسانی شد ✅");
+  }catch{
+    setWeatherStatus("err","خطا در دریافت آب‌ و هوا. اینترنت یا سرویس را بررسی کنید.");
+  }
+};
+
+const initWeather = () => {
+  const capSel = document.getElementById("weatherCapitalSel");
+  const searchIn = document.getElementById("weatherSearchInput");
+  const copyBtn = document.getElementById("weatherCopyBtn");
+  const refBtn = document.getElementById("weatherRefreshBtn");
+
+  if(!capSel || !searchIn) return;
+
+  capSel.innerHTML = `<option value="">— انتخاب کنید —</option>` + IRAN_CAPITALS.map(c=>`<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join("");
+
+  capSel.addEventListener("change", async ()=>{
+    const val = capSel.value;
+    if(!val) return;
+    try{
+      setWeatherStatus("warn","در حال پیدا کردن موقعیت…");
+      const res = await weatherGeocode(val);
+      if(!res.length){ setWeatherStatus("warn","موقعیت پیدا نشد."); return; }
+      await weatherSetPlace(res[0]);
+      await weatherFetchAndRender();
+    }catch{
+      setWeatherStatus("err","خطا در جستجو.");
+    }
+  });
+
+  let tmr = null;
+  searchIn.addEventListener("input", ()=>{
+    const q = searchIn.value.trim();
+    const box = document.getElementById("weatherSearchResults");
+    if(tmr) clearTimeout(tmr);
+    if(q.length < 2){
+      if(box) box.innerHTML = "";
+      return;
+    }
+    tmr = setTimeout(async ()=>{
+      try{
+        setWeatherStatus("warn","در حال جستجو…");
+        const items = await weatherGeocode(q);
+        weatherRenderSearchResults(items);
+        setWeatherStatus("ok","نتایج آماده است.");
+      }catch{
+        setWeatherStatus("err","خطا در جستجو.");
+      }
+    }, 300);
+  });
+
+  searchIn.addEventListener("keydown", async (e)=>{
+    if(e.key!=="Enter") return;
+    const q = searchIn.value.trim();
+    if(q.length<2) return;
+    try{
+      setWeatherStatus("warn","در حال جستجو…");
+      const items = await weatherGeocode(q);
+      weatherRenderSearchResults(items);
+      setWeatherStatus("ok","نتایج آماده است.");
+    }catch{
+      setWeatherStatus("err","خطا در جستجو.");
+    }
+  });
+
+  if(refBtn) refBtn.addEventListener("click", weatherFetchAndRender);
+
+  if(copyBtn) copyBtn.addEventListener("click", ()=>{
+    if(!weatherState.lastText){ showToast("چیزی برای کپی وجود ندارد.", "warn"); return; }
+    copyText(maybePersianForCopy(weatherState.lastText), "کپی شد ✅");
+  });
+
+  const last = weatherRestore();
+  if(last){
+    weatherSetPlace(last).then(()=>weatherFetchAndRender());
+  }
+};
+
+
 /* ========================= Crypto (Nobitex) =========================
    - دریافت قیمت لحظه‌ای از API عمومی نوبیتکس (Orderbook)
    - بازارهای *IRT معمولاً قیمت را به «ریال» برمی‌گردانند؛ اینجا برای نمایش «تومان» عدد را ÷10 می‌کنیم.
@@ -2385,6 +2694,7 @@ const syncSettingsForm = (cfg) => {
   const cfg=elementSdk.getConfig();
   applyConfig(cfg);
   bindNav();
+  initWeather();
 
   const hash=(location.hash||"").replace("#","");
   showPage(pages.includes(hash)?hash:"converter");
@@ -2650,3 +2960,4 @@ const syncSettingsForm = (cfg) => {
 </script>
 </body>
 </html>
+ 
