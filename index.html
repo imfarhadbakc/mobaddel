@@ -2193,6 +2193,143 @@ function setUnitDropdownOptions(id, units) {
   }
 
   
+
+
+// ===================== HEALTH: BMI / BMR / TDEE =====================
+function _getNum(id){
+  const el = document.getElementById(id);
+  if(!el) return NaN;
+  const v = (el.value ?? '').toString().trim();
+  if(!v) return NaN;
+  return parseFloat(toEnglishNum(v));
+}
+
+function calculateBMI(){
+  const hCm = _getNum('bmi-height');
+  const wKg = _getNum('bmi-weight');
+  const box = document.getElementById('bmi-result');
+  const valueEl = document.getElementById('bmi-value');
+  const statusEl = document.getElementById('bmi-status');
+  const markerEl = document.getElementById('bmi-marker');
+
+  if(!Number.isFinite(hCm) || !Number.isFinite(wKg) || hCm<=0 || wKg<=0){
+    if(valueEl) valueEl.textContent = '—';
+    if(statusEl) statusEl.textContent = 'لطفاً قد و وزن معتبر وارد کنید.';
+    if(box) box.classList.remove('hidden');
+    return;
+  }
+
+  const hM = hCm/100;
+  const bmi = wKg/(hM*hM);
+
+  let status='نرمال';
+  if(bmi < 18.5) status='کم‌وزن';
+  else if(bmi < 25) status='نرمال';
+  else if(bmi < 30) status='اضافه‌وزن';
+  else status='چاقی';
+
+  if(valueEl) valueEl.textContent = toPersianNum(bmi.toFixed(1));
+  if(statusEl) statusEl.textContent = status;
+
+  // marker position on bar (0..40 mapped, clamp)
+  const clamped = Math.max(12, Math.min(40, bmi));
+  const pct = (clamped - 12) / (40 - 12); // 0..1
+  const rightPct = (1 - pct) * 100; // RTL bar uses right
+  if(markerEl) markerEl.style.right = rightPct.toFixed(1) + '%';
+
+  if(box) box.classList.remove('hidden');
+}
+
+function _calcBMR(gender, age, hCm, wKg){
+  // Mifflin-St Jeor
+  const base = 10*wKg + 6.25*hCm - 5*age;
+  return gender === 'female' ? (base - 161) : (base + 5);
+}
+
+function calculateBMR(){
+  const gender = document.getElementById('bmr-gender')?.value || 'male';
+  const age = _getNum('bmr-age');
+  const hCm = _getNum('bmr-height');
+  const wKg = _getNum('bmr-weight');
+
+  const box = document.getElementById('bmr-result');
+  const valueEl = document.getElementById('bmr-value');
+
+  if(!Number.isFinite(age) || !Number.isFinite(hCm) || !Number.isFinite(wKg) || age<=0 || hCm<=0 || wKg<=0){
+    if(valueEl) valueEl.textContent = '—';
+    if(box){
+      box.classList.remove('hidden');
+      box.querySelector('.text-sm')?.classList.remove('hidden');
+    }
+    // add a small hint under the number (non-breaking for layout)
+    const hint = box?.querySelector('.bmr-hint') || null;
+    if(hint) hint.remove();
+    if(box){
+      const p = document.createElement('div');
+      p.className = 'bmr-hint text-xs text-gray-300 mt-2';
+      p.textContent = 'لطفاً سن، قد و وزن معتبر وارد کنید.';
+      box.appendChild(p);
+    }
+    return;
+  }
+
+  const bmr = _calcBMR(gender, age, hCm, wKg);
+  if(valueEl) valueEl.textContent = toPersianNum(Math.round(bmr));
+
+  // remove hint if exists
+  const hint = box?.querySelector('.bmr-hint');
+  if(hint) hint.remove();
+
+  if(box) box.classList.remove('hidden');
+}
+
+function calculateTDEE(){
+  const gender = document.getElementById('tdee-gender')?.value || 'male';
+  const age = _getNum('tdee-age');
+  const hCm = _getNum('tdee-height');
+  const wKg = _getNum('tdee-weight');
+  const activity = parseFloat(document.getElementById('tdee-activity')?.value || '1.2');
+
+  const box = document.getElementById('tdee-result');
+  const valueEl = document.getElementById('tdee-value');
+  const loseEl = document.getElementById('tdee-lose');
+  const gainEl = document.getElementById('tdee-gain');
+
+  if(!Number.isFinite(age) || !Number.isFinite(hCm) || !Number.isFinite(wKg) || age<=0 || hCm<=0 || wKg<=0 || !Number.isFinite(activity)){
+    if(valueEl) valueEl.textContent = '—';
+    if(loseEl) loseEl.textContent = '—';
+    if(gainEl) gainEl.textContent = '—';
+    if(box){
+      box.classList.remove('hidden');
+      // add/update hint
+      const old = box.querySelector('.tdee-hint');
+      if(old) old.remove();
+      const p = document.createElement('div');
+      p.className = 'tdee-hint text-xs text-gray-300 mt-3 text-center';
+      p.textContent = 'لطفاً سن، قد و وزن معتبر وارد کنید.';
+      box.appendChild(p);
+    }
+    return;
+  }
+
+  const bmr = _calcBMR(gender, age, hCm, wKg);
+  const tdee = bmr * activity;
+
+  // suggestions
+  const lose = Math.max(1200, tdee - 500); // safe-ish floor for adults
+  const gain = tdee + 300;
+
+  if(valueEl) valueEl.textContent = toPersianNum(Math.round(tdee));
+  if(loseEl) loseEl.textContent = toPersianNum(Math.round(lose));
+  if(gainEl) gainEl.textContent = toPersianNum(Math.round(gain));
+
+  // remove hint if exists
+  const old = box?.querySelector('.tdee-hint');
+  if(old) old.remove();
+
+  if(box) box.classList.remove('hidden');
+}
+
   // ===================== HEALTH: Extra tools =====================
   function calculateWater() {
     const w = parseFloat(document.getElementById('water-weight').value);
