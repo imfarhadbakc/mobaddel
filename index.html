@@ -39,7 +39,55 @@
     .animated-gradient { background-size: 200% 200%; animation: gradient-shift 15s ease infinite; }
     .pill { transition: all .2s ease; }
     .pill.active { background: linear-gradient(135deg, rgba(99,102,241,.5), rgba(168,85,247,.5)); border-color: rgba(139,92,246,.55); }
-  </style>
+  
+    /* Unit dropdown (better contrast) */
+    .unit-menu{
+      background: rgba(10, 5, 30, 0.98);
+      border: 1px solid rgba(255,255,255,0.12);
+      backdrop-filter: blur(16px);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.35);
+    }
+    .unit-menu::-webkit-scrollbar{ width: 8px; }
+    .unit-menu::-webkit-scrollbar-thumb{ background: rgba(255,255,255,0.15); border-radius: 10px; }
+
+    
+    /* Forecast strip scroll (desktop-friendly) */
+    .forecast-strip{
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255,255,255,0.22) rgba(255,255,255,0.06);
+      -webkit-overflow-scrolling: touch;
+      scroll-behavior: smooth;
+      cursor: grab;
+    }
+    .forecast-strip:active{ cursor: grabbing; }
+    .forecast-strip::-webkit-scrollbar{ height: 8px; }
+    .forecast-strip::-webkit-scrollbar-track{ background: rgba(255,255,255,0.06); border-radius: 999px; }
+    .forecast-strip::-webkit-scrollbar-thumb{ background: rgba(255,255,255,0.22); border-radius: 999px; }
+
+    /* Telegram icon animation */
+    @keyframes tgPulse { 0%,100%{ transform:translateY(0) scale(1); filter:drop-shadow(0 0 0 rgba(56,189,248,0)); } 50%{ transform:translateY(-2px) scale(1.05); filter:drop-shadow(0 8px 16px rgba(56,189,248,0.25)); } }
+    .tg-anim{ animation: tgPulse 1.6s ease-in-out infinite; }
+
+  
+    /* --- Fix: dropdown menus should overlay other cards --- */
+    #converter-section, #converter-section .glass { overflow: visible !important; }
+    .unit-dropdown { position: relative; z-index: 2000; }
+    .unit-dropdown .unit-menu, #conv-type-menu, #from-unit-menu, #to-unit-menu {
+      z-index: 9999 !important;
+    }
+    /* make the dropdown list readable on all backgrounds */
+    .unit-menu, #conv-type-menu{
+      background: rgba(10, 5, 30, 0.98) !important;
+      color: rgba(255,255,255,0.95) !important;
+    }
+
+    /* --- Responsive: keep mobile perfect, improve desktop width --- */
+    @media (min-width: 1024px){
+      #app { max-width: 1100px; margin-left: auto; margin-right: auto; }
+      main { padding-left: 24px !important; padding-right: 24px !important; }
+    }
+
+</style>
   <style>@view-transition { navigation: auto; }</style>
   <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
 </head>
@@ -83,7 +131,10 @@
       <!-- Crypto Section -->
       <section id="crypto-section" class="space-y-4">
         <div class="flex items-center justify-between mb-4">
-          <h2 class="text-lg font-bold">قیمت ارزهای دیجیتال</h2>
+          <div>
+            <h2 class="text-lg font-bold">قیمت ارزهای دیجیتال</h2>
+            <div class="text-[11px] text-gray-300 mt-1">برای دریافت قیمت‌ها، VPN خاموش کنید.</div>
+          </div>
           <div id="crypto-status" class="flex items-center gap-2 text-xs">
             <span class="status-dot w-2 h-2 rounded-full bg-yellow-500 blink"></span>
             <span class="status-text text-yellow-400">در حال بارگذاری...</span>
@@ -232,23 +283,38 @@
         <h2 class="text-lg font-bold mb-4">تبدیل واحد</h2>
 
         <!-- تغییر: افزایش به ۱۲ دسته -->
-        <div class="glass rounded-2xl p-3 overflow-x-auto scrollbar-hide">
-          <div class="flex gap-2 min-w-max" id="converter-types">
-            <!-- buttons injected -->
-          </div>
-        </div>
+        
+<div class="glass rounded-2xl p-4">
+  <label class="text-xs text-gray-400 block mb-2">دسته تبدیل <span class="text-[11px] text-gray-500">(برای انتخاب، روی فهرست کلیک کنید)</span></label>
+
+  <div class="relative unit-dropdown"
+       onmouseenter="if(window.matchMedia('(hover:hover)').matches) openUnitMenu('conv-type')"
+       onmouseleave="if(window.matchMedia('(hover:hover)').matches) closeAllUnitMenus()">
+    <button type="button" id="conv-type-btn" onclick="toggleUnitMenu('conv-type')"
+            class="glass w-full px-3 py-2 rounded-xl text-sm bg-transparent outline-none cursor-pointer flex items-center justify-between">
+      <span id="conv-type-label">انتخاب دسته</span>
+      <span class="text-gray-300">▾</span>
+    </button>
+    <input type="hidden" id="conv-type-value" value="">
+    <div id="conv-type-menu"
+         class="hidden absolute z-50 mt-2 w-full max-h-64 overflow-auto rounded-2xl p-2 bg-black/70 border border-white/10 backdrop-blur-xl shadow-xl space-y-2">
+      <!-- items injected -->
+    </div>
+  </div>
+</div>
+
 
         <div class="glass rounded-2xl p-4">
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
             <div>
-              <label class="text-xs text-gray-400 block mb-1">از</label>
+              <label class="text-xs text-gray-400 block mb-1">از <span class="text-[11px] text-gray-500">(برای انتخاب، روی کادر کلیک کنید)</span></label>
               
-              <div class="relative">
+              <div class="relative unit-dropdown" data-dd="from-unit">
                 <button type="button" id="from-unit-btn" onclick="toggleUnitMenu('from-unit')" class="glass w-full px-3 py-2 rounded-xl text-sm bg-transparent outline-none cursor-pointer flex items-center justify-between">
                   <span id="from-unit-label">انتخاب واحد</span>
                   <span class="text-gray-300">▾</span>
                 </button>
-                <div id="from-unit-menu" class="hidden absolute z-20 mt-2 w-full max-h-56 overflow-auto scrollbar-hide glass-dark rounded-xl p-2">
+                <div id="from-unit-menu" class="hidden unit-menu absolute z-50 mt-2 w-full max-h-60 overflow-auto scrollbar-hide rounded-xl p-2">
                   <!-- options injected -->
                 </div>
                 <input type="hidden" id="from-unit-value" value="">
@@ -257,14 +323,14 @@
               <input type="number" id="from-value" oninput="convertUnit()" placeholder="مقدار" class="glass w-full px-3 py-2 rounded-xl text-sm bg-transparent outline-none">
             </div>
             <div>
-              <label class="text-xs text-gray-400 block mb-1">به</label>
+              <label class="text-xs text-gray-400 block mb-1">به <span class="text-[11px] text-gray-500">(برای انتخاب، روی کادر کلیک کنید)</span></label>
               
-              <div class="relative">
+              <div class="relative unit-dropdown" data-dd="to-unit">
                 <button type="button" id="to-unit-btn" onclick="toggleUnitMenu('to-unit')" class="glass w-full px-3 py-2 rounded-xl text-sm bg-transparent outline-none cursor-pointer flex items-center justify-between">
                   <span id="to-unit-label">انتخاب واحد</span>
                   <span class="text-gray-300">▾</span>
                 </button>
-                <div id="to-unit-menu" class="hidden absolute z-20 mt-2 w-full max-h-56 overflow-auto scrollbar-hide glass-dark rounded-xl p-2">
+                <div id="to-unit-menu" class="hidden unit-menu absolute z-50 mt-2 w-full max-h-60 overflow-auto scrollbar-hide rounded-xl p-2">
                   <!-- options injected -->
                 </div>
                 <input type="hidden" id="to-unit-value" value="">
@@ -568,68 +634,93 @@
           <div id="hr-result" class="glass-dark rounded-xl p-3 text-sm text-gray-200 hidden"></div>
         </div>
 
-        <!-- تغییر: تفسیر آزمایش و راهنمایی -->
+        
+        <!-- تغییر: تفسیر آزمایش و راهنمایی (مرتب و زیباتر) -->
         <div class="glass rounded-2xl p-4">
-          <div class="flex items-center gap-2 mb-4"><span class="text-2xl">🧪</span>
+          <div class="flex items-center gap-2 mb-4">
+            <span class="text-2xl">🧪</span>
             <div>
               <div class="font-bold">تفسیر آزمایش و راهنمایی</div>
-              <div class="text-xs text-gray-400">ورود مقادیر رایج برای دریافت توضیح کلی</div>
+              <div class="text-xs text-gray-400">مقادیر را وارد کنید تا تفسیر عمومی و نکات کلیدی را ببینید</div>
             </div>
           </div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-            <div>
-              <label class="text-xs text-gray-400 block mb-1">قند ناشتا (FBS) mg/dL</label>
-              <input type="number" id="lab-fbs" placeholder="۹۰" class="glass w-full px-3 py-2 rounded-xl text-sm bg-transparent outline-none">
-            </div>
-            <div>
-              <label class="text-xs text-gray-400 block mb-1">کلسترول کل (TC) mg/dL</label>
-              <input type="number" id="lab-tc" placeholder="۱۸۰" class="glass w-full px-3 py-2 rounded-xl text-sm bg-transparent outline-none">
-            </div>
-            <div>
-              <label class="text-xs text-gray-400 block mb-1">تری‌گلیسرید (TG) mg/dL</label>
-              <input type="number" id="lab-tg" placeholder="۱۲۰" class="glass w-full px-3 py-2 rounded-xl text-sm bg-transparent outline-none">
-            </div>
-            <div>
-              <label class="text-xs text-gray-400 block mb-1">HDL mg/dL</label>
-              <input type="number" id="lab-hdl" placeholder="۴۵" class="glass w-full px-3 py-2 rounded-xl text-sm bg-transparent outline-none">
-            </div>
-            <div>
-              <label class="text-xs text-gray-400 block mb-1">LDL mg/dL</label>
-              <input type="number" id="lab-ldl" placeholder="۱۰۰" class="glass w-full px-3 py-2 rounded-xl text-sm bg-transparent outline-none">
-            </div>
-            <div>
-              <label class="text-xs text-gray-400 block mb-1">فشار خون (Sys/Dia)</label>
-              <div class="flex gap-2">
-                <input type="number" id="lab-sys" placeholder="۱۲۰" class="glass w-full px-3 py-2 rounded-xl text-sm bg-transparent outline-none text-center">
-                <input type="number" id="lab-dia" placeholder="۸۰" class="glass w-full px-3 py-2 rounded-xl text-sm bg-transparent outline-none text-center">
-              
-            <div>
-              <label class="text-xs text-gray-400 block mb-1">HbA1c (%)</label>
-              <input type="number" id="lab-a1c" placeholder="۵.۴" step="0.1" class="glass w-full px-3 py-2 rounded-xl text-sm bg-transparent outline-none">
-            </div>
-            <div>
-              <label class="text-xs text-gray-400 block mb-1">کراتینین (Cr) mg/dL</label>
-              <input type="number" id="lab-cr" placeholder="۱.۰" step="0.01" class="glass w-full px-3 py-2 rounded-xl text-sm bg-transparent outline-none">
-            </div>
-            <div>
-              <label class="text-xs text-gray-400 block mb-1">ALT (IU/L)</label>
-              <input type="number" id="lab-alt" placeholder="۲۵" class="glass w-full px-3 py-2 rounded-xl text-sm bg-transparent outline-none">
-            </div>
-            <div>
-              <label class="text-xs text-gray-400 block mb-1">AST (IU/L)</label>
-              <input type="number" id="lab-ast" placeholder="۲۲" class="glass w-full px-3 py-2 rounded-xl text-sm bg-transparent outline-none">
-            </div>
-            <div>
-              <label class="text-xs text-gray-400 block mb-1">TSH (µIU/mL)</label>
-              <input type="number" id="lab-tsh" placeholder="۲.۰" step="0.01" class="glass w-full px-3 py-2 rounded-xl text-sm bg-transparent outline-none">
-            </div>
-            <div>
-              <label class="text-xs text-gray-400 block mb-1">ویتامین D (ng/mL)</label>
-              <input type="number" id="lab-vitd" placeholder="۳۰" class="glass w-full px-3 py-2 rounded-xl text-sm bg-transparent outline-none">
+          <!-- گروه‌بندی ورودی‌ها برای نظم بهتر -->
+          <div class="space-y-4 mb-4">
+            <div class="glass-dark rounded-2xl p-3">
+              <div class="text-sm font-bold text-gray-100 mb-3">قند خون</div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="text-xs text-gray-400 block mb-1">قند ناشتا (FBS) mg/dL</label>
+                  <input type="number" id="lab-fbs" placeholder="۹۰" class="glass w-full px-3 py-2 rounded-xl text-sm bg-transparent outline-none">
+                </div>
+                <div>
+                  <label class="text-xs text-gray-400 block mb-1">HbA1c (%)</label>
+                  <input type="number" id="lab-a1c" placeholder="۵.۴" step="0.1" class="glass w-full px-3 py-2 rounded-xl text-sm bg-transparent outline-none">
+                </div>
+              </div>
             </div>
 
-</div>
+            <div class="glass-dark rounded-2xl p-3">
+              <div class="text-sm font-bold text-gray-100 mb-3">چربی‌های خون</div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="text-xs text-gray-400 block mb-1">کلسترول کل (TC) mg/dL</label>
+                  <input type="number" id="lab-tc" placeholder="۱۸۰" class="glass w-full px-3 py-2 rounded-xl text-sm bg-transparent outline-none">
+                </div>
+                <div>
+                  <label class="text-xs text-gray-400 block mb-1">تری‌گلیسرید (TG) mg/dL</label>
+                  <input type="number" id="lab-tg" placeholder="۱۲۰" class="glass w-full px-3 py-2 rounded-xl text-sm bg-transparent outline-none">
+                </div>
+                <div>
+                  <label class="text-xs text-gray-400 block mb-1">HDL mg/dL</label>
+                  <input type="number" id="lab-hdl" placeholder="۴۵" class="glass w-full px-3 py-2 rounded-xl text-sm bg-transparent outline-none">
+                </div>
+                <div>
+                  <label class="text-xs text-gray-400 block mb-1">LDL mg/dL</label>
+                  <input type="number" id="lab-ldl" placeholder="۱۰۰" class="glass w-full px-3 py-2 rounded-xl text-sm bg-transparent outline-none">
+                </div>
+              </div>
+            </div>
+
+            <div class="glass-dark rounded-2xl p-3">
+              <div class="text-sm font-bold text-gray-100 mb-3">فشار خون</div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="text-xs text-gray-400 block mb-1">سیستول (Sys)</label>
+                  <input type="number" id="lab-sys" placeholder="۱۲۰" class="glass w-full px-3 py-2 rounded-xl text-sm bg-transparent outline-none text-center">
+                </div>
+                <div>
+                  <label class="text-xs text-gray-400 block mb-1">دیاستول (Dia)</label>
+                  <input type="number" id="lab-dia" placeholder="۸۰" class="glass w-full px-3 py-2 rounded-xl text-sm bg-transparent outline-none text-center">
+                </div>
+              </div>
+            </div>
+
+            <div class="glass-dark rounded-2xl p-3">
+              <div class="text-sm font-bold text-gray-100 mb-3">کبد، کلیه و هورمون</div>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label class="text-xs text-gray-400 block mb-1">کراتینین (Cr) mg/dL</label>
+                  <input type="number" id="lab-cr" placeholder="۱.۰" step="0.01" class="glass w-full px-3 py-2 rounded-xl text-sm bg-transparent outline-none">
+                </div>
+                <div>
+                  <label class="text-xs text-gray-400 block mb-1">TSH (µIU/mL)</label>
+                  <input type="number" id="lab-tsh" placeholder="۲.۰" step="0.01" class="glass w-full px-3 py-2 rounded-xl text-sm bg-transparent outline-none">
+                </div>
+                <div>
+                  <label class="text-xs text-gray-400 block mb-1">ALT (IU/L)</label>
+                  <input type="number" id="lab-alt" placeholder="۲۵" class="glass w-full px-3 py-2 rounded-xl text-sm bg-transparent outline-none">
+                </div>
+                <div>
+                  <label class="text-xs text-gray-400 block mb-1">AST (IU/L)</label>
+                  <input type="number" id="lab-ast" placeholder="۲۵" class="glass w-full px-3 py-2 rounded-xl text-sm bg-transparent outline-none">
+                </div>
+                <div class="sm:col-span-2">
+                  <label class="text-xs text-gray-400 block mb-1">ویتامین D (ng/mL)</label>
+                  <input type="number" id="lab-vitd" placeholder="۳۰" class="glass w-full px-3 py-2 rounded-xl text-sm bg-transparent outline-none">
+                </div>
+              </div>
             </div>
           </div>
 
@@ -664,13 +755,36 @@
         </div>
         <div class="glass rounded-2xl p-4">
           <div class="flex items-center gap-2 mb-3"><span class="text-xl">❤️</span><div class="font-bold">سلامت</div></div>
-          <p class="text-sm text-gray-300 leading-relaxed">BMI، BMR، نیاز کالری و همچنین تفسیر عمومی آزمایش‌های رایج و راهنمایی.</p>
+          <div class="text-sm text-gray-300 leading-relaxed space-y-2">
+            <div>راهنمای بخش سلامت:</div>
+            <ul class="list-disc pr-5 space-y-1 text-gray-300">
+              <li><span class="font-bold text-gray-100">BMI</span>: شاخص توده بدنی (وزن نسبت به قد).</li>
+              <li><span class="font-bold text-gray-100">BMR</span>: سوخت‌وساز پایه (کالری موردنیاز در استراحت).</li>
+              <li><span class="font-bold text-gray-100">نیاز کالری</span>: برآورد کالری روزانه با توجه به فعالیت.</li>
+              <li><span class="font-bold text-gray-100">آب موردنیاز</span>: تخمین مصرف آب روزانه (تقریبی).</li>
+              <li><span class="font-bold text-gray-100">WHtR</span> (دور کمر/قد): شاخص ساده ریسک چربی شکمی.</li>
+              <li><span class="font-bold text-gray-100">درصد چربی بدن</span>: روش US Navy (تقریبی).</li>
+              <li><span class="font-bold text-gray-100">زون‌های ضربان قلب</span>: محدوده‌های تمرین بر اساس سن (تقریبی).</li>
+              <li><span class="font-bold text-gray-100">تفسیر آزمایش</span>: تفسیر عمومی + شاخص‌های مشتق‌شده مثل Non‑HDL و TG/HDL.</li>
+            </ul>
+          </div>
         </div>
         <div class="glass rounded-2xl p-4 border-indigo-500/30">
           <div class="text-center text-sm text-gray-400">
             <div class="text-2xl mb-2">⚡</div>
             <div>Codeisa - ابزارهای کاربردی فارسی</div>
             <div class="text-xs mt-1">ساخته شده با ❤️</div>
+            <div class="mt-3 flex items-center justify-center gap-2 text-xs">
+              <a href="https://t.me/ShadowPsychologist" onclick="return openTelegram('ShadowPsychologist');"
+                 class="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-sky-400/10 border border-sky-300/20 hover:bg-sky-400/15 transition">
+                <span class="tg-anim inline-flex items-center justify-center w-6 h-6 rounded-lg bg-sky-500/20 border border-sky-300/20">
+                  <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" class="text-sky-200">
+                    <path d="M9.993 15.674 9.65 20.5c.49 0 .702-.21.956-.463l2.294-2.188 4.758 3.481c.872.481 1.491.228 1.726-.806l3.127-14.665v-.001c.274-1.28-.463-1.78-1.312-1.46L1.34 9.444c-1.242.484-1.223 1.17-.212 1.483l5.356 1.672L19.07 6.02c.592-.392 1.131-.175.687.217l-9.764 9.437Z"/>
+                  </svg>
+                </span>
+                <span>ارتباط با سازنده: <span dir="ltr" class="font-semibold">@ShadowPsychologist</span></span>
+              </a>
+            </div>
           </div>
         </div>
       </section>
@@ -693,6 +807,20 @@
     if (num === null || num === undefined || isNaN(num)) return '-';
     return toPersianNum(Number(num).toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals }));
   }
+
+  // Open Telegram (try app scheme, fallback to web)
+  function openTelegram(username){
+    try{
+      const tgs = `tg://resolve?domain=${username}`;
+      window.location.href = tgs;
+      setTimeout(()=>{ window.open(`https://t.me/${username}`, '_blank'); }, 400);
+      return false;
+    }catch{
+      window.open(`https://t.me/${username}`, '_blank');
+      return false;
+    }
+  }
+
 
   // Section navigation
   function showSection(section) {
@@ -1152,6 +1280,7 @@
 
         ${weeklyHtml}
       `;
+      enhanceAllHorizontalScroll();
     } catch (e) {
       console.error(e);
       contentEl.innerHTML = '<div class="text-center text-red-200 py-8">خطا در دریافت اطلاعات آب و هوا (احتمالاً نیازمند VPN)</div>';
@@ -1235,9 +1364,9 @@
         <div class="mt-5">
           <div class="flex items-center justify-between mb-2">
             <div class="text-sm font-bold text-gray-100">پیش‌بینی ۷ روز آینده</div>
-            <div class="text-[11px] text-gray-300">برای اسکرول، بکشید ⟵⟶</div>
+            <div class="text-[11px] text-gray-300">برای اسکرول: بکشید ⟵⟶ یا با موس اسکرول کنید</div>
           </div>
-          <div class="flex gap-3 overflow-x-auto scrollbar-hide pb-2">
+          <div class="forecast-strip flex gap-3 overflow-x-auto pb-2 select-none cursor-grab" data-hscroll="1">
             ${items}
           </div>
         </div>
@@ -1245,6 +1374,84 @@
     } catch {
       return '';
     }
+  }
+
+  // Enable horizontal scroll with mouse wheel + drag (for desktop)
+  function enhanceHorizontalScroll(el){
+    if (!el || el.dataset.hscrollEnhanced === '1') return;
+    el.dataset.hscrollEnhanced = '1';
+
+    // Prevent text selection/copy while interacting
+    el.style.userSelect = 'none';
+    el.style.webkitUserSelect = 'none';
+    el.style.msUserSelect = 'none';
+    el.style.cursor = 'grab';
+
+    // Wheel -> horizontal
+    el.addEventListener('wheel', (e) => {
+      const dy = e.deltaY;
+      const dx = e.deltaX;
+      if (Math.abs(dy) > Math.abs(dx)) {
+        el.scrollLeft += dy;
+        e.preventDefault();
+      }
+    }, { passive: false });
+
+    // Drag to scroll (desktop)
+    let isDown = false, startX = 0, startLeft = 0, moved = false;
+
+    const onDown = (e) => {
+      // only left click / primary
+      if (e.button !== undefined && e.button !== 0) return;
+      isDown = true;
+      moved = false;
+      el.style.cursor = 'grabbing';
+      startX = (e.pageX ?? e.touches?.[0]?.pageX ?? 0);
+      startLeft = el.scrollLeft;
+      // prevent text selection
+      e.preventDefault();
+    };
+
+    const onMove = (e) => {
+      if (!isDown) return;
+      const x = (e.pageX ?? e.touches?.[0]?.pageX ?? 0);
+      const walk = (x - startX);
+      if (Math.abs(walk) > 3) moved = true;
+      el.scrollLeft = startLeft - walk;
+      e.preventDefault();
+    };
+
+    const onUp = () => {
+      if (!isDown) return;
+      isDown = false;
+      el.style.cursor = 'grab';
+      // if user dragged, block the next click (prevents selection/copy)
+      if (moved) {
+        el.dataset.justDragged = '1';
+        setTimeout(() => { el.dataset.justDragged = '0'; }, 150);
+      }
+    };
+
+    el.addEventListener('mousedown', onDown);
+    el.addEventListener('touchstart', onDown, { passive: false });
+
+    window.addEventListener('mousemove', onMove, { passive: false });
+    window.addEventListener('touchmove', onMove, { passive: false });
+
+    window.addEventListener('mouseup', onUp);
+    window.addEventListener('touchend', onUp);
+
+    // Prevent click selection after dragging
+    el.addEventListener('click', (e) => {
+      if (el.dataset.justDragged === '1') {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    });
+  }
+
+  function enhanceAllHorizontalScroll(){
+    document.querySelectorAll('[data-hscroll="1"]').forEach(enhanceHorizontalScroll);
   }
 
 
@@ -1270,10 +1477,22 @@
     const gregorianMonths = ['January','February','March','April','May','June','July','August','September','October','November','December'];
     document.getElementById('gregorian-date').textContent = `${now.getDate()} ${gregorianMonths[now.getMonth()]} ${now.getFullYear()}`;
 
-    // تاریخ قمری (اصلاح شد: دیگر یک روز عقب/جلو نمی‌شود)
-    const hijri = gregorianToHijri(now.getFullYear(), now.getMonth()+1, now.getDate());
-    const hijriMonths = ['محرم','صفر','ربیع‌الاول','ربیع‌الثانی','جمادی‌الاول','جمادی‌الثانی','رجب','شعبان','رمضان','شوال','ذی‌القعده','ذی‌الحجه'];
-    document.getElementById('hijri-date').textContent = `${toPersianNum(hijri.day)} ${hijriMonths[hijri.month-1]} ${toPersianNum(hijri.year)}`;
+    // تاریخ قمری (هجری قمری) — اصلاح دقیق با Intl (منطبق با Asia/Tehran)
+    try {
+      const fmtHijri = new Intl.DateTimeFormat('fa-IR-u-ca-islamic', {
+        day: 'numeric', month: 'long', year: 'numeric', timeZone: 'Asia/Tehran'
+      });
+      const hijriDate = new Date(iranTime);
+      hijriDate.setDate(hijriDate.getDate() - 2);
+      document.getElementById('hijri-date').textContent = fmtHijri.format(hijriDate);
+    } catch {
+      // fallback (اگر Intl تقویم قمری در مرورگر پشتیبانی نشود)
+      const hijriBase = new Date(iranTime);
+      hijriBase.setDate(hijriBase.getDate() - 2); // جبران خطای رایج بعضی الگوریتم‌ها
+      const hijri = gregorianToHijri(hijriBase.getFullYear(), hijriBase.getMonth()+1, hijriBase.getDate());
+      const hijriMonths = ['محرم','صفر','ربیع‌الاول','ربیع‌الثانی','جمادی‌الاول','جمادی‌الثانی','رجب','شعبان','رمضان','شوال','ذی‌القعده','ذی‌الحجه'];
+      document.getElementById('hijri-date').textContent = `${toPersianNum(hijri.day)} ${hijriMonths[hijri.month-1]} ${toPersianNum(hijri.year)}`;
+    }
 
     const hours = iranTime.getHours()%12;
     const minutes = iranTime.getMinutes();
@@ -1608,32 +1827,127 @@
   };
 
 
-  // ---- Unit dropdown helpers (compact UI) ----
-  function closeAllUnitMenus() {
-    ['from-unit','to-unit'].forEach(id => {
-      const m = document.getElementById(id+'-menu');
-      if (m) m.classList.add('hidden');
-    });
+  // ---- Unit dropdown helpers (portal to body for perfect overlay) ----
+  const __ddState = {}; // {menuId:{homeParent,homeNext,anchorId,open}}
+
+  function __ddMoveToBody(menuId, anchorId){
+    const menu = document.getElementById(menuId);
+    const anchor = document.getElementById(anchorId);
+    if (!menu || !anchor) return;
+
+    // remember original place once
+    if (!__ddState[menuId]) {
+      __ddState[menuId] = {
+        homeParent: menu.parentElement,
+        homeNext: menu.nextSibling,
+        anchorId,
+        open: false
+      };
+    }
+
+    // already in body
+    if (menu.parentElement !== document.body) {
+      document.body.appendChild(menu);
+    }
+
+    const r = anchor.getBoundingClientRect();
+    const top = Math.min(window.innerHeight - 12, r.bottom + 8);
+    let left = r.left;
+    let width = r.width;
+
+    // keep inside viewport
+    const maxLeft = window.innerWidth - width - 12;
+    left = Math.max(12, Math.min(left, maxLeft));
+
+    menu.style.position = 'fixed';
+    menu.style.top = top + 'px';
+    menu.style.left = left + 'px';
+    menu.style.width = width + 'px';
+    menu.style.zIndex = '100000';
+    menu.classList.remove('hidden');
+    __ddState[menuId].open = true;
   }
 
+  function __ddReturnHome(menuId){
+    const st = __ddState[menuId];
+    const menu = document.getElementById(menuId);
+    if (!st || !menu) return;
+    menu.classList.add('hidden');
+    menu.style.position = '';
+    menu.style.top = '';
+    menu.style.left = '';
+    menu.style.width = '';
+    menu.style.zIndex = '';
+    // restore to original parent
+    if (st.homeParent && menu.parentElement !== st.homeParent) {
+      if (st.homeNext && st.homeNext.parentElement === st.homeParent) st.homeParent.insertBefore(menu, st.homeNext);
+      else st.homeParent.appendChild(menu);
+    }
+    st.open = false;
+  }
+
+  function closeAllUnitMenus(){
+    ['conv-type-menu','from-unit-menu','to-unit-menu'].forEach(mid => __ddReturnHome(mid));
+  }
+
+  function toggleUnitMenu(id){
+    const menuId = id + '-menu';
+    const btnId = id + '-btn';
+    const st = __ddState[menuId];
+    const isOpen = st?.open && !document.getElementById(menuId)?.classList.contains('hidden');
+    closeAllUnitMenus();
+    if (!isOpen) __ddMoveToBody(menuId, btnId);
+  }
+
+  function openUnitMenu(id){
+    closeAllUnitMenus();
+    __ddMoveToBody(id+'-menu', id+'-btn');
+  }
+
+  function closeUnitMenu(id){
+    __ddReturnHome(id+'-menu');
+  }
+
+  // close on outside click
   document.addEventListener('click', (e) => {
-    const inside = e.target.closest('#from-unit-btn, #from-unit-menu, #to-unit-btn, #to-unit-menu');
+    const inside = e.target.closest('#conv-type-btn, #conv-type-menu, #from-unit-btn, #from-unit-menu, #to-unit-btn, #to-unit-menu');
     if (!inside) closeAllUnitMenus();
   });
 
-  function toggleUnitMenu(id) {
-    const menu = document.getElementById(id+'-menu');
-    if (!menu) return;
-    const isHidden = menu.classList.contains('hidden');
-    closeAllUnitMenus();
-    if (isHidden) menu.classList.remove('hidden');
+  // keep menus aligned on scroll/resize
+  window.addEventListener('resize', () => {
+    Object.keys(__ddState).forEach(menuId => {
+      const st = __ddState[menuId];
+      if (!st?.open) return;
+      __ddMoveToBody(menuId, st.anchorId || (menuId.replace('-menu','-btn')));
+    });
+  });
+  window.addEventListener('scroll', () => {
+    Object.keys(__ddState).forEach(menuId => {
+      const st = __ddState[menuId];
+      if (!st?.open) return;
+      __ddMoveToBody(menuId, st.anchorId || (menuId.replace('-menu','-btn')));
+    });
+  }, {passive:true});
+
+  function initUnitDropdownHover(){
+    // only for devices with real hover
+    if (!window.matchMedia || !window.matchMedia('(hover:hover) and (pointer:fine)').matches) return;
+    document.querySelectorAll('.unit-dropdown').forEach(wrap => {
+      // support both forms: data-dd on from/to, and conv-type as special
+      const dd = wrap.getAttribute('data-dd') || (wrap.querySelector('#conv-type-btn') ? 'conv-type' : null);
+      if (!dd) return;
+      let t;
+      wrap.addEventListener('mouseenter', () => { clearTimeout(t); openUnitMenu(dd); });
+      wrap.addEventListener('mouseleave', () => { clearTimeout(t); t = setTimeout(() => closeUnitMenu(dd), 180); });
+    });
   }
 
-  function setUnitDropdownOptions(id, units) {
+function setUnitDropdownOptions(id, units) {
     const menu = document.getElementById(id+'-menu');
     if (!menu) return;
     menu.innerHTML = units.map(u => `
-      <button type="button" class="w-full text-right px-3 py-2 rounded-lg hover:bg-white/10 transition text-sm"
+      <button type="button" class="w-full text-right px-3 py-2 rounded-lg bg-white/10 text-white hover:bg-white/20 transition text-sm border border-white/10"
         onclick="selectUnit('${id}','${u.id}','${u.name.replace(/'/g, '&#39;')}')">
         ${u.name}
       </button>
@@ -1655,25 +1969,47 @@
   let currentConverterType = 'length';
 
   function initConverterTypes() {
-    const el = document.getElementById('converter-types');
-    if (!el || el.dataset.inited === '1') return;
-    el.dataset.inited = '1';
+    const menu = document.getElementById('conv-type-menu');
+    const btnLabel = document.getElementById('conv-type-label');
+    const hidden = document.getElementById('conv-type-value');
+    if (!menu || menu.dataset.inited === '1') return;
+    menu.dataset.inited = '1';
+
     const keys = Object.keys(unitData);
-    el.innerHTML = keys.map((k, idx) => `
-      <button onclick="setConverterType('${k}')" class="converter-type-btn ${idx===0?'active':''} glass px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap" data-type="${k}">
+    menu.innerHTML = keys.map(k => `
+      <button type="button"
+        class="w-full text-right px-3 py-2 rounded-xl bg-white/10 text-white hover:bg-white/20 transition text-sm border border-white/10"
+        onclick="selectConverterType('${k}')">
         ${unitData[k].label}
       </button>
     `).join('');
+
+    // default label
+    if (btnLabel && (!hidden || !hidden.value)) {
+      btnLabel.textContent = unitData[currentConverterType]?.label || 'انتخاب دسته';
+    }
   }
+
+  function selectConverterType(type){
+    const hidden = document.getElementById('conv-type-value');
+    if (hidden) hidden.value = type;
+    const lbl = document.getElementById('conv-type-label');
+    if (lbl) lbl.textContent = unitData[type]?.label || 'انتخاب دسته';
+    const menu = document.getElementById('conv-type-menu');
+    if (menu) menu.classList.add('hidden');
+    setConverterType(type);
+  }
+
 
   
   function setConverterType(type) {
     currentConverterType = type;
 
-    document.querySelectorAll('.converter-type-btn').forEach(btn => {
-      btn.classList.remove('active');
-      if (btn.dataset.type === type) btn.classList.add('active');
-    });
+    // sync dropdown label (in case called programmatically)
+    const lbl = document.getElementById('conv-type-label');
+    const hidden = document.getElementById('conv-type-value');
+    if (hidden) hidden.value = type;
+    if (lbl) lbl.textContent = unitData[type]?.label || 'انتخاب دسته';
 
     const units = unitData[type].units;
 
@@ -2237,6 +2573,10 @@
   if (window.elementSdk) {
     window.elementSdk.init({ defaultConfig, onConfigChange, mapToCapabilities, mapToEditPanelValues });
   }
+
+  // Init UI helpers
+  initUnitDropdownHover();
+  enhanceAllHorizontalScroll();
 
   // Start the app
   loadCrypto();
