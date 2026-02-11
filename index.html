@@ -287,9 +287,7 @@
 <div class="glass rounded-2xl p-4">
   <label class="text-xs text-gray-400 block mb-2">دسته تبدیل <span class="text-[11px] text-gray-500">(برای انتخاب، روی فهرست کلیک کنید)</span></label>
 
-  <div class="relative unit-dropdown"
-       onmouseenter="if(window.matchMedia('(hover:hover)').matches) openUnitMenu('conv-type')"
-       onmouseleave="if(window.matchMedia('(hover:hover)').matches) closeAllUnitMenus()">
+  <div class="relative unit-dropdown" data-dd="conv-type">
     <button type="button" id="conv-type-btn" onclick="toggleUnitMenu('conv-type')"
             class="glass w-full px-3 py-2 rounded-xl text-sm bg-transparent outline-none cursor-pointer flex items-center justify-between">
       <span id="conv-type-label">انتخاب دسته</span>
@@ -758,15 +756,15 @@
           <div class="text-sm text-gray-300 leading-relaxed space-y-2">
             <div>راهنمای بخش سلامت:</div>
             <ul class="list-disc pr-5 space-y-1 text-gray-300">
-              <li><span class="font-bold text-gray-100">BMI</span>: شاخص توده بدنی (وزن نسبت به قد).</li>
-              <li><span class="font-bold text-gray-100">BMR</span>: سوخت‌وساز پایه (کالری موردنیاز در استراحت).</li>
-              <li><span class="font-bold text-gray-100">نیاز کالری</span>: برآورد کالری روزانه با توجه به فعالیت.</li>
-              <li><span class="font-bold text-gray-100">آب موردنیاز</span>: تخمین مصرف آب روزانه (تقریبی).</li>
-              <li><span class="font-bold text-gray-100">WHtR</span> (دور کمر/قد): شاخص ساده ریسک چربی شکمی.</li>
-              <li><span class="font-bold text-gray-100">درصد چربی بدن</span>: روش US Navy (تقریبی).</li>
-              <li><span class="font-bold text-gray-100">زون‌های ضربان قلب</span>: محدوده‌های تمرین بر اساس سن (تقریبی).</li>
-              <li><span class="font-bold text-gray-100">تفسیر آزمایش</span>: تفسیر عمومی + شاخص‌های مشتق‌شده مثل Non‑HDL و TG/HDL.</li>
-            </ul>
+              <li><span class="font-bold text-gray-100">BMI</span> (شاخص توده بدنی): از فرمول <span class="text-gray-200">وزن(کیلو) ÷ قد²(متر)</span> به‌دست می‌آید و به‌صورت کلی نشان می‌دهد وزن نسبت به قد در چه محدوده‌ای است. تفسیر رایج: کمتر از ۱۸.۵ کم‌وزن، ۱۸.۵ تا ۲۴.۹ نرمال، ۲۵ تا ۲۹.۹ اضافه‌وزن، ۳۰ به بالا چاقی. (این شاخص بین عضله و چربی تفکیک دقیق ندارد.)</li>
+              <li><span class="font-bold text-gray-100">BMR</span> (سوخت‌وساز پایه): مقدار کالری‌ای که بدن در حالت استراحت برای کارکردهای حیاتی (تنفس، ضربان قلب، تنظیم دما و…) مصرف می‌کند. این مقدار پایه‌ی محاسبه‌ی کالری روزانه است.</li>
+              <li><span class="font-bold text-gray-100">نیاز کالری روزانه</span>: برآورد کالری کل روز (TDEE) با درنظرگرفتن سطح فعالیت. اگر هدف کاهش وزن است معمولاً کسری ملایم (مثلاً ۳۰۰–۵۰۰ کالری) و برای افزایش وزن مازاد ملایم پیشنهاد می‌شود.</li>
+              <li><span class="font-bold text-gray-100">آب موردنیاز</span>: تخمین مصرف آب روزانه بر اساس وزن و شرایط عمومی. مقدار دقیق به آب‌وهوا، فعالیت، تعریق، رژیم غذایی و وضعیت پزشکی وابسته است.</li>
+              <li><span class="font-bold text-gray-100">WHtR</span> (نسبت دور کمر به قد): <span class="text-gray-200">دور کمر ÷ قد</span>. شاخص ساده برای چربی شکمی. به‌طور کلی کمتر از ۰.۵ بهتر است (هرچه بالاتر، ریسک متابولیک/قلبی می‌تواند بیشتر باشد).</li>
+              <li><span class="font-bold text-gray-100">درصد چربی بدن</span> (US Navy): تخمین تقریبی با اندازه‌گیری دور گردن/کمر (و در خانم‌ها دور باسن). عدد تقریبی است و با روش‌های دقیق‌تر (DEXA/BIA) ممکن است تفاوت داشته باشد.</li>
+              <li><span class="font-bold text-gray-100">زون‌های ضربان قلب</span>: محدوده‌های تمرینی (از ریکاوری تا شدید) بر اساس سن و حداکثر ضربان تخمینی. مناسب برای برنامه‌ریزی تمرین هوازی/چربی‌سوزی، ولی برای افراد با بیماری قلبی باید با نظر پزشک باشد.</li>
+              <li><span class="font-bold text-gray-100">تفسیر آزمایش</span>: یک تفسیر عمومی بر اساس مقادیر ورودی + محاسبه شاخص‌های تکمیلی مثل <span class="text-gray-200">Non‑HDL</span> و نسبت <span class="text-gray-200">TG/HDL</span>. (جایگزین نظر پزشک نیست؛ محدوده‌های مرجع ممکن است بین آزمایشگاه‌ها فرق کند.)</li>
+</ul>
           </div>
         </div>
         <div class="glass rounded-2xl p-4 border-indigo-500/30">
@@ -1931,15 +1929,13 @@
   }, {passive:true});
 
   function initUnitDropdownHover(){
-    // only for devices with real hover
+    // Only open on hover for desktop pointers, but NEVER auto-close.
+    // Menus will close only when user selects an option or clicks/taps outside.
     if (!window.matchMedia || !window.matchMedia('(hover:hover) and (pointer:fine)').matches) return;
     document.querySelectorAll('.unit-dropdown').forEach(wrap => {
-      // support both forms: data-dd on from/to, and conv-type as special
       const dd = wrap.getAttribute('data-dd') || (wrap.querySelector('#conv-type-btn') ? 'conv-type' : null);
       if (!dd) return;
-      let t;
-      wrap.addEventListener('mouseenter', () => { clearTimeout(t); openUnitMenu(dd); });
-      wrap.addEventListener('mouseleave', () => { clearTimeout(t); t = setTimeout(() => closeUnitMenu(dd), 180); });
+      if(dd !== 'conv-type') wrap.addEventListener('mouseenter', () => { openUnitMenu(dd); });
     });
   }
 
@@ -1957,8 +1953,8 @@ function setUnitDropdownOptions(id, units) {
   function selectUnit(id, value, label) {
     document.getElementById(id+'-value').value = value;
     document.getElementById(id+'-label').innerHTML = label;
-    const menu = document.getElementById(id+'-menu');
-    if (menu) menu.classList.add('hidden');
+    // Close menu ONLY after user selects an option (no auto-close on hover)
+    closeUnitMenu(id);
     convertUnit();
   }
 
@@ -1995,8 +1991,8 @@ function setUnitDropdownOptions(id, units) {
     if (hidden) hidden.value = type;
     const lbl = document.getElementById('conv-type-label');
     if (lbl) lbl.textContent = unitData[type]?.label || 'انتخاب دسته';
-    const menu = document.getElementById('conv-type-menu');
-    if (menu) menu.classList.add('hidden');
+    // Properly close and return menu to its original place
+    closeUnitMenu('conv-type');
     setConverterType(type);
   }
 
