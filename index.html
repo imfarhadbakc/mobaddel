@@ -142,6 +142,19 @@
     .cloudLayer{position:absolute; inset:0; pointer-events:none}
     .mist{position:absolute; inset:-20px; background:radial-gradient(circle at 20% 30%, rgba(255,255,255,0.14), transparent 55%), radial-gradient(circle at 70% 60%, rgba(255,255,255,0.10), transparent 60%); filter: blur(6px); opacity:0.7}
 
+/* DateTime: progress bars */
+.progress-track{background:rgba(255,255,255,0.10); border:1px solid rgba(255,255,255,0.10); border-radius:999px; overflow:hidden}
+.progress-bar{height:10px; border-radius:999px; background:linear-gradient(90deg, rgba(99,102,241,0.9), rgba(168,85,247,0.9)); width:0%}
+.mono{font-variant-numeric: tabular-nums}
+
+/* Weather: richer animations */
+@keyframes lightningFlash { 0%,92%,100%{opacity:0} 93%{opacity:0.65} 94%{opacity:0.15} 95%{opacity:0.85} 96%{opacity:0.2} 97%{opacity:0.7} }
+.lightning-flash{position:absolute; inset:0; background:rgba(255,255,255,0.55); animation: lightningFlash 5.5s infinite; pointer-events:none; mix-blend-mode: overlay;}
+@keyframes windDrift { 0%{transform:translateX(120%)} 100%{transform:translateX(-140%)} }
+.wind-line{position:absolute; height:2px; width:80px; background:rgba(255,255,255,0.18); border-radius:999px; filter: blur(0.2px); animation: windDrift linear infinite}
+@keyframes rainSlash { 0%{transform:translateY(-120%) translateX(0);opacity:0} 10%{opacity:1} 90%{opacity:1} 100%{transform:translateY(420px) translateX(80px);opacity:0} }
+.rain-slash{animation: rainSlash 0.95s linear infinite;}
+
   </style>
   <style>@view-transition { navigation: auto; }</style>
   <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
@@ -253,6 +266,20 @@
                 <line x1="50" y1="90" x2="50" y2="85" />
                 <line x1="10" y1="50" x2="15" y2="50" />
               </g>
+              <g id="clock-numbers" font-family="ui-sans-serif,system-ui" font-size="8" fill="rgba(255,255,255,0.75)" text-anchor="middle" dominant-baseline="middle">
+                <text x="50" y="20">۱۲</text>
+                <text x="65" y="23">۱</text>
+                <text x="76" y="34">۲</text>
+                <text x="82" y="50">۳</text>
+                <text x="76" y="66">۴</text>
+                <text x="65" y="77">۵</text>
+                <text x="50" y="82">۶</text>
+                <text x="35" y="77">۷</text>
+                <text x="24" y="66">۸</text>
+                <text x="18" y="50">۹</text>
+                <text x="24" y="34">۱۰</text>
+                <text x="35" y="23">۱۱</text>
+              </g>
               <line id="hour-hand" x1="50" y1="50" x2="50" y2="28" stroke="white" stroke-width="3" stroke-linecap="round" />
               <line id="minute-hand" x1="50" y1="50" x2="50" y2="18" stroke="white" stroke-width="2" stroke-linecap="round" />
               <line id="second-hand" x1="50" y1="50" x2="50" y2="15" stroke="#a855f7" stroke-width="1" stroke-linecap="round" />
@@ -269,7 +296,48 @@
             <div class="text-xs text-gray-400 mb-1">تاریخ میلادی</div>
             <div id="gregorian-date" class="text-xl font-bold">--</div>
           </div>
-        </div>
+        
+
+<!-- Advanced Date/Time -->
+<div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
+  <div class="glass rounded-2xl p-4 text-center">
+    <div class="text-xs text-gray-400 mb-1">امروز</div>
+    <div id="today-name" class="text-xl font-bold">--</div>
+    <div id="today-meta" class="text-xs text-gray-400 mt-1 mono">--</div>
+  </div>
+  <div class="glass rounded-2xl p-4">
+    <div class="flex items-center justify-between mb-2">
+      <div class="text-xs text-gray-400">پیشرفت امروز</div>
+      <div id="day-progress-pct" class="text-xs text-gray-300 mono">--%</div>
+    </div>
+    <div class="progress-track">
+      <div id="day-progress" class="progress-bar"></div>
+    </div>
+    <div id="day-remaining" class="text-[11px] text-gray-400 mt-2 mono">--</div>
+  </div>
+  <div class="glass rounded-2xl p-4">
+    <div class="flex items-center justify-between mb-2">
+      <div class="text-xs text-gray-400">پیشرفت ماه</div>
+      <div id="month-progress-pct" class="text-xs text-gray-300 mono">--%</div>
+    </div>
+    <div class="progress-track">
+      <div id="month-progress" class="progress-bar"></div>
+    </div>
+    <div id="month-remaining" class="text-[11px] text-gray-400 mt-2 mono">--</div>
+  </div>
+  <div class="glass rounded-2xl p-4">
+    <div class="flex items-center justify-between mb-2">
+      <div class="text-xs text-gray-400">پیشرفت سال</div>
+      <div id="year-progress-pct" class="text-xs text-gray-300 mono">--%</div>
+    </div>
+    <div class="progress-track">
+      <div id="year-progress" class="progress-bar"></div>
+    </div>
+    <div id="year-remaining" class="text-[11px] text-gray-400 mt-2 mono">--</div>
+  </div>
+</div>
+
+</div>
 
         <div class="glass rounded-2xl p-4">
           <div class="flex items-center justify-between mb-4">
@@ -415,15 +483,35 @@
 
           <!-- Scientific row -->
           <div id="sci-pad" class="hidden grid grid-cols-4 gap-2 mb-2">
-            <button onclick="calcFunc('sin')" class="calc-btn glass hover:bg-white/20 p-3 rounded-xl text-sm font-bold">sin</button>
-            <button onclick="calcFunc('cos')" class="calc-btn glass hover:bg-white/20 p-3 rounded-xl text-sm font-bold">cos</button>
-            <button onclick="calcFunc('tan')" class="calc-btn glass hover:bg-white/20 p-3 rounded-xl text-sm font-bold">tan</button>
-            <button onclick="calcConst('pi')" class="calc-btn glass hover:bg-white/20 p-3 rounded-xl text-sm font-bold">π</button>
+            <button onclick="toggleTrigMode()" class="calc-btn glass hover:bg-white/20 p-3 rounded-xl text-sm font-bold" id="trig-mode-btn">DEG</button>
+            <button onclick="calcInsertFunc('sin')" class="calc-btn glass hover:bg-white/20 p-3 rounded-xl text-sm font-bold">sin</button>
+            <button onclick="calcInsertFunc('cos')" class="calc-btn glass hover:bg-white/20 p-3 rounded-xl text-sm font-bold">cos</button>
+            <button onclick="calcInsertFunc('tan')" class="calc-btn glass hover:bg-white/20 p-3 rounded-xl text-sm font-bold">tan</button>
 
-            <button onclick="calcFunc('sqrt')" class="calc-btn glass hover:bg-white/20 p-3 rounded-xl text-sm font-bold">√</button>
-            <button onclick="calcFunc('ln')" class="calc-btn glass hover:bg-white/20 p-3 rounded-xl text-sm font-bold">ln</button>
-            <button onclick="calcFunc('log')" class="calc-btn glass hover:bgwhite/20 p-3 rounded-xl text-sm font-bold">log</button>
-            <button onclick="calcPow()" class="calc-btn bg-purple-500/30 hover:bg-purple-500/50 p-3 rounded-xl text-sm font-bold">^</button>
+            <button onclick="calcInsertFunc('asin')" class="calc-btn glass hover:bg-white/20 p-3 rounded-xl text-sm font-bold">asin</button>
+            <button onclick="calcInsertFunc('acos')" class="calc-btn glass hover:bg-white/20 p-3 rounded-xl text-sm font-bold">acos</button>
+            <button onclick="calcInsertFunc('atan')" class="calc-btn glass hover:bg-white/20 p-3 rounded-xl text-sm font-bold">atan</button>
+            <button onclick="calcInsertConst('pi')" class="calc-btn glass hover:bg-white/20 p-3 rounded-xl text-sm font-bold">π</button>
+
+            <button onclick="calcInsertFunc('sqrt')" class="calc-btn glass hover:bg-white/20 p-3 rounded-xl text-sm font-bold">√</button>
+            <button onclick="calcInsertFunc('ln')" class="calc-btn glass hover:bg-white/20 p-3 rounded-xl text-sm font-bold">ln</button>
+            <button onclick="calcInsertFunc('log')" class="calc-btn glass hover:bg-white/20 p-3 rounded-xl text-sm font-bold">log</button>
+            <button onclick="calcInsertConst('e')" class="calc-btn glass hover:bg-white/20 p-3 rounded-xl text-sm font-bold">e</button>
+
+            <button onclick="calcInsert('(')" class="calc-btn glass hover:bg-white/20 p-3 rounded-xl text-sm font-bold">(</button>
+            <button onclick="calcInsert(')')" class="calc-btn glass hover:bg-white/20 p-3 rounded-xl text-sm font-bold">)</button>
+            <button onclick="calcInsertFunc('fact')" class="calc-btn glass hover:bg-white/20 p-3 rounded-xl text-sm font-bold">x!</button>
+            <button onclick="calcInsertOp('^')" class="calc-btn bg-purple-500/30 hover:bg-purple-500/50 p-3 rounded-xl text-sm font-bold">^</button>
+
+            <button onclick="calcInsertFunc('abs')" class="calc-btn glass hover:bg-white/20 p-3 rounded-xl text-sm font-bold">abs</button>
+            <button onclick="calcInsertFunc('exp')" class="calc-btn glass hover:bg-white/20 p-3 rounded-xl text-sm font-bold">exp</button>
+            <button onclick="calcInsert('1/(')" class="calc-btn glass hover:bg-white/20 p-3 rounded-xl text-sm font-bold">1/x</button>
+            <button onclick="calcInsert('**2')" class="calc-btn glass hover:bg-white/20 p-3 rounded-xl text-sm font-bold">x²</button>
+
+            <button onclick="calcMemClear()" class="calc-btn glass hover:bg-white/20 p-3 rounded-xl text-sm font-bold">MC</button>
+            <button onclick="calcMemRecall()" class="calc-btn glass hover:bg-white/20 p-3 rounded-xl text-sm font-bold">MR</button>
+            <button onclick="calcMemAdd()" class="calc-btn glass hover:bg-white/20 p-3 rounded-xl text-sm font-bold">M+</button>
+            <button onclick="calcMemSub()" class="calc-btn glass hover:bg-white/20 p-3 rounded-xl text-sm font-bold">M-</button>
           </div>
 
           <div class="grid grid-cols-4 gap-2">
@@ -481,7 +569,7 @@
             <div class="text-3xl font-bold" id="bmi-value">-</div>
             <div class="text-sm text-gray-400" id="bmi-status">-</div>
             <div class="mt-2 h-2 rounded-full bg-gradient-to-r from-blue-500 via-green-500 via-yellow-500 to-red-500 relative">
-              <div id="bmi-marker" class="absolute top-1/2 -translate-y-1/2 w-3 h-3 bg-white rounded-full shadow-lg transition-all" style="right: 50%"></div>
+              <div id="bmi-marker" class="absolute top-1/2 -translate-y-1/2 w-3 h-3 bg-white rounded-full shadow-lg transition-all -translate-x-1/2" style="left: 50%"></div>
             </div>
             <div class="flex justify-between text-xs text-gray-400 mt-1"><span>لاغر</span><span>نرمال</span><span>اضافه</span><span>چاق</span></div>
           </div>
@@ -1041,11 +1129,20 @@
   ];
 
   const cryptoList = [
-    { key:'btc', symbol:'BTC', name:'بیت‌کوین' },
-    { key:'eth', symbol:'ETH', name:'اتریوم' },
+    // Top coins + requested extras (may vary by exchange availability)
+    { key:'btc',  symbol:'BTC',  name:'بیت‌کوین' },
+    { key:'eth',  symbol:'ETH',  name:'اتریوم' },
     { key:'usdt', symbol:'USDT', name:'تتر' },
-    { key:'ton', symbol:'TON', name:'تون‌کوین' },
-    { key:'trx', symbol:'TRX', name:'ترون' },
+    { key:'bnb',  symbol:'BNB',  name:'بایننس‌کوین' },
+    { key:'sol',  symbol:'SOL',  name:'سولانا' },
+    { key:'xrp',  symbol:'XRP',  name:'ریپل' },
+    { key:'usdc', symbol:'USDC', name:'یو‌اس‌دی‌سی' },
+    { key:'doge', symbol:'DOGE', name:'دوج‌کوین' },
+    { key:'ton',  symbol:'TON',  name:'تون‌کوین' },
+    { key:'ada',  symbol:'ADA',  name:'کاردانو' },
+
+    // Additional popular coins
+    { key:'trx',  symbol:'TRX',  name:'ترون' },
     { key:'paxg', symbol:'PAXG', name:'طلای دیجیتال' }
   ];
 
@@ -1382,7 +1479,7 @@
       const lon = selectedCity.lon;
 
       // تغییر: جزئیات بیشتر (pressure, visibility, daily max/min, sunrise/sunset)
-      const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,is_day,weather_code,wind_speed_10m,pressure_msl,visibility&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,sunrise,sunset&forecast_days=7&timezone=Asia/Tehran`;
+      const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,is_day,weather_code,wind_speed_10m,pressure_msl,visibility&hourly=temperature_2m,precipitation_probability,weather_code,wind_speed_10m&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,sunrise,sunset&forecast_days=7&timezone=Asia/Tehran`;
       const res = await fetch(url);
 
       if (!res.ok) throw new Error('Weather API Error');
@@ -1404,7 +1501,12 @@
         cardEl.style.background = 'linear-gradient(135deg, #1A202C 0%, #2D3748 100%)';
       }
 
-      animEl.innerHTML = createWeatherAnimation(iconType, isDay);
+      const code = current.weather_code;
+      const wind = current.wind_speed_10m ?? 0;
+      let animType = iconType;
+      if ([95,96,99].includes(code)) animType = 'thunder';
+      animEl.innerHTML = createWeatherAnimation(animType, isDay, wind);
+
 
       const dailyMax = data.daily?.temperature_2m_max?.[0];
       const dailyMin = data.daily?.temperature_2m_min?.[0];
@@ -1416,6 +1518,7 @@
       const visKm = visibility ? (visibility/1000) : null;
 
       const weeklyHtml = renderWeeklyForecast(data.daily);
+      const hourlyHtml = renderHourlyForecast(data);
 
 
       contentEl.innerHTML = `
@@ -1459,6 +1562,7 @@
           </div>
         </div>
 
+        ${hourlyHtml}
         ${weeklyHtml}
       `;
       enhanceAllHorizontalScroll();
@@ -1468,8 +1572,9 @@
     }
   }
 
-  function createWeatherAnimation(type, isDay) {
+  function createWeatherAnimation(type, isDay, wind=0) {
     let html = '';
+    const windLines = (wind>28) ? `${[...Array(6)].map((_,i)=>`<div class="wind-line" style="top:${18+i*10}%; right:${-10 - i*18}%; animation-duration:${10+Math.random()*8}s; opacity:${0.10+Math.random()*0.15}"></div>`).join('')}` : '';
     if (type === 'sunny' && isDay) {
       html = `
         <div class="absolute top-4 left-4 sun-glow">
@@ -1503,7 +1608,8 @@
       `;
     } else if (type === 'rain') {
       html = `
-        ${[...Array(20)].map(()=>`<div class="rain-drop absolute w-0.5 h-4 bg-blue-300 rounded-full opacity-60" style="right:${Math.random()*100}%; animation-delay:${Math.random()*1}s; animation-duration:${0.8+Math.random()*0.4}s;"></div>`).join('')}
+        ${windLines}
+        ${[...Array(20)].map(()=>`<div class="${wind>22?'rain-slash':'rain-drop'} absolute w-0.5 h-4 bg-blue-300 rounded-full opacity-60 style="right:${Math.random()*100}%; animation-delay:${Math.random()*1}s; animation-duration:${0.8+Math.random()*0.4}s;"></div>`).join('')}
         <div class="cloud absolute top-2 right-4">
           <svg width="100" height="60" viewBox="0 0 100 60">
             <ellipse cx="30" cy="40" rx="25" ry="15" fill="rgba(100,100,100,0.8)"/>
@@ -1512,6 +1618,26 @@
           </svg>
         </div>
       `;
+} else if (type === 'thunder') {
+  html = `
+    <div class="lightning-flash"></div>
+    ${windLines}
+    ${[...Array(18)].map(()=>`<div class="${wind>22?'rain-slash':'rain-drop'} absolute w-0.5 h-4 bg-blue-200 rounded-full opacity-55" style="right:${Math.random()*100}%; animation-delay:${Math.random()*1}s; animation-duration:${0.75+Math.random()*0.45}s;"></div>`).join('')}
+    <div class="cloudLayer">
+      <div class="mist" style="opacity:0.85"></div>
+      ${[...Array(4)].map((_,i)=>`
+        <div class="cloud mid absolute" style="top:${6+i*16}%; right:${-30 - i*22}%; animation-duration:${22+i*5}s; opacity:${0.75-i*0.08}">
+          <svg width="${120-i*10}" height="${72-i*4}" viewBox="0 0 120 70">
+            <ellipse cx="38" cy="48" rx="32" ry="18" fill="rgba(70,70,80,0.78)"/>
+            <ellipse cx="68" cy="42" rx="38" ry="24" fill="rgba(70,70,80,0.78)"/>
+            <ellipse cx="96" cy="48" rx="26" ry="16" fill="rgba(70,70,80,0.78)"/>
+          </svg>
+        </div>`).join('')}
+    </div>
+    <svg class="absolute left-6 top-24 opacity-80" width="70" height="120" viewBox="0 0 70 120">
+      <path d="M40 0 L10 55 H32 L18 120 L60 55 H38 Z" fill="rgba(255,255,255,0.85)"/>
+    </svg>
+  `;
     } else if (type === 'snow') {
       html = `${[...Array(15)].map(()=>`<div class="snow-flake absolute text-white opacity-80" style="right:${Math.random()*100}%; animation-delay:${Math.random()*3}s; animation-duration:${2+Math.random()*2}s;">❄</div>`).join('')}`;
     } else if (type === 'rain-snow') {
@@ -1523,6 +1649,58 @@
     return html;
   }
 
+
+function renderHourlyForecast(data){
+  try{
+    const hourly = data?.hourly;
+    if (!hourly || !hourly.time || hourly.time.length===0) return '';
+    const nowIso = data?.current?.time || null;
+
+    // find starting index (nearest >= now)
+    let startIdx = 0;
+    if (nowIso){
+      const nowT = new Date(nowIso).getTime();
+      startIdx = hourly.time.findIndex(t => new Date(t).getTime() >= nowT);
+      if (startIdx < 0) startIdx = 0;
+    }
+
+    const endIdx = Math.min(startIdx + 24, hourly.time.length);
+    const items = [];
+    for (let i=startIdx;i<endIdx;i++){
+      const t = new Date(hourly.time[i]);
+      const hh = String(t.getHours()).padStart(2,'0');
+      const temp = hourly.temperature_2m?.[i];
+      const pop  = hourly.precipitation_probability?.[i];
+      const wind = hourly.wind_speed_10m?.[i];
+      const code = hourly.weather_code?.[i];
+      const info = weatherConditions[code] || { fa:'-', icon:'cloudy', night:'cloudy' };
+
+      items.push(`
+        <div class="glass-dark rounded-xl p-3 min-w-[120px]">
+          <div class="text-xs text-gray-200 mb-1 mono">${toPersianNum(hh)}:۰۰</div>
+          <div class="text-lg font-bold mono mb-1">${temp!=null ? toPersianNum(Math.round(temp)) : '-'}°</div>
+          <div class="text-[11px] text-gray-300 mb-2">${info.fa}</div>
+          <div class="text-[11px] text-gray-300 mono">بارش: ${pop!=null ? toPersianNum(pop) : '-'}%</div>
+          <div class="text-[11px] text-gray-300 mono">باد: ${wind!=null ? toPersianNum(Math.round(wind)) : '-'} km/h</div>
+        </div>
+      `);
+    }
+
+    return `
+      <div class="mt-5">
+        <div class="flex items-center justify-between mb-2">
+          <div class="text-sm font-bold text-gray-100">پیش‌بینی ساعتی (۲۴ ساعت آینده)</div>
+          <div class="text-[11px] text-gray-300">اسکرول افقی ⟵⟶</div>
+        </div>
+        <div class="forecast-strip flex gap-3 overflow-x-auto pb-2 select-none cursor-grab" data-hscroll="1">
+          ${items.join('')}
+        </div>
+      </div>
+    `;
+  }catch{
+    return '';
+  }
+}
 
   function renderWeeklyForecast(daily) {
     try {
@@ -1681,6 +1859,41 @@
       document.getElementById('hijri-date').textContent = `${toPersianNum(hijri.day)} ${hijriMonths[hijri.month-1]} ${toPersianNum(hijri.year)}`;
     }
 
+// --- Advanced details (weekday, week number, timezone, progress bars) ---
+try{
+  const faDays = ['یکشنبه','دوشنبه','سه‌شنبه','چهارشنبه','پنجشنبه','جمعه','شنبه'];
+  const todayName = faDays[iranTime.getDay()];
+  const isoWeek = getISOWeekNumber(iranTime);
+
+  // timezone offset like GMT+3:30
+  let tzOff = 'GMT+3:30';
+  try{
+    const parts = new Intl.DateTimeFormat('en-US', { timeZone:'Asia/Tehran', timeZoneName:'shortOffset' }).formatToParts(now);
+    const p = parts.find(x=>x.type==='timeZoneName')?.value;
+    if (p) tzOff = p.replace('UTC','GMT');
+  }catch{}
+
+  document.getElementById('today-name').textContent = todayName;
+  document.getElementById('today-meta').textContent = `هفته ${toPersianNum(isoWeek)} • ${tzOff}`;
+
+  // Day progress
+  const daySeconds = iranTime.getHours()*3600 + iranTime.getMinutes()*60 + iranTime.getSeconds();
+  const dayPct = (daySeconds/86400)*100;
+  setProgress('day', dayPct, 86400-daySeconds);
+
+  // Jalali month/year progress
+  const jmDays = jalali.month <= 6 ? 31 : (jalali.month <= 11 ? 30 : (isJalaliLeapYear(jalali.year) ? 30 : 29));
+  const jMonthSeconds = (jalali.day-1)*86400 + daySeconds;
+  const jMonthTotal = jmDays*86400;
+  setProgress('month', (jMonthSeconds/jMonthTotal)*100, jMonthTotal-jMonthSeconds);
+
+  const jDayOfYear = jalaliDayOfYear(jalali.year, jalali.month, jalali.day);
+  const jyDays = isJalaliLeapYear(jalali.year) ? 366 : 365;
+  const jYearSeconds = (jDayOfYear-1)*86400 + daySeconds;
+  const jYearTotal = jyDays*86400;
+  setProgress('year', (jYearSeconds/jYearTotal)*100, jYearTotal-jYearSeconds);
+}catch(e){ /* ignore */ }
+
     const hours = iranTime.getHours()%12;
     const minutes = iranTime.getMinutes();
     const seconds = iranTime.getSeconds();
@@ -1698,6 +1911,43 @@
       currentCalendarMonth = jalali.month;
     }
   }
+
+function getISOWeekNumber(date){
+  // ISO week number (Monday as first day)
+  const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+  const dayNum = d.getUTCDay() || 7;
+  d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+  const yearStart = new Date(Date.UTC(d.getUTCFullYear(),0,1));
+  return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+}
+
+function formatHMS(totalSeconds){
+  const s = Math.max(0, Math.floor(totalSeconds));
+  const hh = Math.floor(s/3600);
+  const mm = Math.floor((s%3600)/60);
+  const ss = s%60;
+  const pad = (n)=>String(n).padStart(2,'0');
+  return `${pad(hh)}:${pad(mm)}:${pad(ss)}`;
+}
+
+function setProgress(prefix, pct, remainingSeconds){
+  const bar = document.getElementById(`${prefix}-progress`);
+  const pctEl = document.getElementById(`${prefix}-progress-pct`);
+  const remEl = document.getElementById(`${prefix}-remaining`);
+  if (!bar || !pctEl || !remEl) return;
+  const p = Math.max(0, Math.min(100, pct));
+  bar.style.width = `${p.toFixed(2)}%`;
+  pctEl.textContent = `${toPersianNum(p.toFixed(1))}%`;
+  const txt = `مانده: ${toPersianNum(formatHMS(remainingSeconds))}`;
+  remEl.textContent = txt;
+}
+
+function jalaliDayOfYear(jy, jm, jd){
+  const monthDays = (m)=> (m<=6?31:(m<=11?30:(isJalaliLeapYear(jy)?30:29)));
+  let sum = 0;
+  for (let m=1;m<jm;m++) sum += monthDays(m);
+  return sum + jd;
+}
 
   function adjustHijriByDays(hijriObj, deltaDays) {
     // Convert hijri -> gregorian date, shift, back to hijri
@@ -1729,9 +1979,10 @@
     for (let day=1; day<=daysInMonth; day++) {
       const isToday = currentCalendarYear===todayJalali.year && currentCalendarMonth===todayJalali.month && day===todayJalali.day;
       const isFriday = (firstDayOfWeek + day - 1) % 7 === 6;
+      const isHoliday = getStaticEvents(currentCalendarMonth, day).some(e => e.holiday);
 
       daysEl.innerHTML += `
-        <div class="py-2 rounded-lg cursor-pointer transition hover:bg-white/10 ${isToday ? 'bg-gradient-to-r from-indigo-600 to-purple-600 font-bold' : ''} ${isFriday && !isToday ? 'text-red-400' : ''}">
+        <div class="py-2 rounded-lg cursor-pointer transition hover:bg-white/10 ${isToday ? 'bg-gradient-to-r from-indigo-600 to-purple-600 font-bold' : ''} ${((isFriday || isHoliday) && !isToday) ? 'text-red-400' : ''} ${(isToday && (isFriday || isHoliday)) ? 'ring-2 ring-red-400/60' : ''}">
           ${toPersianNum(day)}
         </div>
       `;
@@ -1751,24 +2002,37 @@
       const today = new Date();
       const jalali = gregorianToJalali(today.getFullYear(), today.getMonth()+1, today.getDate());
       const events = getStaticEvents(jalali.month, jalali.day);
-      eventsEl.innerHTML = events.length ? events.map(e=>`<div class="py-1">• ${e}</div>`).join('') : '<div class="text-gray-500">مناسبتی برای امروز ثبت نشده است</div>';
+
+      if (!events.length) {
+        eventsEl.innerHTML = '<div class="text-gray-500">مناسبتی برای امروز ثبت نشده است</div>';
+        return;
+      }
+
+      eventsEl.innerHTML = events.map(e => `
+        <div class="py-1 flex items-center gap-2">
+          <span>• ${e.title}</span>
+          ${e.holiday ? '<span class="text-xs px-2 py-0.5 rounded-full bg-red-500/20 text-red-300">تعطیل</span>' : ''}
+        </div>
+      `).join('');
     } catch {
       eventsEl.innerHTML = '<div class="text-gray-500">مناسبتی برای امروز ثبت نشده است</div>';
     }
   }
 
   function getStaticEvents(month, day) {
+    // برای توسعه: می‌تونی این لیست رو کامل‌تر کنی (مذهبی/ملی/جهانی)
+    // ساختار خروجی: [{ title: '...', holiday: true/false }]
     const events = {
-      '1-1':['عید نوروز'],
-      '1-2':['عید نوروز'],
-      '1-3':['عید نوروز'],
-      '1-4':['عید نوروز'],
-      '1-12':['روز جمهوری اسلامی ایران'],
-      '1-13':['روز طبیعت (سیزده‌بدر)'],
-      '3-14':['رحلت امام خمینی (ره)'],
-      '3-15':['قیام ۱۵ خرداد'],
-      '11-22':['پیروزی انقلاب اسلامی'],
-      '12-29':['روز ملی شدن صنعت نفت']
+      '1-1':[ {title:'عید نوروز', holiday:true} ],
+      '1-2':[ {title:'عید نوروز', holiday:true} ],
+      '1-3':[ {title:'عید نوروز', holiday:true} ],
+      '1-4':[ {title:'عید نوروز', holiday:true} ],
+      '1-12':[ {title:'روز جمهوری اسلامی ایران', holiday:true} ],
+      '1-13':[ {title:'روز طبیعت (سیزده‌بدر)', holiday:true} ],
+      '3-14':[ {title:'رحلت امام خمینی (ره)', holiday:true} ],
+      '3-15':[ {title:'قیام ۱۵ خرداد', holiday:true} ],
+      '11-22':[ {title:'پیروزی انقلاب اسلامی', holiday:true} ],
+      '12-29':[ {title:'روز ملی شدن صنعت نفت', holiday:true} ],
     };
     return events[`${month}-${day}`] || [];
   }
@@ -2259,12 +2523,14 @@ function setUnitDropdownOptions(id, units) {
     }
   }
 
-  // ===================== CALCULATOR (simple + scientific) =====================
-  let calcExpression = '';
-  let calcCurrentValue = '0';
-  let calcLastOperator = null;
-  let calcNewNumber = true;
+  // ===================== CALCULATOR (simple + engineering) =====================
+  // بهینه و قوی‌تر: پشتیبانی از عبارت کامل، پرانتز، توابع مهندسی، و حافظه
+  let calcExpression = '';        // expression buffer (JS-like tokens)
+  let calcCurrentValue = '0';     // current number token being typed
+  let calcNewNumber = true;       // whether next digit starts a new number
   let calcMode = 'simple';
+  let trigMode = 'DEG';           // DEG / RAD
+  let calcMem = 0;                // memory register
 
   function setCalcMode(mode) {
     calcMode = mode;
@@ -2273,118 +2539,202 @@ function setUnitDropdownOptions(id, units) {
     document.getElementById('sci-pad').classList.toggle('hidden', mode!=='sci');
   }
 
+  function toggleTrigMode(){
+    trigMode = (trigMode === 'DEG') ? 'RAD' : 'DEG';
+    const btn = document.getElementById('trig-mode-btn');
+    if(btn) btn.textContent = trigMode;
+  }
+
+  function _exprPreviewString(){
+    const tail = calcNewNumber ? '' : calcCurrentValue;
+    return (calcExpression + tail).trim();
+  }
+
   function updateCalcDisplay() {
-    document.getElementById('calc-expression').textContent = calcExpression;
+    const expr = _exprPreviewString();
+    document.getElementById('calc-expression').textContent = expr ? expr : '';
     document.getElementById('calc-result').textContent = toPersianNum(calcCurrentValue);
   }
 
+  function _startNewIfNeeded(){
+    if(calcNewNumber){
+      calcCurrentValue = '0';
+      calcNewNumber = false;
+    }
+  }
+
   function calcNum(num) {
-    if (calcNewNumber) { calcCurrentValue = num; calcNewNumber = false; }
-    else { calcCurrentValue = calcCurrentValue === '0' ? num : calcCurrentValue + num; }
+    _startNewIfNeeded();
+    calcCurrentValue = (calcCurrentValue === '0') ? num : (calcCurrentValue + num);
     updateCalcDisplay();
   }
 
   function calcDot() {
-    if (calcNewNumber) { calcCurrentValue = '0.'; calcNewNumber = false; }
-    else if (!calcCurrentValue.includes('.')) { calcCurrentValue += '.'; }
+    _startNewIfNeeded();
+    if (!calcCurrentValue.includes('.')) calcCurrentValue += '.';
     updateCalcDisplay();
   }
 
-  function calcOp(op) {
-    calcExpression = calcCurrentValue + ' ' + getOpSymbol(op) + ' ';
-    calcLastOperator = op;
-    calcNewNumber = true;
-    updateCalcDisplay();
-  }
-
-  function getOpSymbol(op) {
-    const symbols = { '+':'+', '-':'−', '*':'×', '/':'÷' };
-    return symbols[op] || op;
-  }
-
-  function calcEquals() {
-    if (calcLastOperator && calcExpression) {
-      const parts = calcExpression.trim().split(' ');
-      const a = parseFloat(parts[0]);
-      const b = parseFloat(calcCurrentValue);
-      let result;
-
-      switch (calcLastOperator) {
-        case '+': result = a + b; break;
-        case '-': result = a - b; break;
-        case '*': result = a * b; break;
-        case '/': result = b !== 0 ? a / b : 'Error'; break;
-        case '^': result = Math.pow(a, b); break;
-      }
-
-      calcExpression = '';
-      calcCurrentValue = String(result);
-      calcLastOperator = null;
+  function calcInsert(text){
+    // inserts raw token into expression (used in sci mode)
+    // if user is typing a number, commit it first when appropriate
+    if(!calcNewNumber && calcCurrentValue !== '0'){
+      calcExpression += calcCurrentValue;
+      calcCurrentValue = '0';
       calcNewNumber = true;
+    }
+    calcExpression += String(text);
+    updateCalcDisplay();
+  }
+
+  function calcInsertOp(op){
+    // commit current value, then append operator (replace last operator if needed)
+    if(!calcNewNumber){
+      calcExpression += calcCurrentValue;
+      calcNewNumber = true;
+      calcCurrentValue = '0';
+    }
+    // normalize: replace trailing operator
+    calcExpression = calcExpression.trimEnd();
+    if (/[\+\-\*\/\^]$/.test(calcExpression)) {
+      calcExpression = calcExpression.slice(0, -1) + op;
+    } else {
+      calcExpression += (calcExpression ? ' ' : '') + op + ' ';
+    }
+    updateCalcDisplay();
+  }
+
+  function calcOp(op) { calcInsertOp(op); }
+
+  function calcInsertConst(name){
+    if(name === 'pi') calcInsert('pi');
+    if(name === 'e') calcInsert('e');
+  }
+
+  function calcInsertFunc(fn){
+    // inserts function call, like sin(
+    const map = { sin:'sin', cos:'cos', tan:'tan', asin:'asin', acos:'acos', atan:'atan', sqrt:'sqrt', ln:'ln', log:'log', abs:'abs', exp:'exp', fact:'fact' };
+    const f = map[fn] || fn;
+    calcInsert(f + '(');
+  }
+
+  function calcPow() { calcInsertOp('^'); }
+
+  function calcBackspace() {
+    if(!calcNewNumber){
+      if (calcCurrentValue.length > 1) calcCurrentValue = calcCurrentValue.slice(0, -1);
+      else { calcCurrentValue = '0'; calcNewNumber = true; }
+      updateCalcDisplay();
+      return;
+    }
+    // backspace in expression buffer
+    if(calcExpression.length){
+      calcExpression = calcExpression.slice(0, -1);
       updateCalcDisplay();
     }
-  }
-
-  function calcPow() {
-    calcExpression = calcCurrentValue + ' ^ ';
-    calcLastOperator = '^';
-    calcNewNumber = true;
-    updateCalcDisplay();
   }
 
   function calcClear() {
     calcExpression = '';
     calcCurrentValue = '0';
-    calcLastOperator = null;
     calcNewNumber = true;
-    updateCalcDisplay();
-  }
-
-  function calcBackspace() {
-    if (calcCurrentValue.length > 1) calcCurrentValue = calcCurrentValue.slice(0, -1);
-    else { calcCurrentValue = '0'; calcNewNumber = true; }
     updateCalcDisplay();
   }
 
   function calcPercent() {
-    calcCurrentValue = String(parseFloat(calcCurrentValue) / 100);
+    // percent on current token
+    if(calcNewNumber) return;
+    const x = parseFloat(calcCurrentValue);
+    if(isNaN(x)) return;
+    calcCurrentValue = String(x / 100);
     updateCalcDisplay();
   }
 
-  function calcConst(name) {
-    if (name === 'pi') {
-      calcCurrentValue = String(Math.PI);
-      calcNewNumber = true;
-      updateCalcDisplay();
+  function _safeEval(expr){
+    // allow only safe characters/tokens
+    // (digits, ops, parentheses, dot, spaces, commas, letters for function names)
+    const safe = /^[0-9+\-*/^().,\sA-Za-z]*$/;
+    if(!safe.test(expr)) return { ok:false, value:'Error' };
+
+    // normalize
+    let jsExpr = expr
+      .replace(/\^/g, '**')
+      .replace(/\bpi\b/gi, 'PI')
+      .replace(/\be\b/g, 'E')
+      .replace(/\bln\s*\(/gi, 'LN(')
+      .replace(/\blog\s*\(/gi, 'LOG10(');
+
+    // context functions (DEG/RAD aware trig)
+    const ctx = {
+      PI: Math.PI,
+      E: Math.E,
+      abs: Math.abs,
+      sqrt: Math.sqrt,
+      exp: Math.exp,
+      LN: (x)=>Math.log(x),
+      LOG10: (x)=>Math.log10(x),
+      fact: (n)=>{
+        const x = Number(n);
+        if(!Number.isFinite(x) || x < 0) return NaN;
+        if(Math.floor(x) !== x) return NaN;
+        let r = 1;
+        for(let i=2;i<=x;i++) r*=i;
+        return r;
+      },
+      sin: (x)=> trigMode==='DEG' ? Math.sin(Number(x)*Math.PI/180) : Math.sin(Number(x)),
+      cos: (x)=> trigMode==='DEG' ? Math.cos(Number(x)*Math.PI/180) : Math.cos(Number(x)),
+      tan: (x)=> trigMode==='DEG' ? Math.tan(Number(x)*Math.PI/180) : Math.tan(Number(x)),
+      asin: (x)=> trigMode==='DEG' ? (Math.asin(Number(x))*180/Math.PI) : Math.asin(Number(x)),
+      acos: (x)=> trigMode==='DEG' ? (Math.acos(Number(x))*180/Math.PI) : Math.acos(Number(x)),
+      atan: (x)=> trigMode==='DEG' ? (Math.atan(Number(x))*180/Math.PI) : Math.atan(Number(x))
+    };
+
+    try{
+      const fn = new Function('ctx', 'with(ctx){ return (' + jsExpr + '); }');
+      const val = fn(ctx);
+      if(typeof val === 'number' && Number.isFinite(val)) return { ok:true, value: val };
+      return { ok:false, value:'Error' };
+    } catch {
+      return { ok:false, value:'Error' };
     }
   }
 
-  function calcFunc(fn) {
-    const x = parseFloat(calcCurrentValue);
-    if (isNaN(x)) return;
-
-    let out = x;
-    // Trig in degrees for user friendliness
-    const degToRad = (d) => d * Math.PI / 180;
-
-    switch(fn){
-      case 'sin': out = Math.sin(degToRad(x)); break;
-      case 'cos': out = Math.cos(degToRad(x)); break;
-      case 'tan': out = Math.tan(degToRad(x)); break;
-      case 'sqrt': out = x >= 0 ? Math.sqrt(x) : 'Error'; break;
-      case 'ln': out = x > 0 ? Math.log(x) : 'Error'; break;
-      case 'log': out = x > 0 ? Math.log10(x) : 'Error'; break;
+  function calcEquals() {
+    const expr = _exprPreviewString();
+    if(!expr) return;
+    const out = _safeEval(expr);
+    calcExpression = '';
+    if(out.ok){
+      // limit noise
+      const v = out.value;
+      calcCurrentValue = String(Math.abs(v) >= 1e12 || (Math.abs(v) > 0 && Math.abs(v) < 1e-9) ? v.toExponential(10) : +v.toFixed(10));
+      // remove trailing zeros
+      calcCurrentValue = calcCurrentValue.replace(/\.?0+($|e)/, (m)=> m.startsWith('e') ? m : '');
+    } else {
+      calcCurrentValue = 'Error';
     }
-
-    calcCurrentValue = String(out);
     calcNewNumber = true;
     updateCalcDisplay();
   }
 
-  
+  // Memory functions
+  function _currentNumber(){
+    const x = parseFloat(calcCurrentValue);
+    return Number.isFinite(x) ? x : 0;
+  }
+  function calcMemClear(){ calcMem = 0; }
+  function calcMemRecall(){
+    calcCurrentValue = String(calcMem);
+    calcNewNumber = true;
+    updateCalcDisplay();
+  }
+  function calcMemAdd(){ calcMem += _currentNumber(); }
+  function calcMemSub(){ calcMem -= _currentNumber(); }
 
+  // Initialize display
+  updateCalcDisplay();
 
-// ===================== HEALTH: BMI / BMR / TDEE =====================
+  // ===================== HEALTH: BMI / BMR / TDEE =====================: BMI / BMR / TDEE =====================
 function _getNum(id){
   const el = document.getElementById(id);
   if(!el) return NaN;
@@ -2420,11 +2770,15 @@ function calculateBMI(){
   if(valueEl) valueEl.textContent = toPersianNum(bmi.toFixed(1));
   if(statusEl) statusEl.textContent = status;
 
-  // marker position on bar (0..40 mapped, clamp)
-  const clamped = Math.max(12, Math.min(40, bmi));
-  const pct = (clamped - 12) / (40 - 12); // 0..1
-  const rightPct = (1 - pct) * 100; // RTL bar uses right
-  if(markerEl) markerEl.style.right = rightPct.toFixed(1) + '%';
+  // marker position on bar (12..40 mapped, clamp)
+// NOTE: for RTL/LTR consistency we always place marker using 'left' (0..100)
+const clamped = Math.max(12, Math.min(40, bmi));
+const pct = (clamped - 12) / (40 - 12); // 0..1
+const leftPct = pct * 100;
+if(markerEl){
+  markerEl.style.left = leftPct.toFixed(1) + '%';
+  markerEl.style.right = 'auto';
+}
 
   if(box) box.classList.remove('hidden');
 }
