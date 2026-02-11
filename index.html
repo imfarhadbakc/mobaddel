@@ -6,6 +6,7 @@
   <title>Codeisa</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="/_sdk/element_sdk.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
@@ -13,6 +14,27 @@
     * { font-family: 'Vazirmatn', sans-serif; }
     .glass { background: rgba(255,255,255,0.05); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.1); }
     .glass-dark { background: rgba(0,0,0,0.3); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.08); }
+
+    /* Unified input styles (banking + dropdowns) */
+    .input{
+      width:100%;
+      background: rgba(0,0,0,0.28);
+      border: 1px solid rgba(255,255,255,0.14);
+      color: rgba(255,255,255,0.92);
+      border-radius: 14px;
+      padding: 12px 14px;
+      outline: none;
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,0.08);
+      font-variant-numeric: tabular-nums;
+    }
+    .input::placeholder{ color: rgba(255,255,255,0.35); }
+    .input:focus{
+      border-color: rgba(129,140,248,0.65);
+      box-shadow: 0 0 0 3px rgba(99,102,241,0.20);
+    }
+    select.input{ -webkit-appearance:none; appearance:none; background-image: linear-gradient(45deg, transparent 50%, rgba(255,255,255,0.7) 50%), linear-gradient(135deg, rgba(255,255,255,0.7) 50%, transparent 50%); background-position: calc(14px) 50%, calc(8px) 50%; background-size: 6px 6px, 6px 6px; background-repeat: no-repeat; padding-left: 34px; }
+    select.input option{ background:#0b0b12; color:#fff; }
+    input.input{ direction:ltr; text-align:right; }
     @keyframes blink { 0%,50%{opacity:1} 51%,100%{opacity:.3} }
     .blink { animation: blink 1.5s infinite; }
     @keyframes float { 0%,100%{transform:translateY(0) translateX(0)} 25%{transform:translateY(-10px) translateX(5px)} 50%{transform:translateY(-5px) translateX(-5px)} 75%{transform:translateY(-15px) translateX(3px)} }
@@ -28,6 +50,7 @@
     .nav-btn { transition: all .2s ease; }
     .nav-btn:active { transform: scale(.95); }
     .nav-btn.active { background: linear-gradient(135deg, rgba(99,102,241,.4), rgba(168,85,247,.4)); border-color: rgba(139,92,246,.5); }
+    .banking-tab.active { background: linear-gradient(135deg, rgba(99,102,241,.4), rgba(168,85,247,.4)); border: 1px solid rgba(139,92,246,.5); }
     .calc-btn { transition: all .15s ease; }
     .calc-btn:active { transform: scale(.92); }
     input[type="number"]::-webkit-inner-spin-button, input[type="number"]::-webkit-outer-spin-button { -webkit-appearance:none; margin:0; }
@@ -87,7 +110,39 @@
       main { padding-left: 24px !important; padding-right: 24px !important; }
     }
 
-</style>
+
+    /* Responsive tweaks */
+    .table-actions{display:flex; flex-wrap:wrap; gap:8px; align-items:center}
+    .btn-mini{background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.14); padding:8px 10px; border-radius:12px; font-size:12px}
+    .btn-mini:hover{background:rgba(255,255,255,0.12)}
+    .chart-wrap{min-height:220px}
+    @media (max-width: 640px){
+      .chart-wrap{min-height:200px}
+      .glass{border-radius:18px}
+    }
+
+    /* Print/PDF export */
+    @media print{
+      body{background:#fff !important; color:#111 !important}
+      nav, #top-nav, .nav-btn, .no-print{display:none !important}
+      .glass, .glass-dark{background:transparent !important; border:0 !important; box-shadow:none !important}
+      canvas{max-width:100% !important}
+      table{width:100% !important}
+      .print-card{padding:0 !important}
+    }
+
+    /* Weather: nicer clouds + depth */
+    .cloud{filter: drop-shadow(0 6px 10px rgba(0,0,0,0.18)); opacity:0.95}
+    .cloud svg{filter: blur(0.2px)}
+    @keyframes cloudFloat { 0%{transform:translateX(120%)} 100%{transform:translateX(-140%)} }
+    .cloud{animation: cloudFloat linear infinite; }
+    .cloud.slow{animation-duration: 38s}
+    .cloud.mid{animation-duration: 28s}
+    .cloud.fast{animation-duration: 18s}
+    .cloudLayer{position:absolute; inset:0; pointer-events:none}
+    .mist{position:absolute; inset:-20px; background:radial-gradient(circle at 20% 30%, rgba(255,255,255,0.14), transparent 55%), radial-gradient(circle at 70% 60%, rgba(255,255,255,0.10), transparent 60%); filter: blur(6px); opacity:0.7}
+
+  </style>
   <style>@view-transition { navigation: auto; }</style>
   <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
 </head>
@@ -120,6 +175,7 @@
       <button onclick="showSection('converter')" class="nav-btn glass px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap" data-section="converter">📐 تبدیل واحد</button>
       <button onclick="showSection('calculator')" class="nav-btn glass px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap" data-section="calculator">🧮 ماشین‌حساب</button>
       <button onclick="showSection('health')" class="nav-btn glass px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap" data-section="health">❤️ سلامت</button>
+      <button onclick="showSection('banking')" class="nav-btn glass px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap" data-section="banking">🏦 محاسبات بانکی</button>
       <button onclick="showSection('guide')" class="nav-btn glass px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap" data-section="guide">📖 راهنما</button>
     </div>
   </nav>
@@ -728,7 +784,99 @@
         </div>
       </section>
 
-      <!-- Guide Section (unchanged) -->
+      <!-- Banking Section -->
+      <section id="banking-section" class="hidden space-y-4">
+        <div class="flex items-center justify-between mb-2">
+          <h2 class="text-lg font-bold">محاسبات بانکی</h2>
+          <span class="text-xs text-gray-300">وام، سپرده، کارت و چک</span>
+        </div>
+
+        <div class="glass rounded-2xl p-3">
+          <div class="flex gap-2 mb-3">
+            <button id="banking-tab-loan" class="banking-tab flex-1 glass px-3 py-2 rounded-xl text-sm font-medium active">وام</button>
+            <button id="banking-tab-deposit" class="banking-tab flex-1 glass px-3 py-2 rounded-xl text-sm font-medium">سپرده</button>
+            <button id="banking-tab-card" class="banking-tab flex-1 glass px-3 py-2 rounded-xl text-sm font-medium">کارت و چک</button>
+          </div>
+
+          <!-- Loan -->
+          <div id="loan-panel" class="space-y-3">
+            <label class="block text-sm text-gray-200">نوع محاسبه</label>
+            <select id="loan-type" class="w-full input" onchange="renderLoanForm()">
+              <option value="payment">محاسبه مبلغ قسط وام + جدول اقساط</option>
+              <option value="compare">مقایسه دو وام</option>
+              <option value="penalty">محاسبه جریمه دیرکرد</option>
+              <option value="grace">وام با تنفس (چند ماه اول فقط سود)</option>
+              <option value="irregular">وام با پرداخت نامنظم (پرداخت اضافه/پیش‌پرداخت)</option>
+              <option value="rate">محاسبه درصد سود وام</option>
+              <option value="early">محاسبه تسویه پیش از موعد</option>
+              <option value="qard">وام قرض‌الحسنه</option>
+              <option value="step">محاسبه اقساط وام پلکانی</option>
+            </select>
+
+            <div id="loan-form" class="space-y-3"></div>
+
+            <button onclick="calculateLoan()" class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 px-4 py-2 rounded-xl text-sm font-medium">محاسبه</button>
+            <div id="loan-result" class="glass-dark rounded-xl p-3 text-sm text-gray-200 hidden leading-relaxed"></div>
+          </div>
+
+          <!-- Deposit -->
+          <div id="deposit-panel" class="space-y-3 hidden">
+            <label class="block text-sm text-gray-200">نوع محاسبه</label>
+            <select id="deposit-type" class="w-full input" onchange="renderDepositForm()">
+              <option value="interest">محاسبه مبلغ سود سپرده (ساده)</option>
+              <option value="compound">سود مرکب واقعی (روزانه/ماهانه/سالانه)</option>
+              <option value="fv">ارزش آینده پول (Future Value)</option>
+              <option value="pv">ارزش فعلی پول (Present Value)</option>
+              <option value="inflation">محاسبه اثر تورم</option>
+              <option value="rate">محاسبه درصد سود (ساده)</option>
+            </select>
+
+            <div id="deposit-form" class="space-y-3"></div>
+
+            <button onclick="calculateDeposit()" class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 px-4 py-2 rounded-xl text-sm font-medium">محاسبه</button>
+            <div id="deposit-result" class="glass-dark rounded-xl p-3 text-sm text-gray-200 hidden leading-relaxed"></div>
+            <div id="deposit-charts" class="hidden mt-3">
+              <div class="table-actions no-print mb-2">
+                <button class="btn-mini" onclick="exportDepositCSV()">⬇️ خروجی اکسل (CSV)</button>
+                <button class="btn-mini" onclick="exportDepositPDF()">🧾 خروجی PDF / چاپ</button>
+              </div>
+              <div class="glass rounded-xl p-2 chart-wrap">
+                <div id="deposit-chart-title" class="text-xs text-gray-300 mb-2">نمودار</div>
+                <canvas id="deposit-chart" height="160"></canvas>
+              </div>
+            </div>
+
+            <div class="text-[11px] text-gray-400 mt-2">
+              نکته: در حالت «ساده»، سود بر مبنای روز (days/365) محاسبه می‌شود.
+            </div>
+          </div>
+
+          <!-- Card & Cheque -->
+          <div id="card-panel" class="space-y-3 hidden">
+            <label class="block text-sm text-gray-200">نوع محاسبه</label>
+            <select id="card-type" class="w-full input" onchange="renderCardForm()">
+              <option value="installment">محاسبه اقساط خرید قسطی</option>
+              <option value="posfee">محاسبه کارمزد دستگاه کارتخوان</option>
+            </select>
+
+            <div id="card-form" class="space-y-3"></div>
+
+            <button onclick="calculateCard()" class="w-full bg-gradient-to-r from-indigo-600 to-purple-600 px-4 py-2 rounded-xl text-sm font-medium">محاسبه</button>
+            <div id="card-result" class="glass-dark rounded-xl p-3 text-sm text-gray-200 hidden leading-relaxed"></div>
+            <div id="card-charts" class="hidden mt-3">
+              <div class="table-actions no-print mb-2">
+                <button class="btn-mini" onclick="exportCardCSV()">⬇️ خروجی اکسل (CSV)</button>
+                <button class="btn-mini" onclick="exportCardPDF()">🧾 خروجی PDF / چاپ</button>
+              </div>
+              <div class="glass rounded-xl p-2 chart-wrap">
+                <div id="card-chart-title" class="text-xs text-gray-300 mb-2">نمودار</div>
+                <canvas id="card-chart" height="160"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+<!-- Guide Section (unchanged) -->
       <section id="guide-section" class="hidden space-y-4">
         <h2 class="text-lg font-bold mb-4">راهنما</h2>
         <div class="glass rounded-2xl p-4">
@@ -739,6 +887,38 @@
           <div class="flex items-center gap-2 mb-3"><span class="text-xl">🌤️</span><div class="font-bold">آب و هوا</div></div>
           <p class="text-sm text-gray-300 leading-relaxed">با جستجو می‌توانید هر شهر ایران را پیدا کنید و اطلاعات کامل‌تر (باد، رطوبت، فشار، دید، طلوع/غروب، حداقل/حداکثر روز) ببینید.</p>
         </div>
+
+        <div class="glass rounded-2xl p-4">
+          <div class="flex items-center gap-2 mb-3"><span class="text-xl">🏦</span><div class="font-bold">محاسبات بانکی (کامل)</div></div>
+          <div class="text-sm text-gray-300 leading-relaxed space-y-2">
+            <div class="font-semibold text-gray-200">وام</div>
+            <ul class="list-disc pr-5 space-y-1">
+              <li><b>قسط + جدول اقساط:</b> بعد از محاسبه، جدول ماه‌به‌ماه «مبلغ قسط / سود / اصل / مانده بدهی» نمایش داده می‌شود (واحد: تومان).</li>
+              <li><b>نمودارها:</b> نمودار «کاهش مانده بدهی» و نمودار «سهم سود vs اصل» برای درک سریع‌تر هزینه واقعی وام.</li>
+              <li><b>مقایسه دو وام:</b> با وارد کردن مبلغ، مدت و نرخ دو گزینه، مجموع پرداخت و سود کل مقایسه و گزینه به‌صرفه‌تر پیشنهاد می‌شود.</li>
+              <li><b>جریمه دیرکرد:</b> با وارد کردن روزهای تأخیر و درصد جریمه روزانه/ماهانه، مبلغ اضافه محاسبه می‌شود.</li>
+              <li><b>وام با تنفس:</b> چند ماه اول فقط سود پرداخت می‌شود و سپس اقساط عادی ادامه پیدا می‌کند.</li>
+              <li><b>پرداخت نامنظم:</b> می‌توانید «پیش‌پرداخت» یا «پرداخت اضافه در ماه دلخواه» وارد کنید تا اثر آن روی مانده بدهی و مدت وام را ببینید.</li>
+              <li><b>تحلیل هوشمند:</b> درصد سهم سود از کل پرداخت محاسبه می‌شود و پیشنهاد کوتاه برای کاهش هزینه ارائه می‌گردد.</li>
+              <li><b>خروجی‌ها:</b> برای جدول اقساط می‌توانید خروجی <b>اکسل (CSV)</b> بگیرید یا <b>PDF/چاپ</b> تهیه کنید.</li>
+            </ul>
+            <div class="font-semibold text-gray-200 mt-2">سپرده</div>
+            <ul class="list-disc pr-5 space-y-1">
+              <li><b>سود ساده:</b> محاسبه سود بر مبنای روز (days/365).</li>
+              <li><b>سود مرکب واقعی:</b> روزانه/ماهانه/سالانه + امکان واریز ماهانه؛ نمودار رشد سرمایه نمایش داده می‌شود.</li>
+              <li><b>FV و PV:</b> ارزش آینده و ارزش فعلی پول با نمودار تغییرات زمانی (واحد: تومان).</li>
+              <li><b>تورم:</b> ارزش واقعی پول در سال‌های آینده با در نظر گرفتن نرخ تورم؛ نمودار ارزش واقعی نمایش داده می‌شود.</li>
+              <li><b>خروجی‌ها:</b> برای نمودار/سری زمانی، خروجی <b>اکسل (CSV)</b> و <b>PDF/چاپ</b> در دسترس است.</li>
+            </ul>
+            <div class="font-semibold text-gray-200 mt-2">کارت و چک</div>
+            <ul class="list-disc pr-5 space-y-1">
+              <li><b>خرید قسطی:</b> قیمت کالا + پیش‌پرداخت + تعداد اقساط (+ نرخ اختیاری) و نمایش نمودار مقایسه.</li>
+              <li><b>کارمزد کارتخوان:</b> حجم تراکنش × درصد کارمزد و نمایش «کارمزد/خالص دریافتی» + نمودار.</li>
+            </ul>
+            <div class="text-[11px] text-gray-400 mt-2">نکته: «تومان» در خروجی‌ها مشخص است و موارد درصدی با علامت % نمایش داده می‌شوند.</div>
+          </div>
+        </div>
+
         <div class="glass rounded-2xl p-4">
           <div class="flex items-center gap-2 mb-3"><span class="text-xl">📅</span><div class="font-bold">تاریخ و ساعت</div></div>
           <p class="text-sm text-gray-300 leading-relaxed">ساعت دقیق ایران و جهانی، تقویم شمسی، تاریخ میلادی و هجری قمری (اصلاح شده) و مناسبت‌های روز. تبدیل تاریخ بین سه تقویم.</p>
@@ -846,6 +1026,9 @@
     if (section === 'converter') {
       initConverterTypes();
       setConverterType('length');
+    }
+    if (section === 'banking') {
+      initBanking();
     }
   }
 
@@ -1304,14 +1487,20 @@
         ${[...Array(20)].map(() => `<div class="star absolute w-1 h-1 bg-white rounded-full" style="top:${Math.random()*100}%; left:${Math.random()*100}%; animation-delay:${Math.random()*2}s;"></div>`).join('')}
       `;
     } else if (type === 'cloudy') {
-      html = `${[...Array(3)].map((_,i)=>`
-        <div class="cloud absolute" style="top:${10+i*20}%; right:${10+i*15}%; animation-delay:${i*2}s;">
-          <svg width="${80-i*10}" height="${50-i*5}" viewBox="0 0 100 60">
-            <ellipse cx="30" cy="40" rx="25" ry="15" fill="rgba(255,255,255,${0.6-i*0.1})"/>
-            <ellipse cx="55" cy="35" rx="30" ry="20" fill="rgba(255,255,255,${0.6-i*0.1})"/>
-            <ellipse cx="80" cy="40" rx="20" ry="12" fill="rgba(255,255,255,${0.6-i*0.1})"/>
-          </svg>
-        </div>`).join('')}`;
+      const speeds = ['slow','mid','fast','mid','slow'];
+      html = `
+        <div class="cloudLayer">
+          <div class="mist"></div>
+          ${[...Array(5)].map((_,i)=>`
+            <div class="cloud ${speeds[i] || 'mid'} absolute" style="top:${8+i*14}%; right:${-20 - i*18}%; animation-delay:${i*1.6}s;">
+              <svg width="${110-i*8}" height="${68-i*4}" viewBox="0 0 120 70">
+                <ellipse cx="38" cy="48" rx="32" ry="18" fill="rgba(255,255,255,${0.55-i*0.06})"/>
+                <ellipse cx="68" cy="42" rx="38" ry="24" fill="rgba(255,255,255,${0.55-i*0.06})"/>
+                <ellipse cx="96" cy="48" rx="26" ry="16" fill="rgba(255,255,255,${0.55-i*0.06})"/>
+              </svg>
+            </div>`).join('')}
+        </div>
+      `;
     } else if (type === 'rain') {
       html = `
         ${[...Array(20)].map(()=>`<div class="rain-drop absolute w-0.5 h-4 bg-blue-300 rounded-full opacity-60" style="right:${Math.random()*100}%; animation-delay:${Math.random()*1}s; animation-duration:${0.8+Math.random()*0.4}s;"></div>`).join('')}
@@ -2707,6 +2896,1122 @@ function calculateTDEE(){
     window.elementSdk.init({ defaultConfig, onConfigChange, mapToCapabilities, mapToEditPanelValues });
   }
 
+
+  // =========================
+  // =========================
+// Banking (Loan / Deposit / Card)
+// =========================
+let bankingInited = false;
+
+function initBanking() {
+  if (bankingInited) return;
+  bankingInited = true;
+
+  const tabLoan = document.getElementById('banking-tab-loan');
+  const tabDeposit = document.getElementById('banking-tab-deposit');
+  const tabCard = document.getElementById('banking-tab-card');
+
+  const loanPanel = document.getElementById('loan-panel');
+  const depositPanel = document.getElementById('deposit-panel');
+  const cardPanel = document.getElementById('card-panel');
+
+  function activate(which) {
+    const on = (btn, yes) => btn && btn.classList.toggle('active', !!yes);
+    on(tabLoan, which === 'loan');
+    on(tabDeposit, which === 'deposit');
+    on(tabCard, which === 'card');
+
+    loanPanel.classList.toggle('hidden', which !== 'loan');
+    depositPanel.classList.toggle('hidden', which !== 'deposit');
+    cardPanel.classList.toggle('hidden', which !== 'card');
+  }
+
+  tabLoan?.addEventListener('click', () => activate('loan'));
+  tabDeposit?.addEventListener('click', () => activate('deposit'));
+  tabCard?.addEventListener('click', () => activate('card'));
+
+  renderLoanForm();
+  renderDepositForm();
+  renderCardForm();
+  activate('loan');
+}
+
+// --- helpers (digits + parsing + UI boxes) ---
+function toEnglishDigits(str){
+  str = String(str ?? '');
+  return str
+    .replace(/[۰-۹]/g, d => "۰۱۲۳۴۵۶۷۸۹".indexOf(d))
+    .replace(/[٠-٩]/g, d => "٠١٢٣٤٥٦٧٨٩".indexOf(d))
+    .replace(/[٬،]/g, ',');
+}
+
+function nval(id){
+  const el = document.getElementById(id);
+  if(!el) return NaN;
+  const raw = toEnglishDigits(el.value ?? '').replace(/,/g,'').trim();
+  const n = parseFloat(raw);
+  return Number.isFinite(n) ? n : NaN;
+}
+
+function showBox(id, htmlStr){
+  const el = document.getElementById(id);
+  if(!el) return;
+  el.innerHTML = htmlStr;
+  el.classList.remove('hidden');
+}
+
+function hideBox(id){
+  const el = document.getElementById(id);
+  if(!el) return;
+  el.classList.add('hidden');
+  el.innerHTML = '';
+}
+
+// --- Loan UI ---
+function renderLoanForm() {
+  const t = document.getElementById('loan-type').value;
+  const wrap = document.getElementById('loan-form');
+  hideBox('loan-result');
+
+  if (t === 'payment') {
+    wrap.innerHTML = `
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+        <div><label class="block text-sm text-gray-300 mb-1">مبلغ وام (تومان)</label><input id="loan-p" class="w-full input money-input" inputmode="numeric" placeholder="مثلاً 200,000,000"><div class="money-words"></div></div>
+        <div><label class="block text-sm text-gray-300 mb-1">درصد سود سالانه (%)</label><input id="loan-r" class="w-full input" inputmode="decimal" placeholder="مثلاً 18"></div>
+        <div><label class="block text-sm text-gray-300 mb-1">مدت (ماه)</label><input id="loan-n" class="w-full input" inputmode="numeric" placeholder="مثلاً 36"></div>
+      </div>
+    `;
+    return;
+  }
+
+  if (t === 'compare') {
+    wrap.innerHTML = `
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+        <div><label class="block text-sm text-gray-300 mb-1">مبلغ وام (تومان)</label><input id="loan-p" class="w-full input money-input" inputmode="numeric" placeholder="مثلاً 200,000,000"><div class="money-words"></div></div>
+        <div><label class="block text-sm text-gray-300 mb-1">مدت (ماه)</label><input id="loan-n" class="w-full input" inputmode="numeric" placeholder="مثلاً 36"></div>
+        <div class="text-[11px] text-gray-400 flex items-end">دو نرخ را وارد کنید تا کل سود/بازپرداخت مقایسه شود.</div>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+        <div><label class="block text-sm text-gray-300 mb-1">بانک A - نرخ سالانه (%)</label><input id="loan-ra" class="w-full input" inputmode="decimal" placeholder="مثلاً 18"></div>
+        <div><label class="block text-sm text-gray-300 mb-1">بانک B - نرخ سالانه (%)</label><input id="loan-rb" class="w-full input" inputmode="decimal" placeholder="مثلاً 20"></div>
+      </div>
+    `;
+    return;
+  }
+
+  if (t === 'penalty') {
+    wrap.innerHTML = `
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+        <div><label class="block text-sm text-gray-300 mb-1">مبلغ قسط/بدهی (تومان)</label><input id="pen-amt" class="w-full input money-input" inputmode="numeric" placeholder="مثلاً 7,500,000"><div class="money-words"></div></div>
+        <div><label class="block text-sm text-gray-300 mb-1">روزهای تأخیر</label><input id="pen-days" class="w-full input" inputmode="numeric" placeholder="مثلاً 12"></div>
+        <div><label class="block text-sm text-gray-300 mb-1">جریمه روزانه (%)</label><input id="pen-rate" class="w-full input" inputmode="decimal" placeholder="مثلاً 0.2"></div>
+      </div>
+      <div class="text-[11px] text-gray-400">* فرمول: مبلغ × (جریمه روزانه/100) × روزهای تأخیر</div>
+    `;
+    return;
+  }
+
+  if (t === 'grace') {
+    wrap.innerHTML = `
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-2">
+        <div><label class="block text-sm text-gray-300 mb-1">مبلغ وام (تومان)</label><input id="loan-p" class="w-full input money-input" inputmode="numeric" placeholder="مثلاً 200,000,000"><div class="money-words"></div></div>
+        <div><label class="block text-sm text-gray-300 mb-1">درصد سود سالانه (%)</label><input id="loan-r" class="w-full input" inputmode="decimal" placeholder="مثلاً 18"></div>
+        <div><label class="block text-sm text-gray-300 mb-1">مدت کل (ماه)</label><input id="loan-n" class="w-full input" inputmode="numeric" placeholder="مثلاً 36"></div>
+        <div><label class="block text-sm text-gray-300 mb-1">ماه‌های تنفس</label><input id="loan-gm" class="w-full input" inputmode="numeric" placeholder="مثلاً 6"></div>
+      </div>
+      <div class="text-[11px] text-gray-400">در ماه‌های تنفس فقط سود پرداخت می‌شود و اصل ثابت می‌ماند؛ سپس اقساط عادی محاسبه می‌شود.</div>
+    `;
+    return;
+  }
+
+  if (t === 'irregular') {
+    wrap.innerHTML = `
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+        <div><label class="block text-sm text-gray-300 mb-1">مبلغ وام (تومان)</label><input id="loan-p" class="w-full input money-input" inputmode="numeric" placeholder="مثلاً 200,000,000"><div class="money-words"></div></div>
+        <div><label class="block text-sm text-gray-300 mb-1">درصد سود سالانه (%)</label><input id="loan-r" class="w-full input" inputmode="decimal" placeholder="مثلاً 18"></div>
+        <div><label class="block text-sm text-gray-300 mb-1">مدت (ماه)</label><input id="loan-n" class="w-full input" inputmode="numeric" placeholder="مثلاً 36"></div>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+        <div><label class="block text-sm text-gray-300 mb-1">پیش‌پرداخت (اختیاری)</label><input id="irr-pre" class="w-full input money-input" inputmode="numeric" placeholder="مثلاً 20,000,000"><div class="money-words"></div></div>
+        <div><label class="block text-sm text-gray-300 mb-1">پرداخت اضافه در ماه (اختیاری)</label><input id="irr-month" class="w-full input" inputmode="numeric" placeholder="مثلاً 5"></div>
+        <div><label class="block text-sm text-gray-300 mb-1">مبلغ پرداخت اضافه (اختیاری)</label><input id="irr-extra" class="w-full input money-input" inputmode="numeric" placeholder="مثلاً 10,000,000"><div class="money-words"></div></div>
+      </div>
+      <div class="text-[11px] text-gray-400">قسط ماهانه بر اساس وام اولیه محاسبه می‌شود؛ پرداخت اضافه باعث کاهش مانده بدهی و کوتاه‌تر شدن مدت می‌شود.</div>
+    `;
+    return;
+  }
+
+  if (t === 'rate') {
+    wrap.innerHTML = `
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+        <div><label class="block text-sm text-gray-300 mb-1">مبلغ وام (تومان)</label><input id="loan-p" class="w-full input money-input" inputmode="numeric" placeholder="مثلاً 200,000,000"><div class="money-words"></div></div>
+        <div><label class="block text-sm text-gray-300 mb-1">مبلغ قسط ماهانه (تومان)</label><input id="loan-a" class="w-full input money-input" inputmode="numeric" placeholder="مثلاً 7,500,000"><div class="money-words"></div></div>
+        <div><label class="block text-sm text-gray-300 mb-1">مدت (ماه)</label><input id="loan-n" class="w-full input" inputmode="numeric" placeholder="مثلاً 36"></div>
+      </div>
+    `;
+    return;
+  }
+
+  if (t === 'early') {
+    wrap.innerHTML = `
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-2">
+        <div><label class="block text-sm text-gray-300 mb-1">مبلغ وام (تومان)</label><input id="loan-p" class="w-full input money-input" inputmode="numeric" placeholder="مثلاً 200,000,000"><div class="money-words"></div></div>
+        <div><label class="block text-sm text-gray-300 mb-1">درصد سود سالانه (%)</label><input id="loan-r" class="w-full input" inputmode="decimal" placeholder="مثلاً 18"></div>
+        <div><label class="block text-sm text-gray-300 mb-1">مدت کل (ماه)</label><input id="loan-n" class="w-full input" inputmode="numeric" placeholder="مثلاً 36"></div>
+        <div><label class="block text-sm text-gray-300 mb-1">چند قسط پرداخت شده؟</label><input id="loan-m" class="w-full input" inputmode="numeric" placeholder="مثلاً 10"></div>
+      </div>
+    `;
+    return;
+  }
+
+  if (t === 'qard') {
+    wrap.innerHTML = `
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+        <div><label class="block text-sm text-gray-300 mb-1">مبلغ وام (تومان)</label><input id="loan-p" class="w-full input money-input" inputmode="numeric" placeholder="مثلاً 200,000,000"><div class="money-words"></div></div>
+        <div><label class="block text-sm text-gray-300 mb-1">مدت (ماه)</label><input id="loan-n" class="w-full input" inputmode="numeric" placeholder="مثلاً 36"></div>
+      </div>
+    `;
+    return;
+  }
+
+  // step
+  wrap.innerHTML = `
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-2">
+      <div><label class="block text-sm text-gray-300 mb-1">مبلغ وام (تومان)</label><input id="loan-p" class="w-full input money-input" inputmode="numeric" placeholder="مثلاً 200,000,000"><div class="money-words"></div></div>
+      <div><label class="block text-sm text-gray-300 mb-1">درصد سود سالانه (%)</label><input id="loan-r" class="w-full input" inputmode="decimal" placeholder="مثلاً 18"></div>
+      <div><label class="block text-sm text-gray-300 mb-1">مدت (ماه)</label><input id="loan-n" class="w-full input" inputmode="numeric" placeholder="مثلاً 36"></div>
+      <div><label class="block text-sm text-gray-300 mb-1">رشد سالانه قسط (%)</label><input id="loan-g" class="w-full input" inputmode="decimal" placeholder="مثلاً 10"></div>
+    </div>
+    <div class="text-[11px] text-gray-400">پلکانی: قسط هر سال به اندازه درصد مشخص افزایش می‌یابد (هر 12 ماه).</div>
+  `;
+}
+
+function calculateLoan() {
+  const t = document.getElementById('loan-type').value;
+  const resId = 'loan-result';
+
+  // Helper: amort table + charts + smart analysis
+  const renderFullLoanOutput = (title, P, schedule, extraHtml='') => {
+    const totalPay = schedule.reduce((s,x)=>s + x.payment, 0);
+    const totalInt = schedule.reduce((s,x)=>s + x.interest, 0);
+    const totalPrn = schedule.reduce((s,x)=>s + x.principal, 0);
+    const interestShare = totalPay > 0 ? (totalInt/totalPay) : 0;
+    const suggestion = (() => {
+      if (!Number.isFinite(interestShare)) return '';
+      if (interestShare >= 0.42) return 'در این وام درصد سود پرداختی بالاست. اگر امکان دارید مدت وام را کاهش دهید یا بخشی را زودتر تسویه کنید.';
+      if (interestShare >= 0.30) return 'برای کاهش سود کل، پرداخت اضافه در چند ماه اول یا کاهش مدت وام می‌تواند موثر باشد.';
+      return 'سهم سود در محدوده معقول‌تری است؛ اگر هدف کاهش سود کل است، تمرکز روی ماه‌های ابتدایی بیشترین اثر را دارد.';
+    })();
+
+    const tableHtml = buildAmortTable(schedule);
+    __lastLoanSchedule = schedule;
+    __lastLoanMeta = { totalPay, totalInt, totalPrn, title };
+    const chartsHtml = `
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mt-3">
+        <div class="glass rounded-xl p-2">
+          <div class="text-xs text-gray-300 mb-2">نمودار کاهش مانده بدهی</div>
+          <canvas id="loan-chart-balance" height="140"></canvas>
+        </div>
+        <div class="glass rounded-xl p-2">
+          <div class="text-xs text-gray-300 mb-2">سهم سود vs اصل (جمع کل)</div>
+          <canvas id="loan-chart-split" height="140"></canvas>
+        </div>
+      </div>
+    `;
+
+    showBox(resId, `
+      <div class="font-semibold mb-2">${title}</div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+        <div class="glass rounded-xl p-2">کل بازپرداخت: <span class="font-bold">${formatNumber(totalPay)} تومان</span></div>
+        
+      <div class="table-actions no-print mt-2">
+        <button class="btn-mini" onclick="exportLoanCSV()">⬇️ خروجی اکسل (CSV)</button>
+        <button class="btn-mini" onclick="exportLoanPDF()">🧾 خروجی PDF / چاپ</button>
+        <span class="text-[11px] text-gray-400">واحد جدول: تومان</span>
+      </div>
+<div class="glass rounded-xl p-2">کل سود: <span class="font-bold">${formatNumber(totalInt)} تومان</span></div>
+        <div class="glass rounded-xl p-2">مدت واقعی: <span class="font-bold">${toPersianNum(schedule.length)} ماه</span></div>
+      </div>
+      ${extraHtml}
+      <div class="mt-3">
+        <div class="text-sm font-bold mb-2">جدول اقساط (Amortization)</div>
+        ${tableHtml}
+      </div>
+      ${chartsHtml}
+      <div class="mt-3 glass rounded-xl p-2">
+        <div class="text-xs text-gray-300 mb-1">تحلیل هوشمند</div>
+        <div class="text-sm">${toPersianNum(Math.round(interestShare*100))}% از کل پرداخت شما سود است. ${suggestion}</div>
+      </div>
+    `);
+
+    // charts
+    setTimeout(()=>renderLoanCharts(schedule, totalInt, totalPrn), 50);
+  };
+
+  if (t === 'payment') {
+    const P = nval('loan-p'), R = nval('loan-r'), N = nval('loan-n');
+    if (!(P > 0 && R >= 0 && N > 0)) return showBox(resId, "لطفاً همه مقادیر را درست وارد کنید.");
+    const A = calcAnnuityPayment(P, R, N);
+    const schedule = buildAmortSchedule({P, annualRate:R, nMonths:N, payment:A});
+    return renderFullLoanOutput('نتیجه وام', P, schedule, `
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-2 mt-2">
+        <div class="glass rounded-xl p-2">قسط ماهانه: <span class="font-bold">${formatNumber(A)} تومان</span></div>
+        <div class="glass rounded-xl p-2">نرخ ماهانه: <span class="font-bold">${formatNumber((R/12), 3)}%</span></div>
+        <div class="glass rounded-xl p-2">اصل وام: <span class="font-bold">${formatNumber(P)} تومان</span></div>
+      </div>
+    `);
+  }
+
+  if (t === 'compare') {
+    const P = nval('loan-p'), N = nval('loan-n'), RA = nval('loan-ra'), RB = nval('loan-rb');
+    if (!(P > 0 && N > 0 && RA >= 0 && RB >= 0)) return showBox(resId, "لطفاً همه مقادیر را درست وارد کنید.");
+    const A1 = calcAnnuityPayment(P, RA, N);
+    const A2 = calcAnnuityPayment(P, RB, N);
+    const tot1 = A1*N, tot2 = A2*N;
+    const int1 = tot1 - P, int2 = tot2 - P;
+    const better = tot1 < tot2 ? 'بانک A' : (tot2 < tot1 ? 'بانک B' : 'هر دو یکسان');
+    return showBox(resId, `
+      <div class="font-semibold mb-2">مقایسه دو وام</div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+        <div class="glass rounded-xl p-2">
+          <div class="font-bold mb-1">بانک A</div>
+          <div class="text-sm">قسط: <span class="font-semibold">${formatNumber(A1)} تومان</span></div>
+          <div class="text-sm">کل سود: <span class="font-semibold">${formatNumber(int1)} تومان</span></div>
+          <div class="text-sm">کل بازپرداخت: <span class="font-semibold">${formatNumber(tot1)} تومان</span></div>
+        </div>
+        <div class="glass rounded-xl p-2">
+          <div class="font-bold mb-1">بانک B</div>
+          <div class="text-sm">قسط: <span class="font-semibold">${formatNumber(A2)} تومان</span></div>
+          <div class="text-sm">کل سود: <span class="font-semibold">${formatNumber(int2)} تومان</span></div>
+          <div class="text-sm">کل بازپرداخت: <span class="font-semibold">${formatNumber(tot2)} تومان</span></div>
+        </div>
+      </div>
+      <div class="mt-2 glass rounded-xl p-2">به‌صرفه‌تر: <span class="font-bold">${better}</span></div>
+    `);
+  }
+
+  if (t === 'penalty') {
+    const amt = nval('pen-amt'), days = nval('pen-days'), rate = nval('pen-rate');
+    if (!(amt > 0 && days >= 0 && rate >= 0)) return showBox(resId, "لطفاً همه مقادیر را درست وارد کنید.");
+    const extra = amt * (rate/100) * days;
+    return showBox(resId, `
+      <div class="font-semibold mb-2">جریمه دیرکرد</div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+        <div class="glass rounded-xl p-2">مبلغ جریمه: <span class="font-bold">${formatNumber(extra)} تومان</span></div>
+        <div class="glass rounded-xl p-2">جمع بدهی: <span class="font-bold">${formatNumber(amt + extra)} تومان</span></div>
+        <div class="glass rounded-xl p-2">روزهای تأخیر: <span class="font-bold">${toPersianNum(days)}</span></div>
+      </div>
+    `);
+  }
+
+  if (t === 'grace') {
+    const P = nval('loan-p'), R = nval('loan-r'), N = nval('loan-n'), gm = nval('loan-gm');
+    if (!(P > 0 && R >= 0 && N > 0 && gm >= 0 && gm < N)) return showBox(resId, "لطفاً همه مقادیر را درست وارد کنید.");
+    const A = calcAnnuityPayment(P, R, N - gm);
+    const schedule = buildAmortSchedule({P, annualRate:R, nMonths:N, payment:A, graceMonths:gm});
+    return renderFullLoanOutput('وام با تنفس', P, schedule, `
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-2 mt-2">
+        <div class="glass rounded-xl p-2">ماه‌های تنفس: <span class="font-bold">${toPersianNum(gm)} ماه</span></div>
+        <div class="glass rounded-xl p-2">قسط پس از تنفس: <span class="font-bold">${formatNumber(A)} تومان</span></div>
+        <div class="glass rounded-xl p-2">نرخ سالانه: <span class="font-bold">${formatNumber(R,2)}%</span></div>
+      </div>
+    `);
+  }
+
+  if (t === 'irregular') {
+    const P0 = nval('loan-p'), R = nval('loan-r'), N = nval('loan-n');
+    const pre = nval('irr-pre') || 0;
+    const mth = nval('irr-month');
+    const extra = nval('irr-extra') || 0;
+    if (!(P0 > 0 && R >= 0 && N > 0 && pre >= 0 && extra >= 0)) return showBox(resId, "لطفاً همه مقادیر را درست وارد کنید.");
+    const P = Math.max(0, P0 - pre);
+    if (!(P > 0)) return showBox(resId, "پیش‌پرداخت نباید از مبلغ وام بیشتر باشد.");
+    const A = calcAnnuityPayment(P0, R, N); // payment based on original loan (as user expects)
+    const extras = {};
+    if (Number.isFinite(mth) && mth >= 1 && mth <= N && extra > 0) extras[Math.round(mth)] = extra;
+    const schedule = buildAmortSchedule({P, annualRate:R, nMonths:N, payment:A, extras});
+    return renderFullLoanOutput('وام با پرداخت نامنظم', P, schedule, `
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-2 mt-2">
+        <div class="glass rounded-xl p-2">پیش‌پرداخت: <span class="font-bold">${formatNumber(pre)} تومان</span></div>
+        <div class="glass rounded-xl p-2">قسط ثابت: <span class="font-bold">${formatNumber(A)} تومان</span></div>
+        <div class="glass rounded-xl p-2">پرداخت اضافه: <span class="font-bold">${(extra>0 && Number.isFinite(mth)) ? (formatNumber(extra)+' تومان در ماه '+toPersianNum(Math.round(mth))) : '—'}</span></div>
+      </div>
+    `);
+  }
+
+  if (t === 'rate') {
+    const P = nval('loan-p'), A = nval('loan-a'), N = nval('loan-n');
+    if (!(P > 0 && A > 0 && N > 0)) return showBox(resId, "لطفاً همه مقادیر را درست وارد کنید.");
+    const r = solveMonthlyRate(P, A, N);
+    if (!isFinite(r)) return showBox(resId, "با این مقادیر، نرخ قابل محاسبه نیست. (ممکن است قسط خیلی کم/زیاد باشد)");
+    const annual = r * 12 * 100;
+    const total = A * N;
+    const interest = total - P;
+    return showBox(resId, `
+      <div class="font-semibold mb-2">نتیجه نرخ سود</div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+        <div class="glass rounded-xl p-2">نرخ ماهانه: <span class="font-bold">${formatNumber(r*100, 3)}%</span></div>
+        <div class="glass rounded-xl p-2">نرخ سالانه تقریبی: <span class="font-bold">${formatNumber(annual, 2)}%</span></div>
+        <div class="glass rounded-xl p-2">کل سود: <span class="font-bold">${formatNumber(interest)} تومان</span></div>
+      </div>
+    `);
+  }
+
+  if (t === 'early') {
+    const P = nval('loan-p'), R = nval('loan-r'), N = nval('loan-n'), M = nval('loan-m');
+    if (!(P > 0 && R >= 0 && N > 0 && M >= 0 && M <= N)) return showBox(resId, "لطفاً همه مقادیر را درست وارد کنید.");
+    const A = calcAnnuityPayment(P, R, N);
+    const bal = remainingBalance(P, R, N, M);
+    const schedule = buildAmortSchedule({P, annualRate:R, nMonths:M, payment:A}); // paid part
+    return showBox(resId, `
+      <div class="font-semibold mb-2">تسویه پیش از موعد</div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+        <div class="glass rounded-xl p-2">قسط ماهانه: <span class="font-bold">${formatNumber(A)} تومان</span></div>
+        <div class="glass rounded-xl p-2">مانده بدهی پس از ${toPersianNum(M)} قسط: <span class="font-bold">${formatNumber(Math.max(0, bal))} تومان</span></div>
+        <div class="glass rounded-xl p-2">اقساط باقیمانده: <span class="font-bold">${toPersianNum(N - M)} ماه</span></div>
+      </div>
+      <div class="mt-2"><div class="text-sm font-bold mb-2">جدول اقساط پرداخت‌شده (تا ماه ${toPersianNum(M)})</div>${buildAmortTable(schedule)}</div>
+      <div class="text-[11px] text-gray-400 mt-2">* جریمه/کارمزد تسویه (در صورت وجود) توسط بانک تعیین می‌شود و در این محاسبه لحاظ نشده است.</div>
+    `);
+  }
+
+  if (t === 'qard') {
+    const P = nval('loan-p'), N = nval('loan-n');
+    if (!(P > 0 && N > 0)) return showBox(resId, "لطفاً همه مقادیر را درست وارد کنید.");
+    const A = P / N;
+    const schedule = buildAmortSchedule({P, annualRate:0, nMonths:N, payment:A});
+    return renderFullLoanOutput('قرض‌الحسنه', P, schedule, `
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
+        <div class="glass rounded-xl p-2">قسط ماهانه: <span class="font-bold">${formatNumber(A)} تومان</span></div>
+        <div class="glass rounded-xl p-2">کل بازپرداخت: <span class="font-bold">${formatNumber(P)} تومان</span></div>
+      </div>
+    `);
+  }
+
+  // step
+  const P = nval('loan-p'), R = nval('loan-r'), N = nval('loan-n'), G = nval('loan-g');
+  if (!(P > 0 && R >= 0 && N > 0 && G >= 0)) return showBox(resId, "لطفاً همه مقادیر را درست وارد کنید.");
+  const s = calcStepLoan(P, R, N, G);
+  return showBox(resId, `
+    <div class="font-semibold mb-2">وام پلکانی</div>
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-2">
+      <div class="glass rounded-xl p-2">قسط سال اول (ماهانه): <span class="font-bold">${formatNumber(s.A0)} تومان</span></div>
+      <div class="glass rounded-xl p-2">قسط سال آخر (ماهانه): <span class="font-bold">${formatNumber(s.last)} تومان</span></div>
+      <div class="glass rounded-xl p-2">کل بازپرداخت: <span class="font-bold">${formatNumber(s.total)} تومان</span></div>
+      <div class="glass rounded-xl p-2">کل سود: <span class="font-bold">${formatNumber(s.interest)} تومان</span></div>
+    </div>
+  `);
+}
+
+// --- Deposit UI ---
+function renderDepositForm() {
+  const t = document.getElementById('deposit-type').value;
+  const wrap = document.getElementById('deposit-form');
+  hideBox('deposit-result');
+
+  if (t === 'interest') {
+    wrap.innerHTML = `
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+        <div><label class="block text-sm text-gray-300 mb-1">مبلغ سپرده (تومان)</label><input id="dep-p" class="w-full input money-input" inputmode="numeric" placeholder="مثلاً 100,000,000"><div class="money-words"></div></div>
+        <div><label class="block text-sm text-gray-300 mb-1">نرخ سالانه (%)</label><input id="dep-r" class="w-full input" inputmode="decimal" placeholder="مثلاً 20"></div>
+        <div><label class="block text-sm text-gray-300 mb-1">مدت (روز)</label><input id="dep-d" class="w-full input" inputmode="numeric" placeholder="مثلاً 365"></div>
+      </div>
+    `;
+    return;
+  }
+
+  if (t === 'compound') {
+    wrap.innerHTML = `
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-2">
+        <div><label class="block text-sm text-gray-300 mb-1">سرمایه اولیه (تومان)</label><input id="cmp-p" class="w-full input money-input" inputmode="numeric" placeholder="مثلاً 100,000,000"><div class="money-words"></div></div>
+        <div><label class="block text-sm text-gray-300 mb-1">نرخ سالانه (%)</label><input id="cmp-r" class="w-full input" inputmode="decimal" placeholder="مثلاً 20"></div>
+        <div><label class="block text-sm text-gray-300 mb-1">مدت (سال)</label><input id="cmp-y" class="w-full input" inputmode="decimal" placeholder="مثلاً 5"></div>
+        <div>
+          <label class="block text-sm text-gray-300 mb-1">نوع مرکب</label>
+          <select id="cmp-f" class="w-full input">
+            <option value="365">روزانه</option>
+            <option value="12">ماهانه</option>
+            <option value="1">سالانه</option>
+          </select>
+        </div>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+        <div><label class="block text-sm text-gray-300 mb-1">واریز ماهانه (اختیاری)</label><input id="cmp-c" class="w-full input money-input" inputmode="numeric" placeholder="مثلاً 2,000,000"><div class="money-words"></div></div>
+        <div class="text-[11px] text-gray-400 flex items-end">اگر واریز ماهانه را صفر بگذارید، فقط روی سرمایه اولیه محاسبه می‌شود.</div>
+      </div>
+    `;
+    return;
+  }
+
+  if (t === 'fv') {
+    wrap.innerHTML = `
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-2">
+        <div><label class="block text-sm text-gray-300 mb-1">مبلغ امروز (تومان)</label><input id="fv-p" class="w-full input money-input" inputmode="numeric" placeholder="مثلاً 100,000,000"><div class="money-words"></div></div>
+        <div><label class="block text-sm text-gray-300 mb-1">نرخ سالانه (%)</label><input id="fv-r" class="w-full input" inputmode="decimal" placeholder="مثلاً 20"></div>
+        <div><label class="block text-sm text-gray-300 mb-1">مدت (سال)</label><input id="fv-y" class="w-full input" inputmode="decimal" placeholder="مثلاً 5"></div>
+        <div>
+          <label class="block text-sm text-gray-300 mb-1">ترکیب</label>
+          <select id="fv-f" class="w-full input">
+            <option value="12">ماهانه</option>
+            <option value="365">روزانه</option>
+            <option value="1">سالانه</option>
+          </select>
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  if (t === 'pv') {
+    wrap.innerHTML = `
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-2">
+        <div><label class="block text-sm text-gray-300 mb-1">مبلغ آینده (تومان)</label><input id="pv-fv" class="w-full input money-input" inputmode="numeric" placeholder="مثلاً 500,000,000"><div class="money-words"></div></div>
+        <div><label class="block text-sm text-gray-300 mb-1">نرخ سالانه (%)</label><input id="pv-r" class="w-full input" inputmode="decimal" placeholder="مثلاً 20"></div>
+        <div><label class="block text-sm text-gray-300 mb-1">مدت (سال)</label><input id="pv-y" class="w-full input" inputmode="decimal" placeholder="مثلاً 5"></div>
+        <div>
+          <label class="block text-sm text-gray-300 mb-1">ترکیب</label>
+          <select id="pv-f" class="w-full input">
+            <option value="12">ماهانه</option>
+            <option value="365">روزانه</option>
+            <option value="1">سالانه</option>
+          </select>
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  if (t === 'inflation') {
+    wrap.innerHTML = `
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+        <div><label class="block text-sm text-gray-300 mb-1">مبلغ (تومان)</label><input id="inf-amt" class="w-full input money-input" inputmode="numeric" placeholder="مثلاً 100,000,000"><div class="money-words"></div></div>
+        <div><label class="block text-sm text-gray-300 mb-1">تورم سالانه (%)</label><input id="inf-r" class="w-full input" inputmode="decimal" placeholder="مثلاً 40"></div>
+        <div><label class="block text-sm text-gray-300 mb-1">مدت (سال)</label><input id="inf-y" class="w-full input" inputmode="decimal" placeholder="مثلاً 3"></div>
+      </div>
+      <div class="text-[11px] text-gray-400">ارزش واقعی = مبلغ ÷ (1 + تورم) ^ سال</div>
+    `;
+    return;
+  }
+
+  // rate (simple)
+  wrap.innerHTML = `
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+      <div><label class="block text-sm text-gray-300 mb-1">مبلغ سپرده (تومان)</label><input id="dep-p" class="w-full input money-input" inputmode="numeric" placeholder="مثلاً 100,000,000"><div class="money-words"></div></div>
+      <div><label class="block text-sm text-gray-300 mb-1">مبلغ سود (تومان)</label><input id="dep-i" class="w-full input money-input" inputmode="numeric" placeholder="مثلاً 20,000,000"><div class="money-words"></div></div>
+      <div><label class="block text-sm text-gray-300 mb-1">مدت (روز)</label><input id="dep-d" class="w-full input" inputmode="numeric" placeholder="مثلاً 365"></div>
+    </div>
+  `;
+}
+
+function calculateDeposit() {
+  const t = document.getElementById('deposit-type').value;
+  const resId = 'deposit-result';
+
+  if (t === 'interest') {
+    const P = nval('dep-p'), R = nval('dep-r'), D = nval('dep-d');
+    if (!(P > 0 && R >= 0 && D > 0)) return showBox(resId, "لطفاً همه مقادیر را درست وارد کنید.");
+    const I = P * (R/100) * (D/365);
+    showBox(resId, `
+      <div class="font-semibold mb-2">سود سپرده (ساده)</div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+        <div class="glass rounded-xl p-2">سود: <span class="font-bold">${formatNumber(I)} تومان</span></div>
+        <div class="glass rounded-xl p-2">مبلغ نهایی: <span class="font-bold">${formatNumber(P+I)} تومان</span></div>
+        <div class="glass rounded-xl p-2">سود روزانه: <span class="font-bold">${formatNumber(I/D)} تومان</span></div>
+      </div>
+    `);
+    try{ document.getElementById('deposit-charts')?.classList.add('hidden'); }catch{};
+    try{ document.getElementById('card-charts')?.classList.remove('hidden'); }catch{}
+    return;
+
+  }
+
+  if (t === 'compound') {
+    const P = nval('cmp-p'), R = nval('cmp-r'), Y = nval('cmp-y');
+    const m = parseInt(document.getElementById('cmp-f')?.value || '12',10);
+    const c = nval('cmp-c') || 0;
+    if (!(P >= 0 && R >= 0 && Y > 0 && m > 0 && c >= 0)) return showBox(resId, "لطفاً همه مقادیر را درست وارد کنید.");
+    const r = (R/100);
+    const n = m * Y;
+    const fvLump = P * Math.pow(1 + r/m, n);
+    // monthly contribution: assume contribution frequency matches monthly (12) regardless of m
+    const fvCont = c > 0 ? compoundFutureValueAnnuity(c, R, Y) : 0;
+    const FV = fvLump + fvCont;
+    showBox(resId, `
+      <div class="font-semibold mb-2">سود مرکب واقعی</div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+        <div class="glass rounded-xl p-2">ارزش نهایی: <span class="font-bold">${formatNumber(FV)} تومان</span></div>
+        <div class="glass rounded-xl p-2">سود کل: <span class="font-bold">${formatNumber(FV - P - (c>0 ? (c*12*Y) : 0))} تومان</span></div>
+        <div class="glass rounded-xl p-2">نوع مرکب: <span class="font-bold">${m===365?'روزانه':(m===12?'ماهانه':'سالانه')}</span></div>
+      </div>
+      <div class="text-[11px] text-gray-400 mt-2">* واریز ماهانه با فرض انجام در پایان هر ماه محاسبه شده است.</div>
+    `);
+    try{ document.getElementById('deposit-charts')?.classList.remove('hidden'); }catch{}
+
+    const labels = Array.from({length: Math.round(Y*12)+1}, (_,i)=> toPersianNum(i)+' ماه');
+    const values = labels.map((_,i)=>{
+      // approximate monthly compounding for chart (independent of m)
+      const rM = (R/100)/12;
+      let v = P * Math.pow(1+rM, i);
+      if (c>0){
+        if (Math.abs(rM) < 1e-12) v += c*i;
+        else v += c * ((Math.pow(1+rM, i)-1)/rM);
+      }
+      return Math.round(v);
+    });
+    renderDepositChart(labels, values, 'تومان');
+    __lastDepositSeries = values.map((v,i)=>[i, v]);
+    __lastDepositMeta = { headers:['ماه','ارزش (تومان)'], filename:'compound_interest.csv' };
+
+    return;
+
+  }
+
+  if (t === 'fv') {
+    const P = nval('fv-p'), R = nval('fv-r'), Y = nval('fv-y');
+    const m = parseInt(document.getElementById('fv-f')?.value || '12',10);
+    if (!(P >= 0 && R >= 0 && Y > 0 && m > 0)) return showBox(resId, "لطفاً همه مقادیر را درست وارد کنید.");
+    const FV = P * Math.pow(1 + (R/100)/m, m*Y);
+    showBox(resId, `
+      <div class="font-semibold mb-2">ارزش آینده پول (FV)</div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+        <div class="glass rounded-xl p-2">ارزش آینده: <span class="font-bold">${formatNumber(FV)} تومان</span></div>
+        <div class="glass rounded-xl p-2">سود: <span class="font-bold">${formatNumber(FV-P)} تومان</span></div>
+        <div class="glass rounded-xl p-2">ترکیب: <span class="font-bold">${m===365?'روزانه':(m===12?'ماهانه':'سالانه')}</span></div>
+      </div>
+    `);
+    try{ document.getElementById('deposit-charts')?.classList.remove('hidden'); }catch{}
+
+    const labels = Array.from({length: Math.round(Y*12)+1}, (_,i)=> toPersianNum(i)+' ماه');
+    const rM = (R/100)/12;
+    const values = labels.map((_,i)=> Math.round(P*Math.pow(1+rM, i)));
+    renderDepositChart(labels, values, 'تومان');
+    __lastDepositSeries = values.map((v,i)=>[i, v]);
+    __lastDepositMeta = { headers:['ماه','ارزش آینده (تومان)'], filename:'future_value.csv' };
+
+    return;
+
+  }
+
+  if (t === 'pv') {
+    const FV = nval('pv-fv'), R = nval('pv-r'), Y = nval('pv-y');
+    const m = parseInt(document.getElementById('pv-f')?.value || '12',10);
+    if (!(FV > 0 && R >= 0 && Y > 0 && m > 0)) return showBox(resId, "لطفاً همه مقادیر را درست وارد کنید.");
+    const PV = FV / Math.pow(1 + (R/100)/m, m*Y);
+    showBox(resId, `
+      <div class="font-semibold mb-2">ارزش فعلی پول (PV)</div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+        <div class="glass rounded-xl p-2">سرمایه امروز: <span class="font-bold">${formatNumber(PV)} تومان</span></div>
+        <div class="glass rounded-xl p-2">مبلغ هدف: <span class="font-bold">${formatNumber(FV)} تومان</span></div>
+        <div class="glass rounded-xl p-2">ترکیب: <span class="font-bold">${m===365?'روزانه':(m===12?'ماهانه':'سالانه')}</span></div>
+      </div>
+    `);
+    try{ document.getElementById('deposit-charts')?.classList.remove('hidden'); }catch{}
+
+    const labels = Array.from({length: Math.round(Y*12)+1}, (_,i)=> toPersianNum(i)+' ماه');
+    const rM = (R/100)/12;
+    const values = labels.map((_,i)=> Math.round(FV/Math.pow(1+rM, i)));
+    renderDepositChart(labels, values, 'تومان');
+    __lastDepositSeries = values.map((v,i)=>[i, v]);
+    __lastDepositMeta = { headers:['ماه','ارزش فعلی (تومان)'], filename:'present_value.csv' };
+
+    return;
+
+  }
+
+  if (t === 'inflation') {
+    const amt = nval('inf-amt'), R = nval('inf-r'), Y = nval('inf-y');
+    if (!(amt > 0 && R >= 0 && Y > 0)) return showBox(resId, "لطفاً همه مقادیر را درست وارد کنید.");
+    const real = amt / Math.pow(1 + (R/100), Y);
+    showBox(resId, `
+      <div class="font-semibold mb-2">اثر تورم</div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+        <div class="glass rounded-xl p-2">ارزش واقعی بعد از ${toPersianNum(Y)} سال: <span class="font-bold">${formatNumber(real)} تومان</span></div>
+        <div class="glass rounded-xl p-2">کاهش قدرت خرید: <span class="font-bold">${toPersianNum(Math.round((1-real/amt)*100))}%</span></div>
+        <div class="glass rounded-xl p-2">مبلغ اسمی: <span class="font-bold">${formatNumber(amt)} تومان</span></div>
+      </div>
+    `);
+    try{ document.getElementById('deposit-charts')?.classList.remove('hidden'); }catch{}
+
+    const labels = Array.from({length: Math.round(Y)+1}, (_,i)=> toPersianNum(i)+' سال');
+    const values = labels.map((_,i)=> Math.round(P/Math.pow(1+(R/100), i)));
+    renderDepositChart(labels, values, 'تومان (ارزش واقعی)');
+    __lastDepositSeries = values.map((v,i)=>[i, v]);
+    __lastDepositMeta = { headers:['سال','ارزش واقعی (تومان)'], filename:'inflation_real_value.csv' };
+
+    return;
+
+  }
+
+  // rate simple
+  const P = nval('dep-p'), I = nval('dep-i'), D = nval('dep-d');
+  if (!(P > 0 && I >= 0 && D > 0)) return showBox(resId, "لطفاً همه مقادیر را درست وارد کنید.");
+  const rate = (I / P) * (365 / D) * 100;
+  showBox(resId, `
+    <div class="font-semibold mb-2">نرخ سود (ساده)</div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+      <div class="glass rounded-xl p-2">نرخ سالانه: <span class="font-bold">${formatNumber(rate, 2)}%</span></div>
+      <div class="glass rounded-xl p-2">سود روزانه: <span class="font-bold">${formatNumber(I/D)} تومان</span></div>
+      <div class="glass rounded-xl p-2">سود: <span class="font-bold">${formatNumber(I)} تومان</span></div>
+    </div>
+  `);
+}
+
+// --- Card UI ---
+function renderCardForm(){
+  const t = document.getElementById('card-type')?.value || 'installment';
+  const wrap = document.getElementById('card-form');
+  hideBox('card-result');
+
+  if (t === 'posfee') {
+    wrap.innerHTML = `
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+        <div><label class="block text-sm text-gray-300 mb-1">حجم تراکنش (تومان)</label><input id="pos-v" class="w-full input money-input" inputmode="numeric" placeholder="مثلاً 100,000,000"><div class="money-words"></div></div>
+        <div><label class="block text-sm text-gray-300 mb-1">درصد کارمزد (%)</label><input id="pos-r" class="w-full input" inputmode="decimal" placeholder="مثلاً 0.5"></div>
+        <div class="text-[11px] text-gray-400 flex items-end">کارمزد = حجم × (درصد/100)</div>
+      </div>
+    `;
+    return;
+  }
+
+  // installment
+  wrap.innerHTML = `
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-2">
+      <div><label class="block text-sm text-gray-300 mb-1">قیمت کالا (تومان)</label><input id="inst-p" class="w-full input money-input" inputmode="numeric" placeholder="مثلاً 80,000,000"><div class="money-words"></div></div>
+      <div><label class="block text-sm text-gray-300 mb-1">پیش‌پرداخت</label><input id="inst-d" class="w-full input money-input" inputmode="numeric" placeholder="مثلاً 20,000,000"><div class="money-words"></div></div>
+      <div><label class="block text-sm text-gray-300 mb-1">تعداد قسط (ماه)</label><input id="inst-n" class="w-full input" inputmode="numeric" placeholder="مثلاً 12"></div>
+      <div><label class="block text-sm text-gray-300 mb-1">نرخ سود سالانه (اختیاری)</label><input id="inst-r" class="w-full input" inputmode="decimal" placeholder="مثلاً 18"></div>
+    </div>
+    <div class="text-[11px] text-gray-400">اگر نرخ را خالی بگذارید، اقساط بدون سود محاسبه می‌شود.</div>
+  `;
+}
+
+function calculateCard(){
+  const t = document.getElementById('card-type')?.value || 'installment';
+  const resId = 'card-result';
+
+  if (t === 'posfee') {
+    const V = nval('pos-v'), R = nval('pos-r');
+    if (!(V > 0 && R >= 0)) return showBox(resId, "لطفاً همه مقادیر را درست وارد کنید.");
+    const fee = V * (R/100);
+    showBox(resId, `
+      <div class="font-semibold mb-2">کارمزد دستگاه کارتخوان</div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+        <div class="glass rounded-xl p-2">کارمزد: <span class="font-bold">${formatNumber(fee)} تومان</span></div>
+        <div class="glass rounded-xl p-2">خالص دریافتی: <span class="font-bold">${formatNumber(V - fee)} تومان</span></div>
+        <div class="glass rounded-xl p-2">حجم تراکنش: <span class="font-bold">${formatNumber(V)} تومان</span></div>
+      </div>
+    `);
+    try{ document.getElementById('card-charts')?.classList.remove('hidden'); }catch{}
+
+    const labels = ['حجم تراکنش', 'کارمزد', 'خالص دریافتی'];
+    const values = [Math.round(V), Math.round(fee), Math.round(V-fee)];
+    renderCardChart(labels, values, 'تومان', 'bar');
+    __lastCardSeries = labels.map((l,i)=>[l, values[i]]);
+    __lastCardMeta = { headers:['عنوان','مقدار (تومان)'], filename:'pos_fee.csv' };
+
+    return;
+
+    try{ document.getElementById('deposit-charts')?.classList.add('hidden'); }catch{};
+    try{ document.getElementById('card-charts')?.classList.remove('hidden'); }catch{}
+    return;
+
+  }
+
+  // installment
+  const P = nval('inst-p'), down = nval('inst-d') || 0, N = nval('inst-n');
+  const R = nval('inst-r');
+  if (!(P > 0 && down >= 0 && N > 0)) return showBox(resId, "لطفاً همه مقادیر را درست وارد کنید.");
+  const financed = Math.max(0, P - down);
+  if (financed <= 0) return showBox(resId, "پیش‌پرداخت نباید از قیمت کالا بیشتر باشد.");
+  let A;
+  if (Number.isFinite(R) && R > 0) A = calcAnnuityPayment(financed, R, N);
+  else A = financed / N;
+  const total = A*N + down;
+  showBox(resId, `
+    <div class="font-semibold mb-2">خرید قسطی</div>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+      <div class="glass rounded-xl p-2">مبلغ هر قسط: <span class="font-bold">${formatNumber(A)} تومان</span></div>
+      <div class="glass rounded-xl p-2">مبلغ تامین مالی: <span class="font-bold">${formatNumber(financed)} تومان</span></div>
+      <div class="glass rounded-xl p-2">جمع پرداخت (با پیش‌پرداخت): <span class="font-bold">${formatNumber(total)} تومان</span></div>
+    </div>
+  `);
+    try{ document.getElementById('card-charts')?.classList.remove('hidden'); }catch{}
+
+    const labels = ['پیش‌پرداخت', 'تأمین مالی', 'جمع پرداخت'];
+    const values = [Math.round(down), Math.round(financed), Math.round(total)];
+    renderCardChart(labels, values, 'تومان', 'bar');
+    __lastCardSeries = labels.map((l,i)=>[l, values[i]]);
+    __lastCardMeta = { headers:['عنوان','مقدار (تومان)'], filename:'installment.csv' };
+
+    return;
+
+}
+
+// --- Amortization + Charts helpers ---
+function buildAmortSchedule({P, annualRate, nMonths, payment, graceMonths=0, extras={}}){
+  const r = (annualRate/100)/12;
+  let bal = P;
+  const out = [];
+  const maxIter = Math.max(1, Math.min(1200, Math.round(nMonths))); // safety cap
+
+  for (let m=1; m<=maxIter; m++){
+    if (bal <= 0) break;
+
+    const interest = (Math.abs(r) < 1e-12) ? 0 : bal*r;
+    let pay = payment;
+
+    if (graceMonths && m <= graceMonths){
+      pay = interest; // interest-only
+    }
+
+    // prevent negative amortization
+    pay = Math.max(0, pay);
+    let principal = Math.max(0, pay - interest);
+
+    // extra payment
+    const ex = extras?.[m] ? Number(extras[m]) : 0;
+    if (ex > 0) principal += ex;
+
+    if (principal > bal) { principal = bal; pay = interest + principal - (ex>0?ex:0); } // keep payment coherent
+
+    bal = bal - principal;
+
+    out.push({
+      month: m,
+      payment: pay + (ex>0?ex:0),
+      interest,
+      principal,
+      balance: Math.max(0, bal)
+    });
+  }
+  return out;
+}
+
+function buildAmortTable(schedule){
+  const rows = schedule.map(x => `
+    <tr class="border-b border-white/10">
+      <td class="py-2 px-2 whitespace-nowrap">${toPersianNum(x.month)}</td>
+      <td class="py-2 px-2 whitespace-nowrap">${formatNumber(x.payment)}</td>
+      <td class="py-2 px-2 whitespace-nowrap">${formatNumber(x.interest)}</td>
+      <td class="py-2 px-2 whitespace-nowrap">${formatNumber(x.principal)}</td>
+      <td class="py-2 px-2 whitespace-nowrap">${formatNumber(x.balance)}</td>
+    </tr>
+  `).join('');
+
+  return `
+    <div class="overflow-auto max-h-[320px] rounded-xl border border-white/10">
+      <table id="amort-table" class="w-full text-xs md:text-sm">
+        <thead class="sticky top-0 bg-black/60 backdrop-blur">
+          <tr class="text-gray-200">
+            <th class="py-2 px-2 text-right">قسط</th>
+            <th class="py-2 px-2 text-right">مبلغ قسط</th>
+            <th class="py-2 px-2 text-right">سود</th>
+            <th class="py-2 px-2 text-right">اصل بازپرداخت</th>
+            <th class="py-2 px-2 text-right">مانده بدهی</th>
+          </tr>
+        </thead>
+        <tbody class="text-gray-100">${rows}</tbody>
+      </table>
+    </div>
+  `;
+}
+
+
+// ===================== Exports (CSV / PDF) =====================
+let __lastLoanSchedule = null;
+let __lastLoanMeta = null;
+let __lastDepositSeries = null;
+let __lastDepositMeta = null;
+let __lastCardSeries = null;
+let __lastCardMeta = null;
+
+function downloadTextFile(filename, text, mime='text/plain;charset=utf-8'){
+  const blob = new Blob([text], {type:mime});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url), 500);
+}
+
+function toCSV(rows){
+  return rows.map(r => r.map(v => {
+    const s = (v ?? '').toString().replaceAll('"','""');
+    return `"${s}"`;
+  }).join(',')).join('\n');
+}
+
+function openPrintWindow(title, htmlContent){
+  const w = window.open('', '_blank');
+  if(!w) { alert('پاپ‌آپ مسدود است. اجازه دهید تا پنجره چاپ باز شود.'); return; }
+  w.document.open();
+  w.document.write(`
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>${title}</title>
+  <style>
+    body{font-family: Vazirmatn, sans-serif; padding:16px; color:#111}
+    h1{font-size:18px; margin:0 0 10px}
+    .muted{color:#555; font-size:12px; margin-bottom:10px}
+    table{border-collapse:collapse; width:100%}
+    th,td{border:1px solid #ddd; padding:6px; font-size:12px; text-align:right}
+    th{background:#f3f4f6}
+    .grid{display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin:10px 0}
+    .card{border:1px solid #e5e7eb; border-radius:10px; padding:10px}
+    img{max-width:100%}
+    @media print{ body{padding:0} .no-print{display:none} }
+  </style>
+</head>
+<body>
+  <h1>${title}</h1>
+  <div class="muted">واحد پولی: تومان — درصدها با علامت % نمایش داده می‌شوند.</div>
+  ${htmlContent}
+  <script>window.onload=()=>{ setTimeout(()=>{ window.print(); }, 250); };<\/script>
+</body>
+</html>`);
+  w.document.close();
+}
+
+function exportLoanCSV(){
+  if(!__lastLoanSchedule){ alert('ابتدا یک محاسبه وام انجام دهید.'); return; }
+  const rows = [
+    ['قسط','مبلغ قسط (تومان)','سود (تومان)','اصل بازپرداخت (تومان)','مانده بدهی (تومان)'],
+    ...__lastLoanSchedule.map(x=>[x.month, x.payment, x.interest, x.principal, x.balance])
+  ];
+  downloadTextFile('loan_amortization.csv', toCSV(rows), 'text/csv;charset=utf-8');
+}
+
+function exportLoanPDF(){
+  const el = document.getElementById('loan-result');
+  if(!el || el.classList.contains('hidden')){ alert('ابتدا نتیجه وام را مشاهده کنید.'); return; }
+
+  // include chart images if available
+  const bal = document.getElementById('loan-chart-balance');
+  const spl = document.getElementById('loan-chart-split');
+  const balImg = bal ? bal.toDataURL('image/png', 1.0) : '';
+  const splImg = spl ? spl.toDataURL('image/png', 1.0) : '';
+
+  const charts = (balImg || splImg) ? `
+    <div class="grid" style="grid-template-columns:1fr 1fr">
+      ${balImg ? `<div class="card"><div class="muted">نمودار کاهش مانده بدهی</div><img src="${balImg}"></div>`:''}
+      ${splImg ? `<div class="card"><div class="muted">سهم سود vs اصل</div><img src="${splImg}"></div>`:''}
+    </div>` : '';
+
+  // clone content but drop export buttons
+  const cloned = el.cloneNode(true);
+  cloned.querySelectorAll('.no-print').forEach(x=>x.remove());
+  openPrintWindow('گزارش وام', `<div class="card">${cloned.innerHTML}</div>${charts}`);
+}
+
+function exportDepositCSV(){
+  if(!__lastDepositSeries){ alert('ابتدا یک محاسبه سپرده انجام دهید.'); return; }
+  const rows = [__lastDepositMeta?.headers || ['دوره','مقدار'], ...__lastDepositSeries.map(r=>r)];
+  downloadTextFile(__lastDepositMeta?.filename || 'deposit.csv', toCSV(rows), 'text/csv;charset=utf-8');
+}
+function exportDepositPDF(){
+  const el = document.getElementById('deposit-result');
+  if(!el || el.classList.contains('hidden')){ alert('ابتدا نتیجه سپرده را مشاهده کنید.'); return; }
+  const c = document.getElementById('deposit-chart');
+  const img = c ? c.toDataURL('image/png', 1.0) : '';
+  const cloned = el.cloneNode(true);
+  cloned.querySelectorAll('.no-print').forEach(x=>x.remove());
+  openPrintWindow('گزارش سپرده', `<div class="card">${cloned.innerHTML}</div>${img?`<div class="card" style="margin-top:10px"><img src="${img}"></div>`:''}`);
+}
+function exportCardCSV(){
+  if(!__lastCardSeries){ alert('ابتدا یک محاسبه کارت/چک انجام دهید.'); return; }
+  const rows = [__lastCardMeta?.headers || ['ردیف','مقدار'], ...__lastCardSeries.map(r=>r)];
+  downloadTextFile(__lastCardMeta?.filename || 'card.csv', toCSV(rows), 'text/csv;charset=utf-8');
+}
+function exportCardPDF(){
+  const el = document.getElementById('card-result');
+  if(!el || el.classList.contains('hidden')){ alert('ابتدا نتیجه کارت/چک را مشاهده کنید.'); return; }
+  const c = document.getElementById('card-chart');
+  const img = c ? c.toDataURL('image/png', 1.0) : '';
+  const cloned = el.cloneNode(true);
+  cloned.querySelectorAll('.no-print').forEach(x=>x.remove());
+  openPrintWindow('گزارش کارت و چک', `<div class="card">${cloned.innerHTML}</div>${img?`<div class="card" style="margin-top:10px"><img src="${img}"></div>`:''}`);
+}
+
+let __loanCharts = { balance:null, split:null };
+function renderLoanCharts(schedule, totalInterest, totalPrincipal){
+  if (typeof Chart === 'undefined') return;
+  const balCtx = document.getElementById('loan-chart-balance');
+  const splitCtx = document.getElementById('loan-chart-split');
+  if (!balCtx || !splitCtx) return;
+
+  // destroy previous
+  try{ __loanCharts.balance?.destroy(); }catch{}
+  try{ __loanCharts.split?.destroy(); }catch{}
+
+  const labels = schedule.map(x=>x.month);
+  const balances = schedule.map(x=>Math.round(x.balance));
+
+  __loanCharts.balance = new Chart(balCtx, {
+    type: 'line',
+    data: { labels, datasets:[{ label:'مانده بدهی', data: balances, tension:0.3 }] },
+    options: {
+      responsive:true,
+      plugins:{ legend:{ display:false } },
+      scales:{
+        x:{ ticks:{ color:'rgba(255,255,255,0.55)', callback:(v, i)=> (i%6===0? toPersianNum(labels[i]) : '') }, grid:{ display:false } },
+        y:{ ticks:{ color:'rgba(255,255,255,0.75)', callback:(v)=> formatNumber(v)+' تومان' }, grid:{ color:'rgba(255,255,255,0.08)' } }
+      }
+    }
+  });
+
+  __loanCharts.split = new Chart(splitCtx, {
+    type: 'doughnut',
+    data: {
+      labels:['سود','اصل'],
+      datasets:[{ data:[Math.round(totalInterest), Math.round(totalPrincipal)] }]
+    },
+    options:{ responsive:true, plugins:{ legend:{ position:'bottom', labels:{ color:'rgba(255,255,255,0.85)' } }, tooltip:{ callbacks:{ label:(ctx)=>{ const total = ctx.dataset.data.reduce((a,b)=>a+b,0); const val = ctx.parsed; const pct = total? Math.round((val/total)*100):0; return `${ctx.label}: ${formatNumber(val)} تومان (${toPersianNum(pct)}%)`; } } } } }
+  });
+
+// ===================== Deposit / Card Charts =====================
+let __depositChart = null;
+let __cardChart = null;
+
+function renderDepositChart(labels, values, unitLabel){
+  const wrap = document.getElementById('deposit-charts');
+  const ctx = document.getElementById('deposit-chart');
+  if(!wrap || !ctx || typeof Chart==='undefined') return;
+  wrap.classList.remove('hidden');
+  document.getElementById('deposit-chart-title').textContent = `نمودار (${unitLabel})`;
+  try{ __depositChart?.destroy(); }catch{}
+  __depositChart = new Chart(ctx, {
+    type:'line',
+    data:{ labels, datasets:[{ label: unitLabel, data: values, tension:0.3 }]},
+    options:{
+      responsive:true,
+      plugins:{
+        legend:{ display:false },
+        tooltip:{ callbacks:{ label:(c)=> `${formatNumber(c.parsed.y)} ${unitLabel}` } }
+      },
+      scales:{
+        x:{ ticks:{ color:'rgba(255,255,255,0.55)', callback:(v,i)=> (i%Math.max(1,Math.floor(labels.length/6))===0? labels[i]:'') }, grid:{ display:false } },
+        y:{ ticks:{ color:'rgba(255,255,255,0.75)', callback:(v)=> `${formatNumber(v)} ${unitLabel}` }, grid:{ color:'rgba(255,255,255,0.08)' } }
+      }
+    }
+  });
+}
+
+function renderCardChart(labels, values, unitLabel, type='bar'){
+  const wrap = document.getElementById('card-charts');
+  const ctx = document.getElementById('card-chart');
+  if(!wrap || !ctx || typeof Chart==='undefined') return;
+  wrap.classList.remove('hidden');
+  document.getElementById('card-chart-title').textContent = `نمودار (${unitLabel})`;
+  try{ __cardChart?.destroy(); }catch{}
+  __cardChart = new Chart(ctx, {
+    type,
+    data:{ labels, datasets:[{ label: unitLabel, data: values }]},
+    options:{
+      responsive:true,
+      plugins:{
+        legend:{ display:false },
+        tooltip:{ callbacks:{ label:(c)=> `${formatNumber(c.parsed.y ?? c.parsed)} ${unitLabel}` } }
+      },
+      scales:{
+        x:{ ticks:{ color:'rgba(255,255,255,0.55)' }, grid:{ display:false } },
+        y:{ ticks:{ color:'rgba(255,255,255,0.75)', callback:(v)=> `${formatNumber(v)} ${unitLabel}` }, grid:{ color:'rgba(255,255,255,0.08)' } }
+      }
+    }
+  });
+}
+
+
+}
+
+// monthly annuity FV for monthly contributions (12 times/year)
+function compoundFutureValueAnnuity(paymentMonthly, annualRate, years){
+  const r = (annualRate/100)/12;
+  const n = Math.round(years*12);
+  if (n<=0) return 0;
+  if (Math.abs(r) < 1e-12) return paymentMonthly*n;
+  return paymentMonthly * ((Math.pow(1+r, n)-1)/r);
+}
+
+function calcAnnuityPayment(P, annualRate, nMonths) {
+    const r = (annualRate / 100) / 12;
+    if (nMonths <= 0) return NaN;
+    if (Math.abs(r) < 1e-12) return P / nMonths;
+    const pow = Math.pow(1 + r, nMonths);
+    return P * r * pow / (pow - 1);
+  }
+
+  function remainingBalance(P, annualRate, nMonths, mPaid) {
+    const r = (annualRate / 100) / 12;
+    const A = calcAnnuityPayment(P, annualRate, nMonths);
+    if (Math.abs(r) < 1e-12) return P - A * mPaid;
+    const pow = Math.pow(1 + r, mPaid);
+    return P * pow - A * (pow - 1) / r;
+  }
+
+  function solveMonthlyRate(P, A, nMonths) {
+    // bisection on r in [0, 1] (0%..100% monthly) – enough for consumer loans
+    let lo = 0, hi = 1;
+    const f = (r) => {
+      if (Math.abs(r) < 1e-12) return P / nMonths - A;
+      const pow = Math.pow(1 + r, nMonths);
+      const pay = P * r * pow / (pow - 1);
+      return pay - A;
+    };
+    // ensure bracket; if not, expand hi
+    let flo = f(lo), fhi = f(hi);
+    let tries = 0;
+    while (flo * fhi > 0 && tries < 10) {
+      hi *= 2;
+      fhi = f(hi);
+      tries++;
+    }
+    if (flo * fhi > 0) return NaN;
+
+    for (let i = 0; i < 80; i++) {
+      const mid = (lo + hi) / 2;
+      const fm = f(mid);
+      if (Math.abs(fm) < 1e-9) return mid;
+      if (flo * fm <= 0) { hi = mid; fhi = fm; }
+      else { lo = mid; flo = fm; }
+    }
+    return (lo + hi) / 2;
+  }
+
+  function calcStepLoan(P, annualRate, nMonths, yearlyGrowthPct) {
+    const r = (annualRate / 100) / 12;
+    const g = (yearlyGrowthPct / 100);
+    // payment increases each 12 months by factor (1+g)^k
+    let denom = 0;
+    for (let t = 1; t <= nMonths; t++) {
+      const k = Math.floor((t - 1) / 12);
+      const inc = Math.pow(1 + g, k);
+      const disc = Math.pow(1 + r, t);
+      denom += inc / disc;
+    }
+    const A0 = P / denom; // first-year monthly payment
+    // compute totals
+    let total = 0;
+    let balance = P;
+    for (let t = 1; t <= nMonths; t++) {
+      const k = Math.floor((t - 1) / 12);
+      const pay = A0 * Math.pow(1 + g, k);
+      const interest = balance * r;
+      const principal = pay - interest;
+      balance = balance - principal;
+      total += pay;
+    }
+    return { A0, total, interest: total - P, last: A0 * Math.pow(1 + g, Math.floor((nMonths - 1) / 12)) };
+  }
+
+
+
+
   // Init UI helpers
   initUnitDropdownHover();
   enhanceAllHorizontalScroll();
@@ -2717,5 +4022,101 @@ function calculateTDEE(){
   setInterval(updateDateTime, 1000);
   setInterval(loadCrypto, 60000);
 </script>
+
+<style>
+.money-input{
+    background: rgba(255,255,255,0.08) !important;
+    color: #fff !important;
+    border: 1px solid rgba(255,255,255,0.2) !important;
+    padding: 12px;
+    border-radius: 10px;
+    font-size: 16px;
+}
+.money-input:focus{
+    outline: none;
+    border-color: #a855f7 !important;
+    box-shadow: 0 0 10px rgba(168,85,247,0.5);
+}
+.money-words{
+    margin-top: 6px;
+    font-size: 13px;
+    color: #d1c4ff;
+}
+</style>
+
+<script>
+// تبدیل اعداد فارسی به انگلیسی
+function toEnglishDigits(str){
+    str = String(str ?? '');
+    return str.replace(/[۰-۹]/g, d => "۰۱۲۳۴۵۶۷۸۹".indexOf(d))
+              .replace(/[٠-٩]/g, d => "٠١٢٣٤٥٦٧٨٩".indexOf(d));
+}
+
+// جداکننده سه‌تایی
+function formatMoneyInput(value){
+    value = toEnglishDigits(value).replace(/[^0-9]/g,'');
+    if(!value) return '';
+    return value.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
+// تبدیل عدد به حروف فارسی (ساده تا تریلیون)
+function numberToWords(num){
+    num = parseInt(num);
+    if(isNaN(num)) return "";
+    if(num === 0) return "صفر";
+    
+    const units = ["","یک","دو","سه","چهار","پنج","شش","هفت","هشت","نه"];
+    const teens = ["ده","یازده","دوازده","سیزده","چهارده","پانزده","شانزده","هفده","هجده","نوزده"];
+    const tens = ["","ده","بیست","سی","چهل","پنجاه","شصت","هفتاد","هشتاد","نود"];
+    const hundreds = ["","صد","دویست","سیصد","چهارصد","پانصد","ششصد","هفتصد","هشتصد","نهصد"];
+    const scales = ["","هزار","میلیون","میلیارد","تریلیون"];
+    
+    function chunkToWords(n){
+        let str = "";
+        if(n >= 100){
+            str += hundreds[Math.floor(n/100)];
+            n %= 100;
+            if(n) str += " و ";
+        }
+        if(n >= 20){
+            str += tens[Math.floor(n/10)];
+            n %= 10;
+            if(n) str += " و " + units[n];
+        } else if(n >= 10){
+            str += teens[n-10];
+        } else if(n > 0){
+            str += units[n];
+        }
+        return str;
+    }
+    
+    let words = "";
+    let scaleIndex = 0;
+    while(num > 0){
+        let chunk = num % 1000;
+        if(chunk){
+            let chunkWords = chunkToWords(chunk);
+            if(scaleIndex) chunkWords += " " + scales[scaleIndex];
+            words = chunkWords + (words ? " و " + words : "");
+        }
+        num = Math.floor(num/1000);
+        scaleIndex++;
+    }
+    return words;
+}
+
+// اعمال روی ورودی‌های مبلغ
+document.addEventListener("input", function(e){
+    if(e.target.classList.contains("money-input")){
+        let raw = toEnglishDigits(e.target.value).replace(/,/g,'');
+        e.target.value = formatMoneyInput(raw);
+        let wordsBox = e.target.parentElement.querySelector(".money-words");
+        if(wordsBox){
+            wordsBox.innerText = numberToWords(raw) + (raw ? " تومان" : "");
+        }
+    }
+});
+</script>
+
 </body>
 </html>
