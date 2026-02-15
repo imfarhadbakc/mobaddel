@@ -7,7 +7,6 @@
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="/_sdk/element_sdk.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     body { box-sizing: border-box; }
@@ -155,9 +154,306 @@
 @keyframes rainSlash { 0%{transform:translateY(-120%) translateX(0);opacity:0} 10%{opacity:1} 90%{opacity:1} 100%{transform:translateY(420px) translateX(80px);opacity:0} }
 .rain-slash{animation: rainSlash 0.95s linear infinite;}
 
-  </style>
+  
+
+    /* ===== Psychology Module (scoped) ===== */
+
+        #psychology-section .psy-surface{
+          --bg0:#0b1220;
+          --bg1:#0f172a;
+          --card:rgba(255,255,255,.06);
+          --card2:rgba(255,255,255,.09);
+          --stroke:rgba(255,255,255,.12);
+          --text:#e5e7eb;
+          --muted:#9ca3af;
+          --accent:#8b5cf6;
+          --accent2:#22c55e;
+          --danger:#ef4444;
+          --warn:#f59e0b;
+          --shadow: 0 16px 50px rgba(0,0,0,.35);
+          --radius:18px;
+        }
+
+        #psychology-section .psy-surface *{box-sizing:border-box}
+        #psychology-section .psy-surface{
+          margin:0;
+          min-height:100vh;
+          font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Tahoma, Arial;
+          color:var(--text);
+          background:
+            radial-gradient(1000px 600px at 80% 0%, rgba(139,92,246,.18), transparent 60%),
+            radial-gradient(900px 500px at 10% 20%, rgba(34,197,94,.12), transparent 55%),
+            linear-gradient(180deg, var(--bg0), var(--bg1));
+          padding:18px;
+        }
+
+        #psychology-section .psy-surface .wrap{max-width:980px;margin:0 auto}
+        #psychology-section .psy-surface .topbar{
+          display:flex; align-items:center; justify-content:space-between; gap:12px;
+          padding:14px 14px;
+          border:1px solid var(--stroke);
+          border-radius:var(--radius);
+          background:linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.04));
+          box-shadow:var(--shadow);
+          backdrop-filter: blur(10px);
+        }
+        #psychology-section .psy-surface .brand{display:flex; align-items:center; gap:10px}
+        #psychology-section .psy-surface .logo{
+          width:40px;height:40px;border-radius:14px;
+          background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.30), rgba(255,255,255,.08) 50%, rgba(0,0,0,.05));
+          border:1px solid var(--stroke);
+          display:grid;place-items:center;
+          box-shadow: 0 10px 30px rgba(0,0,0,.25);
+        }
+        #psychology-section .psy-surface .brand h1{font-size:16px; margin:0; line-height:1.2}
+        #psychology-section .psy-surface .brand p{margin:0; font-size:12px; color:var(--muted)}
+        #psychology-section .psy-surface .pill{
+          display:flex; gap:8px; align-items:center;
+          padding:8px 10px;
+          border:1px solid var(--stroke);
+          border-radius:999px;
+          background:rgba(255,255,255,.05);
+          font-size:12px; color:var(--muted);
+          white-space:nowrap;
+        }
+        #psychology-section .psy-surface .dot{width:8px;height:8px;border-radius:999px;background:var(--accent);box-shadow:0 0 0 4px rgba(139,92,246,.18)}
+        #psychology-section .psy-surface .content{margin-top:14px}
+
+        #psychology-section .psy-surface .grid{
+          display:grid;
+          grid-template-columns: repeat(12, 1fr);
+          gap:12px;
+          margin-top:14px;
+        }
+
+        #psychology-section .psy-surface .card{
+          grid-column: span 4;
+          background:var(--card);
+          border:1px solid var(--stroke);
+          border-radius:var(--radius);
+          padding:14px;
+          box-shadow:var(--shadow);
+          backdrop-filter: blur(10px);
+          transition: transform .15s ease, background .15s ease, border-color .15s ease;
+          cursor:pointer;
+          position:relative;
+          overflow:hidden;
+        }
+        #psychology-section .psy-surface .card:hover{transform: translateY(-2px); background:var(--card2); border-color:rgba(255,255,255,.18)}
+        #psychology-section .psy-surface .card:active{transform: translateY(0px) scale(.995)}
+        #psychology-section .psy-surface .card .title{display:flex; align-items:center; justify-content:space-between; gap:12px}
+        #psychology-section .psy-surface .card h3{margin:0; font-size:14px}
+        #psychology-section .psy-surface .card p{margin:8px 0 0; font-size:12px; color:var(--muted); line-height:1.7}
+        #psychology-section .psy-surface .tag{
+          font-size:11px;
+          padding:6px 9px;
+          border-radius:999px;
+          border:1px solid var(--stroke);
+          background:rgba(255,255,255,.06);
+          color:#c7c9d1;
+        }
+        #psychology-section .psy-surface .shine{
+          position:absolute; inset:-40% -30%;
+          background: radial-gradient(circle at 20% 20%, rgba(139,92,246,.20), transparent 55%);
+          transform: rotate(12deg);
+          pointer-events:none;
+        }
+
+        @media (max-width: 900px){ #psychology-section .psy-surface .card{grid-column: span 6;} }
+        @media (max-width: 560px){ #psychology-section .psy-surface .card{grid-column: span 12;} #psychology-section .psy-surface .topbar{flex-direction:column; align-items:stretch} #psychology-section .psy-surface .pill{justify-content:center} }
+
+        #psychology-section .psy-surface .panel{
+          border:1px solid var(--stroke);
+          border-radius:var(--radius);
+          background:var(--card);
+          box-shadow:var(--shadow);
+          backdrop-filter: blur(10px);
+          padding:14px;
+        }
+        #psychology-section .psy-surface .panel h2{margin:0 0 8px; font-size:14px}
+        #psychology-section .psy-surface .crumbs{
+          display:flex; gap:8px; flex-wrap:wrap; align-items:center;
+          color:var(--muted); font-size:12px;
+          margin:10px 2px 0;
+        }
+        #psychology-section .psy-surface .crumbs button{
+          border:none; background:transparent; color:var(--text); cursor:pointer;
+          padding:0; font:inherit; text-decoration:underline; text-decoration-color: rgba(255,255,255,.25);
+        }
+
+        #psychology-section .psy-surface .list{display:grid; gap:10px; margin-top:10px}
+        #psychology-section .psy-surface .item{
+          display:flex; align-items:flex-start; justify-content:space-between; gap:10px;
+          padding:12px;
+          border:1px solid var(--stroke);
+          border-radius:14px;
+          background:rgba(255,255,255,.05);
+          cursor:pointer;
+          transition: background .15s ease, border-color .15s ease, transform .15s ease;
+        }
+        #psychology-section .psy-surface .item:hover{background:rgba(255,255,255,.08); border-color:rgba(255,255,255,.18); transform: translateY(-1px)}
+        #psychology-section .psy-surface .item h4{margin:0; font-size:13px}
+        #psychology-section .psy-surface .item small{color:var(--muted); font-size:12px; line-height:1.6}
+        #psychology-section .psy-surface .item .meta{display:flex; flex-direction:column; align-items:flex-end; gap:6px}
+        #psychology-section .psy-surface .badge{
+          font-size:11px; padding:6px 9px; border-radius:999px;
+          border:1px solid var(--stroke);
+          background:rgba(139,92,246,.12);
+          color:#ddd6fe;
+          white-space:nowrap;
+        }
+        #psychology-section .psy-surface .badge.timer{background:rgba(245,158,11,.12); color:#fde68a}
+        #psychology-section .psy-surface .badge.free{background:rgba(34,197,94,.12); color:#bbf7d0}
+
+        #psychology-section .psy-surface .btnrow{display:flex; gap:10px; flex-wrap:wrap; margin-top:12px}
+        #psychology-section .psy-surface .btn{
+          border:none; cursor:pointer;
+          padding:10px 12px;
+          border-radius:12px;
+          color:var(--text);
+          background:rgba(255,255,255,.06);
+          border:1px solid var(--stroke);
+          transition: background .15s ease, transform .15s ease, border-color .15s ease;
+          font-size:12px;
+        }
+        #psychology-section .psy-surface .btn:hover{background:rgba(255,255,255,.10); border-color:rgba(255,255,255,.18)}
+        #psychology-section .psy-surface .btn:active{transform: scale(.99)}
+        #psychology-section .psy-surface .btn.primary{background: rgba(139,92,246,.18); border-color: rgba(139,92,246,.35)}
+        #psychology-section .psy-surface .btn.primary:hover{background: rgba(139,92,246,.24)}
+        #psychology-section .psy-surface .btn.danger{background: rgba(239,68,68,.14); border-color: rgba(239,68,68,.30)}
+        #psychology-section .psy-surface .btn.danger:hover{background: rgba(239,68,68,.20)}
+
+        #psychology-section .psy-surface .formgrid{display:grid; grid-template-columns:repeat(12,1fr); gap:10px; margin-top:10px}
+        #psychology-section .psy-surface .field{grid-column: span 4}
+        #psychology-section .psy-surface .field label{display:block; font-size:12px; color:var(--muted); margin-bottom:6px}
+        #psychology-section .psy-surface input, #psychology-section .psy-surface select{
+          width:100%; padding:10px 10px;
+          border-radius:12px;
+          border:1px solid var(--stroke);
+          background: rgba(0,0,0,.18);
+          color: var(--text);
+          outline:none;
+        }
+        #psychology-section .psy-surface input:focus, #psychology-section .psy-surface select:focus{border-color: rgba(139,92,246,.50); box-shadow: 0 0 0 4px rgba(139,92,246,.15)}
+        @media (max-width: 820px){ #psychology-section .psy-surface .field{grid-column: span 6} }
+        @media (max-width: 520px){ #psychology-section .psy-surface .field{grid-column: span 12} }
+
+        #psychology-section .psy-surface .quizhead{
+          display:flex; align-items:flex-start; justify-content:space-between; gap:12px; flex-wrap:wrap;
+          margin-top:10px;
+        }
+        #psychology-section .psy-surface .quizhead h3{margin:0; font-size:14px}
+        #psychology-section .psy-surface .quizhead p{margin:6px 0 0; color:var(--muted); font-size:12px; line-height:1.7; max-width:60ch}
+        #psychology-section .psy-surface .timerBox{
+          display:flex; flex-direction:column; align-items:flex-end; gap:6px;
+          padding:10px 12px;
+          border-radius:14px;
+          border:1px solid var(--stroke);
+          background: rgba(0,0,0,.18);
+          min-width: 170px;
+        }
+        #psychology-section .psy-surface .timerBox .tlabel{color:var(--muted); font-size:11px}
+        #psychology-section .psy-surface .timerBox .tval{font-size:16px; font-weight:700; letter-spacing:.5px}
+        #psychology-section .psy-surface .timerBox.warn{border-color: rgba(245,158,11,.35)}
+        #psychology-section .psy-surface .timerBox.danger{border-color: rgba(239,68,68,.35)}
+        #psychology-section .psy-surface .progress{
+          height:10px; border-radius:999px; overflow:hidden;
+          background: rgba(255,255,255,.07);
+          border:1px solid rgba(255,255,255,.08);
+          margin:12px 0;
+        }
+        #psychology-section .psy-surface .progress > div{height:100%; width:0%; background: linear-gradient(90deg, rgba(139,92,246,.95), rgba(34,197,94,.75)); transition: width .25s ease}
+
+        #psychology-section .psy-surface .qbox{
+          margin-top:6px;
+          padding:12px;
+          border:1px solid var(--stroke);
+          border-radius:16px;
+          background: rgba(255,255,255,.05);
+        }
+        #psychology-section .psy-surface .qnum{font-size:11px;color:var(--muted); margin:0 0 8px}
+        #psychology-section .psy-surface .qtext{margin:0 0 10px; font-size:13px; line-height:1.9}
+        #psychology-section .psy-surface .options{display:grid; gap:8px}
+        #psychology-section .psy-surface .opt{
+          display:flex; align-items:center; justify-content:space-between; gap:10px;
+          padding:10px 12px;
+          border-radius:14px;
+          border:1px solid var(--stroke);
+          background: rgba(0,0,0,.14);
+          cursor:pointer;
+          transition: background .15s ease, border-color .15s ease, transform .15s ease;
+          user-select:none;
+        }
+        #psychology-section .psy-surface .opt:hover{background: rgba(255,255,255,.06); border-color: rgba(255,255,255,.18)}
+        #psychology-section .psy-surface .opt.selected{
+          background: rgba(139,92,246,.18);
+          border-color: rgba(139,92,246,.45);
+          box-shadow: 0 0 0 4px rgba(139,92,246,.14);
+        }
+        #psychology-section .psy-surface .opt .mark{
+          width:18px;height:18px;border-radius:6px;
+          border:1px solid rgba(255,255,255,.18);
+          background: rgba(255,255,255,.06);
+          display:grid;place-items:center;
+          flex: 0 0 auto;
+        }
+        #psychology-section .psy-surface .opt.selected .mark{background: rgba(139,92,246,.50); border-color: rgba(139,92,246,.75)}
+        #psychology-section .psy-surface .opt.selected .mark:before{content:"✓"; font-weight:900; font-size:12px}
+        #psychology-section .psy-surface .opt .label{font-size:12px; color:var(--text)}
+        #psychology-section .psy-surface .opt .val{font-size:11px; color:var(--muted)}
+
+        #psychology-section .psy-surface .hint{
+          margin-top:10px;
+          color:var(--muted);
+          font-size:12px;
+          line-height:1.7;
+        }
+
+        #psychology-section .psy-surface .result{
+          margin-top:14px;
+          padding:14px;
+          border:1px solid var(--stroke);
+          border-radius:var(--radius);
+          background: rgba(255,255,255,.05);
+        }
+        #psychology-section .psy-surface .result h3{margin:0 0 8px; font-size:14px}
+        #psychology-section .psy-surface .result .summary{
+          margin:0;
+          color:var(--text);
+          font-size:12px;
+          line-height:1.9;
+          white-space:pre-line;
+        }
+        #psychology-section .psy-surface .two{
+          display:grid;
+          grid-template-columns: 1.2fr .8fr;
+          gap:12px;
+          margin-top:12px;
+        }
+        @media (max-width: 860px){ #psychology-section .psy-surface .two{grid-template-columns:1fr} }
+        #psychology-section .psy-surface .mini{
+          padding:12px;
+          border:1px solid var(--stroke);
+          border-radius:16px;
+          background: rgba(0,0,0,.14);
+        }
+        #psychology-section .psy-surface .mini h4{margin:0 0 6px; font-size:13px}
+        #psychology-section .psy-surface .mini p{margin:0; color:var(--muted); font-size:12px; line-height:1.8}
+        #psychology-section .psy-surface .saveok{
+          margin-top:10px; color:#bbf7d0; font-size:12px; display:none;
+        }
+        #psychology-section .psy-surface .warnline{color:#fde68a}
+        #psychology-section .psy-surface .dangerline{color:#fecaca}
+        #psychology-section .psy-surface .footnote{
+          margin-top:12px;
+          color:var(--muted);
+          font-size:11px;
+          line-height:1.7;
+        }
+  
+    /* ===== End Psychology Module ===== */
+</style>
   <style>@view-transition { navigation: auto; }</style>
-  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
 </head>
 
 <body class="h-full bg-gradient-to-br from-slate-900 via-purple-950 to-slate-900 animated-gradient text-white overflow-auto text-[15px] md:text-[16px] lg:text-[17px]">
@@ -188,6 +484,7 @@
       <button onclick="showSection('converter')" class="nav-btn glass px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap" data-section="converter">📐 تبدیل واحد</button>
       <button onclick="showSection('calculator')" class="nav-btn glass px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap" data-section="calculator">🧮 ماشین‌حساب</button>
       <button onclick="showSection('health')" class="nav-btn glass px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap" data-section="health">❤️ سلامت</button>
+      <button onclick="showSection('psychology')" class="nav-btn glass px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap" data-section="psychology">🧠 روانشناسی</button>
       <button onclick="showSection('banking')" class="nav-btn glass px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap" data-section="banking">🏦 محاسبات بانکی</button>
       <button onclick="showSection('guide')" class="nav-btn glass px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap" data-section="guide">📖 راهنما</button>
     </div>
@@ -571,7 +868,7 @@
             <div class="mt-2 h-2 rounded-full bg-gradient-to-r from-blue-500 via-green-500 via-yellow-500 to-red-500 relative">
               <div id="bmi-marker" class="absolute top-1/2 -translate-y-1/2 w-3 h-3 bg-white rounded-full shadow-lg transition-all -translate-x-1/2" style="left: 50%"></div>
             </div>
-            <div class="flex justify-between text-xs text-gray-400 mt-1"><span>لاغر</span><span>نرمال</span><span>اضافه</span><span>چاق</span></div>
+            <div class="flex justify-between text-xs text-gray-400 mt-1" dir="ltr"><span>لاغر</span><span>نرمال</span><span>اضافه</span><span>چاق</span></div>
           </div>
         </div>
 
@@ -872,7 +1169,39 @@
         </div>
       </section>
 
-      <!-- Banking Section -->
+      
+      <!-- Psychology Section -->
+      <section id="psychology-section" class="hidden space-y-4">
+        <h2 class="text-lg font-bold mb-4">آزمون‌های روانشناسی</h2>
+
+        <div class="psy-surface rounded-2xl overflow-hidden">
+<div class="wrap">
+    <div class="topbar">
+      <div class="brand">
+        <div class="logo">🧠</div>
+        <div>
+          <h1>سامانه تست‌های روانشناسی</h1>
+          <p>دسته‌بندی‌ها → انتخاب آزمون → پرسش‌های مرحله‌ای → گزارش + نمودار</p>
+        </div>
+      </div>
+      <div class="pill"><span class="dot"></span><span id="statusText">آماده</span></div>
+    </div>
+
+    <div class="content" id="viewRoot"></div>
+  </div>
+        </div>
+
+        <div class="glass rounded-2xl p-4 text-xs text-gray-300 leading-6">
+          <div class="font-bold mb-1">یادآوری مهم</div>
+          <ul class="list-disc pr-5 space-y-1">
+            <li>این بخش صرفاً برای خودآگاهی/آموزش است و جایگزین تشخیص یا درمان تخصصی نیست.</li>
+            <li>نتایج فقط روی دستگاه شما ذخیره می‌شود (LocalStorage) و به سرور ارسال نمی‌گردد.</li>
+            <li>اگر پاسخ‌ها یا نتایج باعث نگرانی شدید شدند، گفت‌وگو با مشاور/روانشناس می‌تواند کمک‌کننده باشد.</li>
+          </ul>
+        </div>
+      </section>
+
+<!-- Banking Section -->
       <section id="banking-section" class="hidden space-y-4">
         <div class="flex items-center justify-between mb-2">
           <h2 class="text-lg font-bold">محاسبات بانکی</h2>
@@ -4472,6 +4801,1490 @@ document.addEventListener("input", function(e){
 });
 </script>
 
+
+
+<script>
+// ===================== Psychology Module (client-side, offline-friendly) =====================
+(() => {
+  const $ = (sel, root=document) => root.querySelector(sel);
+  const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
+  const clamp = (n, a, b) => Math.min(b, Math.max(a, n));
+
+  const LIKERT_5 = [
+    {label:"کاملاً مخالف", v:0},
+    {label:"مخالف", v:1},
+    {label:"نظری ندارم", v:2},
+    {label:"موافق", v:3},
+    {label:"کاملاً موافق", v:4},
+  ];
+
+  // بانک آزمون‌ها (سبک، عمومی، مناسب وب). برای آزمون‌های بالینی: صرفاً غربالگری.
+  const CATEGORIES = [
+    {
+      id:"personality",
+      title:"شخصیت‌شناسی",
+      tag:"۴ آزمون",
+      desc:"ارزیابی ویژگی‌های پایدار شخصیت و الگوهای رفتاری.",
+      tests:[
+        makeLikertTest({
+          id:"big5_short",
+          title:"Big Five — نسخه کوتاه",
+          about:"۵ بعد اصلی شخصیت (OCEAN). مناسب شناخت کلی از سبک رفتاری.",
+          scales:[
+            {key:"O", label:"گشودگی (Openness)", items:[1,6], hint:"کنجکاوی، خلاقیت، علاقه به تجربه‌های جدید."},
+            {key:"C", label:"وظیفه‌شناسی (Conscientiousness)", items:[2,7], hint:"نظم، پیگیری، مسئولیت‌پذیری."},
+            {key:"E", label:"برون‌گرایی (Extraversion)", items:[3,8], hint:"اجتماعی‌بودن، انرژی گرفتن از جمع."},
+            {key:"A", label:"توافق‌پذیری (Agreeableness)", items:[4,9], hint:"همدلی، همکاری، اعتماد."},
+            {key:"N", label:"روان‌رنجوری (Neuroticism)", items:[5,10], hint:"حساسیت به استرس، نوسان هیجانی."},
+          ],
+          questions:[
+            "از تجربه‌های جدید استقبال می‌کنم و سریع کنجکاو می‌شوم.",
+            "کارهایم را معمولاً با برنامه و نظم انجام می‌دهم.",
+            "در جمع‌ها راحت ارتباط می‌گیرم و انرژی می‌گیرم.",
+            "در اختلاف‌ها بیشتر دنبال حل آرام و منصفانه‌ام.",
+            "در موقعیت‌های فشار، زود نگران یا مضطرب می‌شوم.",
+            "به هنر/ایده‌های جدید علاقه دارم و ذهنم باز است.",
+            "به قول و قرار و مسئولیت‌ها پایبند می‌مانم.",
+            "دوست دارم با افراد جدید آشنا شوم و صحبت کنم.",
+            "معمولاً دیگران را درک می‌کنم و همدلی نشان می‌دهم.",
+            "گاهی احساس می‌کنم افکار منفی سریع سراغم می‌آیند."
+          ],
+          needsProfile:true
+        }),
+
+        makeLikertTest({
+          id:"big5_medium",
+          title:"Big Five — نسخه متوسط (۲۵ سؤال)",
+          about:"نسخه طولانی‌تر برای دقت بیشتر در ۵ بعد OCEAN. (نتیجه برای خودآگاهی است)",
+          scales:[
+            {key:"O", label:"گشودگی (Openness)", items:[1,6,11,16,21], hint:"کنجکاوی، خلاقیت، علاقه به تجربه‌های جدید."},
+            {key:"C", label:"وظیفه‌شناسی (Conscientiousness)", items:[2,7,12,17,22], hint:"نظم، پیگیری، مسئولیت‌پذیری و مدیریت زمان."},
+            {key:"E", label:"برون‌گرایی (Extraversion)", items:[3,8,13,18,23], hint:"اجتماعی‌بودن، انرژی گرفتن از تعامل."},
+            {key:"A", label:"توافق‌پذیری (Agreeableness)", items:[4,9,14,19,24], hint:"همدلی، همکاری، اعتماد و مهربانی."},
+            {key:"N", label:"روان‌رنجوری (Neuroticism)", items:[5,10,15,20,25], hint:"حساسیت به استرس، نوسان هیجانی و نگرانی."},
+          ],
+          reverseItems:[12,13,14,15,18],
+          questions:[
+            "از تجربه‌های جدید استقبال می‌کنم و کنجکاوم.",
+            "معمولاً کارهایم را طبق برنامه و نظم پیش می‌برم.",
+            "در جمع‌ها راحت شروع به صحبت می‌کنم.",
+            "در برخورد با دیگران مهربان و همدل هستم.",
+            "در شرایط فشار، زود نگران می‌شوم.",
+            "ایده‌های تازه به ذهنم می‌رسد و از امتحان کردنشان لذت می‌برم.",
+            "کارها را تا آخر دنبال می‌کنم و نیمه‌کاره رها نمی‌کنم.",
+            "آشنا شدن با آدم‌های جدید برایم هیجان‌انگیز است.",
+            "در اختلاف‌ها سعی می‌کنم منصف و آرام بمانم.",
+            "اتفاقات کوچک می‌تواند مرا به هم بریزد.",
+            "به هنر/موسیقی/ادبیات یا ایده‌های خلاق علاقه‌مندم.",
+            "گاهی کارها را به تعویق می‌اندازم. (معکوس)",
+            "معمولاً ترجیح می‌دهم تنها باشم تا در جمع. (معکوس)",
+            "گاهی به احساسات دیگران بی‌توجه می‌شوم. (معکوس)",
+            "در بیشتر مواقع آرام و بدون استرس هستم. (معکوس)",
+            "دوست دارم درباره موضوعات پیچیده فکر کنم و یاد بگیرم.",
+            "در مدیریت زمان و اولویت‌بندی خوب عمل می‌کنم.",
+            "در جمع‌ها معمولاً کم‌حرف و کنار می‌ایستم. (معکوس)",
+            "اگر کسی اشتباه کند، راحت می‌بخشم و کینه نگه نمی‌دارم.",
+            "اغلب افکار منفی در ذهنم تکرار می‌شود.",
+            "از تغییر و تنوع استقبال می‌کنم.",
+            "وسایلم را نسبتاً مرتب نگه می‌دارم.",
+            "از بودن در مرکز توجه ناراحت نمی‌شوم.",
+            "درک می‌کنم هرکس ممکن است روز بد داشته باشد.",
+            "در مواجهه با نقد، سریع ناراحت یا مضطرب می‌شوم."
+          ],
+          needsProfile:true
+        }),
+        makeLikertTest({
+          id:"dark_triad_short",
+          title:"Dark Triad — نسخه کوتاه",
+          about:"سه ویژگی تاریک (خودشیفتگی، ماکیاولیسم، سایکوپاتی) — برای آگاهی، نه برچسب‌زنی.",
+          scales:[
+            {key:"NAR", label:"خودشیفتگی", items:[1,4,7], hint:"نیاز به تحسین، خودمحوری."},
+            {key:"MAC", label:"ماکیاولیسم", items:[2,5,8], hint:"محاسبه‌گری، استفاده ابزاری از دیگران."},
+            {key:"PSY", label:"سایکوپاتی", items:[3,6,9], hint:"تکانشگری، کم‌همدلی."},
+          ],
+          questions:[
+            "برای دیده‌شدن و تحسین‌شدن تلاش می‌کنم.",
+            "گاهی برای رسیدن به هدف، راه‌های پیچیده و حساب‌شده را ترجیح می‌دهم.",
+            "در تصمیم‌های سخت، احساسات دیگران خیلی روی من اثر نمی‌گذارد.",
+            "فکر می‌کنم شایسته‌ی توجه ویژه هستم.",
+            "آدم‌ها معمولاً اگر بتوانند، از تو سوءاستفاده می‌کنند.",
+            "گاهی بدون فکر ریسک می‌کنم و بعداً پشیمان می‌شوم.",
+            "دوست دارم مرکز توجه باشم.",
+            "در مذاکره، نتیجه برایم مهم‌تر از احساس طرف مقابل است.",
+            "اگر لازم باشد، می‌توانم سرد و بی‌احساس رفتار کنم."
+          ],
+          needsProfile:true
+        }),
+        makeLikertTest({
+          id:"decision_style",
+          title:"سبک تصمیم‌گیری",
+          about:"بررسی تمایل به تصمیم‌های سریع/تحلیلی و انعطاف‌پذیری در انتخاب.",
+          scales:[
+            {key:"AN", label:"تحلیلی", items:[2,5,8], hint:"جمع‌آوری داده، بررسی گزینه‌ها."},
+            {key:"IN", label:"شهودی", items:[1,4,7], hint:"اتکا به حس و تجربه."},
+            {key:"AV", label:"اجتنابی", items:[3,6,9], hint:"به تعویق انداختن تصمیم‌ها."},
+          ],
+          questions:[
+            "اغلب تصمیم را با حس درونی‌ام می‌گیرم و جلو می‌روم.",
+            "قبل از تصمیم‌گیری، گزینه‌ها را دقیق مقایسه می‌کنم.",
+            "گاهی از تصمیم‌گیری فرار می‌کنم چون استرس می‌گیرم.",
+            "تجربه گذشته برای من مهم‌تر از داده‌های جدید است.",
+            "برای تصمیم، اطلاعات جمع می‌کنم و یادداشت می‌نویسم.",
+            "وقتی انتخاب سخت است، ممکن است تصمیم را عقب بیندازم.",
+            "در شرایط مبهم، روی شمّ خود حساب می‌کنم.",
+            "به ریسک‌ها و پیامدها با دقت نگاه می‌کنم.",
+            "تا آخرین لحظه، انتخاب را قطعی نمی‌کنم."
+          ],
+          needsProfile:true
+        })
+      ]
+    },
+    {
+      id:"mental",
+      title:"سلامت روان",
+      tag:"۵ آزمون",
+      desc:"پرسشنامه‌های غربالگری رایج (برای خودآگاهی؛ جایگزین تشخیص نیست).",
+      tests:[
+        makeLikertTest({
+          id:"phq9",
+          title:"PHQ-9 — غربالگری افسردگی",
+          about:"در ۱۴ روز گذشته، شدت علائم خلقی را ارزیابی می‌کند.",
+          timerSeconds: 8*60,
+          scoring:"sum",
+          customOptions:[
+            {label:"اصلاً", v:0},
+            {label:"چند روز", v:1},
+            {label:"بیش از نصف روزها", v:2},
+            {label:"تقریباً هر روز", v:3},
+          ],
+          questions:[
+            "کمبود علاقه یا لذت نسبت به انجام کارها",
+            "احساس غمگینی، افسردگی یا ناامیدی",
+            "مشکل در خواب (کم‌خوابی یا پرخوابی)",
+            "احساس خستگی یا کمبود انرژی",
+            "کم‌اشتهایی یا پرخوری",
+            "احساس بد بودن نسبت به خود یا احساس شکست",
+            "مشکل در تمرکز روی کارها (خواندن، تلویزیون، کار)",
+            "کندی یا بی‌قراری حرکتی (برای دیگران قابل مشاهده)",
+            "افکار آسیب به خود یا بهتر بودنِ نبودن"
+          ],
+          interpret: (sum, max) => {
+            // 0-27
+            const bands = [
+              {to:4, label:"حداقل", cls:"", advice:"در حال حاضر شدت علائم پایین است. مراقبت‌های پایه (خواب، حرکت، ارتباطات) را ادامه بده."},
+              {to:9, label:"خفیف", cls:"warnline", advice:"ممکن است چند علامت خفیف وجود داشته باشد. اگر علائم بیش از ۲ هفته ادامه داشت یا عملکردت افت کرد، با مشاور صحبت کن."},
+              {to:14, label:"متوسط", cls:"warnline", advice:"علائم می‌تواند روی کیفیت زندگی اثر بگذارد. پیشنهاد می‌شود ارزیابی حرفه‌ای یا گفت‌وگو با روانشناس انجام شود."},
+              {to:19, label:"نسبتاً شدید", cls:"dangerline", advice:"احتمال اثر جدی روی کارکرد روزانه وجود دارد. کمک حرفه‌ای را جدی بگیر و حمایت اطرافیان را فعال کن."},
+              {to:27, label:"شدید", cls:"dangerline", advice:"این سطح نیاز به توجه فوری دارد. اگر سوال ۹ مثبت است یا احساس خطر داری، سریع با خدمات حمایتی/اورژانس یا متخصص تماس بگیر."},
+            ];
+            const b = bands.find(x => sum <= x.to);
+            return b;
+          },
+          needsProfile:true,
+          extraNote:"اگر در سؤال آخر (افکار آسیب به خود) پاسخ «بیش از نصف روزها» یا «تقریباً هر روز» دادی، این یک هشدار جدی است و بهتر است فوراً از کمک حرفه‌ای استفاده شود."
+        }),
+        makeLikertTest({
+          id:"gad7",
+          title:"GAD-7 — غربالگری اضطراب",
+          about:"در ۱۴ روز گذشته، میزان نگرانی و علائم اضطراب را می‌سنجد.",
+          timerSeconds: 6*60,
+          scoring:"sum",
+          customOptions:[
+            {label:"اصلاً", v:0},
+            {label:"چند روز", v:1},
+            {label:"بیش از نصف روزها", v:2},
+            {label:"تقریباً هر روز", v:3},
+          ],
+          questions:[
+            "احساس عصبی‌بودن، اضطراب یا لبه‌تیزی",
+            "نتوانستن در توقف یا کنترل نگرانی",
+            "نگرانی زیاد درباره موضوعات مختلف",
+            "مشکل در آرام‌شدن",
+            "بی‌قراری و سختی در نشستن آرام",
+            "زود رنج شدن یا تحریک‌پذیری",
+            "ترس از اینکه اتفاق بدی رخ دهد"
+          ],
+          interpret: (sum) => {
+            // 0-21
+            const bands = [
+              {to:4, label:"حداقل", cls:"", advice:"سطح اضطراب پایین است. تمرین‌های تنفس و برنامه خواب را حفظ کن."},
+              {to:9, label:"خفیف", cls:"warnline", advice:"اگر اضطراب روی تمرکز یا خواب اثر می‌گذارد، تکنیک‌های مدیریت استرس و گفت‌وگو با مشاور کمک می‌کند."},
+              {to:14, label:"متوسط", cls:"warnline", advice:"بهتر است ارزیابی حرفه‌ای انجام شود، مخصوصاً اگر علائم پایدار باشند."},
+              {to:21, label:"شدید", cls:"dangerline", advice:"سطح بالا؛ توصیه می‌شود کمک تخصصی را جدی بگیری. اگر حملات پانیک/اختلال خواب شدید داری، سریع‌تر اقدام کن."},
+            ];
+            return bands.find(x => sum <= x.to);
+          },
+          needsProfile:true
+        }),
+        makeLikertTest({
+          id:"stress_short",
+          title:"پروفایل استرس روزمره",
+          about:"یک نگاه سریع به منابع استرس و ظرفیت بازیابی.",
+          scales:[
+            {key:"LOAD", label:"بار استرس", items:[1,2,3,4], hint:"فشارها و تنش‌های روزانه."},
+            {key:"REC", label:"بازیابی", items:[5,6,7,8], hint:"استراحت، مرزبندی، ریکاوری."},
+          ],
+          questions:[
+            "در هفته اخیر، احساس کرده‌ام کارها از کنترل خارج می‌شود.",
+            "اغلب با تنش بدنی (گرفتگی، سردرد،...) مواجه بوده‌ام.",
+            "در طول روز، ذهنم آرام و بدون نگرانی می‌ماند. (معکوس)",
+            "احساس می‌کنم زمان کافی برای خودم ندارم.",
+            "می‌توانم بعد از فشار، سریع‌تر ریکاوری کنم.",
+            "برای خواب و استراحت، برنامه‌ی نسبتاً منظمی دارم.",
+            "می‌توانم «نه» بگویم و حد و مرز بگذارم.",
+            "فعالیت‌هایی دارم که واقعاً انرژی‌ام را برمی‌گرداند."
+          ],
+          reverseItems:[3], // معکوس
+          needsProfile:true
+        }),
+
+        makeLikertTest({
+          id:"pss10",
+          title:"PSS-10 — استرس ادراک‌شده (۱۰ سؤال)",
+          about:"در یک ماه گذشته، میزان ادراک استرس و حس کنترل را می‌سنجد. (غربالگری/خودآگاهی)",
+          timerSeconds: 7*60,
+          scoring:"sum",
+          customOptions:[
+            {label:"هرگز", v:0},
+            {label:"به ندرت", v:1},
+            {label:"گاهی", v:2},
+            {label:"اغلب", v:3},
+            {label:"خیلی زیاد", v:4},
+          ],
+          reverseItems:[4,5,7,8],
+          questions:[
+            "در یک ماه گذشته، چقدر از اتفاقات غیرمنتظره ناراحت شده‌ای؟",
+            "در یک ماه گذشته، چقدر احساس کرده‌ای کنترل مسائل مهم زندگی‌ات را از دست داده‌ای؟",
+            "در یک ماه گذشته، چقدر احساس عصبی‌بودن و استرس داشته‌ای؟",
+            "در یک ماه گذشته، چقدر احساس کرده‌ای با موفقیت با مشکلات روزمره کنار آمده‌ای؟ (معکوس)",
+            "در یک ماه گذشته، چقدر احساس کرده‌ای اوضاع طبق میل تو پیش می‌رود؟ (معکوس)",
+            "در یک ماه گذشته، چقدر احساس کرده‌ای نمی‌توانی با همه کارهایی که باید انجام دهی کنار بیایی؟",
+            "در یک ماه گذشته، چقدر توانسته‌ای چیزهای آزاردهنده را کنترل کنی؟ (معکوس)",
+            "در یک ماه گذشته، چقدر احساس کرده‌ای اوضاع تحت کنترل است؟ (معکوس)",
+            "در یک ماه گذشته، چقدر به خاطر کارهای انباشته یا فشارها کلافه/عصبانی شده‌ای؟",
+            "در یک ماه گذشته، چقدر احساس کرده‌ای مشکلات آنقدر زیادند که نمی‌توانی از پسشان بر بیایی؟"
+          ],
+          interpret:(sum)=>{
+            const bands=[
+              {to:13,label:"استرس پایین",cls:"",advice:"در این مقطع، ادراک استرس پایین است. روتین‌های خوب (خواب، حرکت، استراحت) را حفظ کن."},
+              {to:26,label:"استرس متوسط",cls:"warnline",advice:"استرس در حد متوسط است. مدیریت زمان، کاهش اعلان‌ها و زمان‌بندی استراحت می‌تواند کمک کند."},
+              {to:40,label:"استرس بالا",cls:"dangerline",advice:"استرس بالاست و می‌تواند روی خواب/تمرکز اثر بگذارد. اگر این وضعیت پایدار است، صحبت با مشاور یا پزشک را جدی بگیر."},
+            ];
+            return bands.find(x=>sum<=x.to);
+          },
+          needsProfile:true
+        }),
+        makeLikertTest({
+          id:"life_satisfaction",
+          title:"رضایت از زندگی (کوتاه)",
+          about:"بررسی برداشت کلی از رضایت و معنا در زندگی.",
+          scoring:"sum",
+          questions:[
+            "به‌طور کلی از زندگی‌ام راضی هستم.",
+            "شرایط زندگی‌ام در مسیر مطلوبی قرار دارد.",
+            "احساس می‌کنم زندگی‌ام معنا و هدف دارد.",
+            "اگر دوباره شروع می‌کردم، مسیرم خیلی فرق نمی‌کرد."
+          ],
+          needsProfile:true,
+          interpret:(sum)=>{
+            const bands=[
+              {to:6,label:"پایین",cls:"warnline",advice:"رضایت پایین می‌تواند از فشار، خستگی یا تضاد اهداف ناشی شود. بهتر است اولویت‌ها و منابع انرژی را بازبینی کنی."},
+              {to:11,label:"متوسط",cls:"",advice:"سطح متوسط؛ با چند تغییر کوچک (خواب، روتین، هدف‌گذاری)، می‌تواند بهتر شود."},
+              {to:16,label:"بالا",cls:"",advice:"رضایت خوب؛ نقاط قوتت را حفظ کن و روی رشد تدریجی تمرکز کن."},
+            ];
+            return bands.find(x=>sum<=x.to);
+          }
+        })
+      ]
+    },
+    {
+      id:"career",
+      title:"شغلی و استعداد",
+      tag:"۴ آزمون",
+      desc:"کمک به شناخت علایق، محیط‌های مناسب و سبک کاری.",
+      tests:[
+        makeScaleTestRIASEC(),
+        makeLikertTest({
+          id:"work_style",
+          title:"سبک کاری",
+          about:"ترجیح تو بین کار تیمی/فردی، ساختار/انعطاف و سرعت/دقت.",
+          scales:[
+            {key:"TEAM", label:"تیمی", items:[1,4,7], hint:"همکاری و ارتباط."},
+            {key:"STR", label:"ساختار", items:[2,5,8], hint:"فرایند، نظم، قوانین."},
+            {key:"PACE", label:"سرعت", items:[3,6,9], hint:"تصمیم سریع و تحویل زودتر."},
+          ],
+          questions:[
+            "کار تیمی به من انرژی می‌دهد.",
+            "وجود چارچوب و قوانین کار را برایم راحت‌تر می‌کند.",
+            "ترجیح می‌دهم سریع جلو بروم حتی اگر همه چیز کامل نباشد.",
+            "در تیم معمولاً نقش هماهنگ‌کننده را می‌گیرم.",
+            "چک‌لیست و برنامه باعث می‌شود بهتر کار کنم.",
+            "تحویل به‌موقع برایم مهم‌تر از کمال‌گرایی است.",
+            "تعامل و گفت‌وگو را به کار انفرادی ترجیح می‌دهم.",
+            "اگر فرایند شفاف باشد، استرس من کمتر می‌شود.",
+            "از کارهای سریع و پرتحرک لذت می‌برم."
+          ],
+          needsProfile:true
+        }),
+        makeLikertTest({
+          id:"goal_drive",
+          title:"انگیزش و پیگیری هدف",
+          about:"بررسی میزان پیگیری، انعطاف و مدیریت موانع.",
+          scoring:"sum",
+          questions:[
+            "وقتی هدف می‌گذارم، معمولاً تا رسیدن ادامه می‌دهم.",
+            "در برابر مانع‌ها سریع ناامید نمی‌شوم.",
+            "برای اهدافم برنامه‌ریزی می‌کنم.",
+            "اگر روش جواب ندهد، مسیر را عوض می‌کنم ولی هدف را نگه می‌دارم.",
+            "می‌توانم کارهای مهم را حتی وقتی حال ندارم انجام دهم."
+          ],
+          needsProfile:true,
+          interpret:(sum)=>{
+            const bands=[
+              {to:7,label:"پایین",cls:"warnline",advice:"ممکن است هدف‌گذاری یا پیگیری برایت سخت باشد. شروع با اهداف کوچک، زمان‌بندی کوتاه و پاداش‌های ساده کمک می‌کند."},
+              {to:14,label:"متوسط",cls:"",advice:"سطح خوب؛ با ساخت روتین و پیگیری هفتگی می‌توانی ثبات را بیشتر کنی."},
+              {to:20,label:"بالا",cls:"",advice:"پیگیری عالی؛ مراقب فرسودگی باش و استراحت برنامه‌ریزی‌شده داشته باش."},
+            ];
+            return bands.find(x=>sum<=x.to);
+          }
+        }),
+
+        makeLikertTest({
+          id:"procrastination",
+          title:"اهمال‌کاری (۱۲ سؤال)",
+          about:"تمایل به به تعویق انداختن کارهای مهم و جایگزین کردن با کارهای آسان‌تر.",
+          timerSeconds: 8*60,
+          scoring:"sum",
+          questions:[
+            "کارهای مهم را تا دقیقه آخر عقب می‌اندازم.",
+            "شروع کردن یک کار بزرگ برایم سخت است.",
+            "به‌جای کار اصلی، سراغ کارهای کوچک و کم‌اهمیت می‌روم.",
+            "وقتی استرس می‌گیرم، بیشتر عقب می‌اندازم.",
+            "حتی وقتی زمان دارم، شروع را به تأخیر می‌اندازم.",
+            "گاهی کارها را نیمه‌کاره رها می‌کنم.",
+            "برای شروع کار، منتظر «حال خوب/انرژی کامل» می‌مانم.",
+            "اغلب به خاطر تأخیر، تحت فشارِ زمان قرار می‌گیرم.",
+            "وقتی کاری سخت باشد، بیشتر تعلل می‌کنم.",
+            "برنامه‌ریزی می‌کنم اما اجرا را به فردا می‌اندازم.",
+            "با حواس‌پرتی‌ها (موبایل/شبکه‌های اجتماعی) سریع از کار جدا می‌شوم.",
+            "بعد از عقب انداختن، احساس گناه یا ناراحتی می‌کنم."
+          ],
+          interpret:(sum)=>{
+            const bands=[
+              {to:15,label:"پایین",cls:"",advice:"اهمال‌کاری پایین است. با همین سبک ادامه بده و فقط مراقب فشارهای دوره‌ای باش."},
+              {to:30,label:"متوسط",cls:"warnline",advice:"اهمال‌کاری متوسط است. تکنیک‌های «شروع ۵ دقیقه‌ای»، تقسیم کار و حذف اعلان‌ها می‌تواند کمک کند."},
+              {to:48,label:"بالا",cls:"dangerline",advice:"اهمال‌کاری بالاست و می‌تواند باعث استرس مزمن شود. پیشنهاد می‌شود روی مدیریت زمان، اضطراب عملکرد و عادت‌ها کار کنی."},
+            ];
+            return bands.find(x=>sum<=x.to);
+          },
+          needsProfile:true
+        })
+
+      ]
+    },
+    {
+      id:"relationship",
+      title:"روابط",
+      tag:"۳ آزمون",
+      desc:"الگوهای ارتباطی، صمیمیت و سبک دلبستگی.",
+      tests:[
+        makeLikertTest({
+          id:"attachment_short",
+          title:"سبک دلبستگی — کوتاه",
+          about:"تصویری کلی از ایمن/اجتنابی/اضطرابی در رابطه.",
+          scales:[
+            {key:"SEC", label:"ایمن", items:[1,4,7], hint:"اعتماد، ثبات، صمیمیت سالم."},
+            {key:"ANX", label:"اضطرابی", items:[2,5,8], hint:"ترس از طرد، نیاز به اطمینان زیاد."},
+            {key:"AVO", label:"اجتنابی", items:[3,6,9], hint:"فاصله گرفتن، سختی در صمیمیت."},
+          ],
+          questions:[
+            "در رابطه می‌توانم صمیمی باشم و همزمان خودم را حفظ کنم.",
+            "وقتی طرف مقابلم دیر جواب می‌دهد، زود نگران می‌شوم.",
+            "صمیمیت زیاد گاهی برایم سنگین می‌شود و فاصله می‌گیرم.",
+            "به‌طور کلی به شریک عاطفی‌ام اعتماد می‌کنم.",
+            "گاهی ترس از دست دادن باعث می‌شود بیش از حد پیگیر شوم.",
+            "وقتی احساسات زیاد می‌شود، ترجیح می‌دهم تنها باشم.",
+            "در بحث‌ها می‌توانم آرام بمانم و گفت‌وگو کنم.",
+            "برای آرام شدن، نیاز دارم طرف مقابلم مرتب اطمینان بدهد.",
+            "در شرایط نزدیک شدن، ناخودآگاه عقب می‌کشم."
+          ],
+          needsProfile:true
+        }),
+        makeLikertTest({
+          id:"sternberg_love",
+          title:"مثلث عشق (کوتاه)",
+          about:"سه بُعد صمیمیت، شور و تعهد.",
+          scales:[
+            {key:"INT", label:"صمیمیت", items:[1,4,7], hint:"نزدیکی، همدلی، اعتماد."},
+            {key:"PAS", label:"شور", items:[2,5,8], hint:"جذب، هیجان، میل."},
+            {key:"COM", label:"تعهد", items:[3,6,9], hint:"پایبندی و تصمیم برای ادامه."},
+          ],
+          questions:[
+            "با شریکم احساس نزدیکی عاطفی عمیق دارم.",
+            "جذابیت و هیجان رابطه برایم بالاست.",
+            "برای ادامه رابطه مصمم هستم.",
+            "می‌توانم بدون ترس درباره احساساتم صحبت کنم.",
+            "وقتی همدیگر را می‌بینیم انرژی و هیجان می‌گیرم.",
+            "در سختی‌ها برای رابطه می‌ایستم.",
+            "حس می‌کنم طرف مقابلم واقعاً مرا می‌فهمد.",
+            "کشش جسمی/هیجانی رابطه برایم مهم است.",
+            "برای آینده رابطه برنامه دارم."
+          ],
+          needsProfile:true
+        }),
+        makeLikertTest({
+          id:"communication_skill",
+          title:"مهارت ارتباطی",
+          about:"شفاف‌گویی، گوش‌دادن و مدیریت تعارض.",
+          scoring:"sum",
+          questions:[
+            "در گفتگو، بیشتر گوش می‌دهم تا اینکه فقط جواب بدهم.",
+            "می‌توانم احساساتم را بدون حمله کردن بیان کنم.",
+            "در تعارض‌ها به جای قهر، گفتگو می‌کنم.",
+            "می‌توانم حد و مرزهایم را محترمانه بگویم.",
+            "وقتی اشتباه می‌کنم، عذرخواهی برایم سخت نیست."
+          ],
+          needsProfile:true,
+          interpret:(sum)=>{
+            const bands=[
+              {to:7,label:"نیاز به تقویت",cls:"warnline",advice:"مهارت ارتباطی قابل یادگیری است. از تمرین «جملات من» و گوش‌دادن فعال شروع کن."},
+              {to:14,label:"قابل قبول",cls:"",advice:"خوب است؛ با تمرین مدیریت تعارض و بازخورد، بهتر هم می‌شود."},
+              {to:20,label:"قوی",cls:"",advice:"ارتباط قوی؛ مراقب باش در شرایط فشار هم همین کیفیت حفظ شود."},
+            ];
+            return bands.find(x=>sum<=x.to);
+          }
+        })
+      ]
+    },
+    {
+      id:"cognitive",
+      title:"شناختی و هوش",
+      tag:"۳ آزمون",
+      desc:"تمرکز، حافظه و حل مسئله (سبک، مناسب وب).",
+      tests:[
+        makeMCQTest({
+          id:"logic_quiz",
+          title:"منطق و استدلال (کوتاه)",
+          about:"چند سؤال ساده برای برآورد کلی حل مسئله. (آزمون IQ رسمی نیست)",
+          timerSeconds: 5*60,
+          needsProfile:true,
+          questions:[
+            {q:"اگر ۳ نفر هر کدام ۲ سیب داشته باشند، مجموع سیب‌ها چند تاست؟", choices:["۴","۵","۶","۷"], correct:2},
+            {q:"کدام گزینه ادامه‌ی درست الگوست؟ 2، 4، 8، 16، ...", choices:["18","24","30","32"], correct:3},
+            {q:"اگر امروز دوشنبه باشد، ۱۰ روز دیگر چه روزی است؟", choices:["چهارشنبه","پنجشنبه","جمعه","شنبه"], correct:0},
+            {q:"کدام کلمه با بقیه متفاوت است؟", choices:["سیب","موز","هویج","انگور"], correct:2},
+            {q:"۵×۳−۴ برابر است با:", choices:["۷","۱۰","۱۱","۱۵"], correct:2},
+          ],
+          interpret:(correct, total)=>{
+            const pct = Math.round((correct/total)*100);
+            let label="متوسط", cls="", advice="نتیجه کلی متوسط است. با تمرین‌های حل مسئله و بازی‌های فکری می‌تواند بهتر شود.";
+            if(pct>=80){label="قوی"; advice="عملکردت در این آزمون کوتاه، قوی است. اگر علاقه‌مند هستی، چالش‌های سخت‌تر را امتحان کن."}
+            if(pct<50){label="نیاز به تمرین"; cls="warnline"; advice="نتیجه پایین‌تر از متوسط است. شاید خستگی/استرس اثر گذاشته. در زمان آرام‌تر دوباره امتحان کن."}
+            return {pct,label,cls,advice};
+          }
+        }),
+        makeLikertTest({
+          id:"focus_profile",
+          title:"پروفایل تمرکز",
+          about:"حواس‌پرتی، مدیریت توجه و پایداری تمرکز.",
+          scales:[
+            {key:"SUS", label:"پایداری", items:[1,4,7], hint:"توان نگه داشتن تمرکز."},
+            {key:"DIS", label:"حواس‌پرتی", items:[2,5,8], hint:"پرت شدن سریع ذهن."},
+            {key:"ORG", label:"مدیریت محیط", items:[3,6,9], hint:"مرزبندی و نظم."},
+          ],
+          reverseItems:[2,5,8],
+          questions:[
+            "می‌توانم برای مدت قابل توجه روی یک کار بمانم.",
+            "با کوچک‌ترین اعلان/صدا تمرکزم می‌پرد. (معکوس)",
+            "محیط کارم را طوری می‌چینم که حواس‌پرتی کمتر شود.",
+            "وقتی شروع می‌کنم، تا پایان کار را ادامه می‌دهم.",
+            "در کارهای طولانی، ذهنم زود می‌پرد. (معکوس)",
+            "برای کار عمیق، زمان و مکان مشخص می‌گذارم.",
+            "در کار مهم، کمتر سراغ کارهای فرعی می‌روم.",
+            "چندکارگی (multi-task) باعث افت کیفیت من می‌شود. (معکوس)",
+            "می‌توانم اعلان‌ها و مزاحمت‌ها را مدیریت کنم."
+          ],
+          needsProfile:true
+        }),
+        makeMCQTest({
+          id:"memory_quiz",
+          title:"حافظه کوتاه‌مدت (کوتاه)",
+          about:"یک آزمون سبک برای توجه/یادسپاری. (این نسخه فقط چند سؤال نمونه است)",
+          timerSeconds: 4*60,
+          needsProfile:true,
+          questions:[
+            {q:"کدام گزینه مجموعه‌ای از حروف را دقیق‌تر بازتولید می‌کند؟ (نمونه)  A K T", choices:["A K T","A T K","K A T","T K A"], correct:0},
+            {q:"در جمله «کتاب روی میز است»، کلمه سوم چیست؟", choices:["کتاب","روی","میز","است"], correct:2},
+            {q:"اگر ترتیب اعداد 9 1 4 باشد، عدد دوم چیست؟", choices:["9","1","4","0"], correct:1},
+            {q:"کدام گزینه «بیشترین» تعداد حرف دارد؟", choices:["خانه","دوست","کتابخانه","قلم"], correct:2},
+          ],
+          interpret:(correct,total)=>{
+            const pct=Math.round((correct/total)*100);
+            let label="متوسط", cls="", advice="حافظه کوتاه‌مدت در حد متوسط است. خواب کافی و کاهش مولتی‌تسک کمک می‌کند.";
+            if(pct>=75){label="خوب"; advice="عملکرد خوب است. برای بهتر شدن، تمرین‌های تمرکز و مرور فعال انجام بده."}
+            if(pct<50){label="پایین"; cls="warnline"; advice="ممکن است خستگی یا حواس‌پرتی اثر گذاشته باشد. در زمان آرام‌تر دوباره امتحان کن."}
+            return {pct,label,cls,advice};
+          }
+        })
+      ]
+    },
+  ];
+
+  // ---------- سازنده‌ها ----------
+  function makeLikertTest({id,title,about,questions,scales=null,reverseItems=[],timerSeconds=null,customOptions=null,scoring="scales",interpret=null,needsProfile=false,extraNote=null}){
+    return { kind:"likert", id, title, about, questions, scales, reverseItems, timerSeconds, customOptions, scoring, interpret, needsProfile, extraNote };
+  }
+  function makeMCQTest({id,title,about,questions,timerSeconds=null,interpret=null,needsProfile=false}){
+    return { kind:"mcq", id, title, about, questions, timerSeconds, interpret, needsProfile };
+  }
+  function makeScaleTestRIASEC(){
+    const id="riasec";
+    return {
+      kind:"riasec",
+      id,
+      title:"RIASEC (هالند) — علایق شغلی کوتاه",
+      about:"۶ تیپ شغلی (Realistic, Investigative, Artistic, Social, Enterprising, Conventional). نتیجه یک راهنماست نه نسخه قطعی.",
+      timerSeconds: null,
+      needsProfile:true,
+      dims:[
+        {k:"R", label:"واقع‌گرا (R)", hint:"فنی، عملی، کار با ابزار/مکانیک."},
+        {k:"I", label:"پژوهشی (I)", hint:"تحلیل، پژوهش، حل مسئله."},
+        {k:"A", label:"هنری (A)", hint:"خلاقیت، هنر، ایده‌پردازی."},
+        {k:"S", label:"اجتماعی (S)", hint:"کمک به دیگران، آموزش، ارتباط."},
+        {k:"E", label:"کارآفرین (E)", hint:"رهبری، مذاکره، فروش/مدیریت."},
+        {k:"C", label:"قراردادی (C)", hint:"نظم، داده، امور اداری/سیستمی."},
+      ],
+      questions:[
+        {q:"از کارهای فنی و عملی (ابزار، تعمیر، ساخت) لذت می‌برم.", dim:"R"},
+        {q:"حل مسئله و تحلیل داده برایم جذاب است.", dim:"I"},
+        {q:"به طراحی/هنر/نوشتن یا ایده‌های خلاق علاقه دارم.", dim:"A"},
+        {q:"دوست دارم به آدم‌ها کمک کنم یا آموزش بدهم.", dim:"S"},
+        {q:"رهبری تیم، مذاکره یا متقاعدسازی را دوست دارم.", dim:"E"},
+        {q:"از کارهای منظم، آرشیو، اکسل یا فرایندهای اداری لذت می‌برم.", dim:"C"},
+        {q:"ترجیح می‌دهم کارهای عملی را با دست انجام دهم.", dim:"R"},
+        {q:"پرسیدن «چرا» و تحقیق کردن در مورد موضوعات برایم لذت‌بخش است.", dim:"I"},
+        {q:"اگر آزادی عمل داشته باشم بهتر شکوفا می‌شوم.", dim:"A"},
+        {q:"کار تیمی با افراد و ارتباط نزدیک برایم مهم است.", dim:"S"},
+        {q:"دوست دارم پروژه‌ها را جلو ببرم و نتیجه بگیرم.", dim:"E"},
+        {q:"وقتی قوانین و چارچوب روشن باشد خیالم راحت‌تر است.", dim:"C"},
+      ]
+    }
+  }
+
+  // ---------- رندر View ----------
+  const root = $("#viewRoot");
+  const statusText = $("#statusText");
+
+  const state = {
+    step:"categories", // categories | tests | pre | quiz | result
+    category:null,
+    test:null,
+    profile:{name:"", age:"", gender:""},
+    qIndex:0,
+    answers:[],   // per question selected value
+    startTs:null,
+    timer:null,
+    remaining:null,
+    chart:null
+  };
+
+  const ROUTE = {
+    categories(){
+      statusText.textContent = "آماده";
+      root.innerHTML = `
+        <div class="panel">
+          <h2>دسته‌بندی‌ها</h2>
+          <div class="crumbs"><span>خانه</span></div>
+          <div class="grid">
+            ${CATEGORIES.map(c => `
+              <div class="card" data-cat="${c.id}">
+                <div class="shine"></div>
+                <div class="title">
+                  <h3>${escapeHtml(c.title)}</h3>
+                  <span class="tag">${escapeHtml(c.tag)}</span>
+                </div>
+                <p>${escapeHtml(c.desc)}</p>
+              </div>
+            `).join("")}
+          </div>
+          <div class="footnote">این آزمون‌ها برای خودآگاهی طراحی شده‌اند و جایگزین تشخیص یا درمان تخصصی نیستند.</div>
+        </div>
+      `;
+      $$(".card", root).forEach(el => el.addEventListener("click", () => {
+        const catId = el.getAttribute("data-cat");
+        const cat = CATEGORIES.find(x=>x.id===catId);
+        state.category = cat;
+        state.step="tests";
+        ROUTE.tests();
+      }));
+    },
+
+    tests(){
+      const cat = state.category;
+      statusText.textContent = `دسته: ${cat.title}`;
+      root.innerHTML = `
+        <div class="panel">
+          <h2>${escapeHtml(cat.title)}</h2>
+          <div class="crumbs">
+            <button class="crumbBtn" data-go="home">خانه</button>
+            <span>›</span>
+            <span>${escapeHtml(cat.title)}</span>
+          </div>
+          <div class="list">
+            ${cat.tests.map(t => `
+              <div class="item" data-test="${t.id}">
+                <div>
+                  <h4>${escapeHtml(t.title)}</h4>
+                  <small>${escapeHtml(t.about)}</small>
+                </div>
+                <div class="meta">
+                  <span class="badge free">رایگان</span>
+                  ${t.timerSeconds ? `<span class="badge timer">تایمر دارد</span>` : ``}
+                </div>
+              </div>
+            `).join("")}
+          </div>
+          <div class="btnrow">
+            <button class="btn" data-go="home">بازگشت</button>
+          </div>
+        </div>
+      `;
+      $$("[data-go='home']", root).forEach(b => b.addEventListener("click", () => {
+        state.step="categories"; state.category=null; state.test=null;
+        ROUTE.categories();
+      }));
+      $$(".item", root).forEach(el => el.addEventListener("click", () => {
+        const tid = el.getAttribute("data-test");
+        const test = cat.tests.find(x=>x.id===tid);
+        state.test=test;
+        state.step="pre";
+        ROUTE.pre();
+      }));
+    },
+
+    pre(){
+      const t = state.test;
+      statusText.textContent = "اطلاعات اولیه";
+      root.innerHTML = `
+        <div class="panel">
+          <h2>قبل از شروع آزمون</h2>
+          <div class="crumbs">
+            <button class="crumbBtn" data-go="cats">خانه</button>
+            <span>›</span>
+            <button class="crumbBtn" data-go="tests">${escapeHtml(state.category.title)}</button>
+            <span>›</span>
+            <span>${escapeHtml(t.title)}</span>
+          </div>
+
+          <div class="quizhead">
+            <div>
+              <h3>${escapeHtml(t.title)}</h3>
+              <p>${escapeHtml(t.about)}</p>
+            </div>
+            ${t.timerSeconds ? `
+              <div class="timerBox">
+                <div class="tlabel">زمان پیشنهادی</div>
+                <div class="tval">${fmtTime(t.timerSeconds)}</div>
+              </div>
+            ` : `
+              <div class="timerBox">
+                <div class="tlabel">زمان</div>
+                <div class="tval">بدون تایمر</div>
+              </div>
+            `}
+          </div>
+
+          <div class="mini" style="margin-top:12px">
+            <h4>اطلاعات کاربر</h4>
+            <p>برای اینکه گزارش شخصی‌سازی‌شده‌تر شود، این اطلاعات را وارد کن. (در همین دستگاه ذخیره می‌شود)</p>
+          </div>
+
+          <div class="formgrid">
+            <div class="field">
+              <label>نام (یا لقب)</label>
+              <input id="pName" placeholder="مثلاً: Abo" autocomplete="off" />
+            </div>
+            <div class="field">
+              <label>سن</label>
+              <input id="pAge" type="number" min="10" max="99" placeholder="مثلاً: ۲۱" />
+            </div>
+            <div class="field">
+              <label>جنسیت (اختیاری)</label>
+              <select id="pGender">
+                <option value="">انتخاب نشده</option>
+                <option value="male">مرد</option>
+                <option value="female">زن</option>
+                <option value="other">دیگر</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="btnrow">
+            <button class="btn" data-go="tests">بازگشت</button>
+            <button class="btn primary" id="startBtn">شروع آزمون</button>
+          </div>
+          <div class="footnote">حریم خصوصی: اطلاعات واردشده فقط در مرورگر همین دستگاه (LocalStorage) ذخیره می‌شود و جایی ارسال نمی‌گردد.</div>
+        </div>
+      `;
+
+      $("[data-go='cats']", root).addEventListener("click", ()=> ROUTE.categories());
+      $("[data-go='tests']", root).addEventListener("click", ()=> ROUTE.tests());
+
+      // Load stored profile default
+      const stored = safeJSON(localStorage.getItem("psy_profile"));
+      if(stored){
+        $("#pName", root).value = stored.name || "";
+        $("#pAge", root).value = stored.age || "";
+        $("#pGender", root).value = stored.gender || "";
+      }
+
+      $("#startBtn", root).addEventListener("click", () => {
+        const name = $("#pName", root).value.trim();
+        const age = ($("#pAge", root).value || "").trim();
+        const gender = $("#pGender", root).value;
+
+        // حداقل نام برای گزارش بهتر (اگر خالی بود، باز هم اجازه می‌دهیم با "کاربر")
+        state.profile = {name: name || "کاربر", age, gender};
+        localStorage.setItem("psy_profile", JSON.stringify(state.profile));
+
+        const total = getQuestionCount(t);
+        state.qIndex = 0;
+        state.answers = new Array(total).fill(undefined);
+        state.startTs = Date.now();
+        state.remaining = t.timerSeconds ? t.timerSeconds : null;
+
+        state.step="quiz";
+        ROUTE.quiz();
+      });
+    },
+
+    quiz(){
+      const t = state.test;
+      statusText.textContent = "در حال آزمون";
+      const total = getQuestionCount(t);
+      const idx = state.qIndex; // current question index
+
+      // init timer (do NOT reset on each re-render)
+      stopTimer();
+      if (t.timerSeconds) {
+        if (state.remaining == null) state.remaining = t.timerSeconds;
+        startTimer();
+      } else {
+        state.remaining = null;
+      }
+
+      root.innerHTML = `
+        <div class="panel">
+          <div class="crumbs">
+            <button class="crumbBtn" data-go="cats">خانه</button>
+            <span>›</span>
+            <button class="crumbBtn" data-go="tests">${escapeHtml(state.category.title)}</button>
+            <span>›</span>
+            <span>${escapeHtml(t.title)}</span>
+          </div>
+
+          <div class="quizhead">
+            <div>
+              <h3>${escapeHtml(t.title)}</h3>
+              <p>به هر سؤال با دقت پاسخ بده. می‌توانی قبل از رفتن به سؤال بعدی گزینه را عوض کنی.</p>
+            </div>
+            <div class="timerBox" id="timerBox" style="${t.timerSeconds ? "" : "opacity:.75"}">
+              <div class="tlabel">${t.timerSeconds ? "زمان باقی‌مانده" : "زمان"}</div>
+              <div class="tval" id="timerVal">${t.timerSeconds ? fmtTime(state.remaining) : "بدون تایمر"}</div>
+            </div>
+          </div>
+
+          <div class="progress"><div id="pbar"></div></div>
+
+          <div class="qbox">
+            <div class="qnum">سؤال <b>${idx+1}</b> از <b>${total}</b></div>
+            <div class="qtext" id="qText"></div>
+            <div class="options" id="opts"></div>
+            <div class="hint" id="hint"></div>
+          </div>
+
+          <div class="btnrow">
+            <button class="btn" id="backBtn">قبلی</button>
+            <button class="btn danger" id="quitBtn">خروج از آزمون</button>
+            <button class="btn primary" id="nextBtn" disabled>بعدی</button>
+          </div>
+
+          <div class="footnote">نکته: اگر صفحه را ببندی، پاسخ‌ها ذخیره نمی‌شوند مگر بعد از پایان آزمون.</div>
+        </div>
+      `;
+
+      $("[data-go='cats']", root).addEventListener("click", ()=> { stopTimer(); ROUTE.categories(); });
+      $("[data-go='tests']", root).addEventListener("click", ()=> { stopTimer(); ROUTE.tests(); });
+
+      // render question
+      renderQuestion();
+
+      // events
+      $("#backBtn", root).addEventListener("click", () => {
+        if(state.qIndex > 0){
+          state.qIndex -= 1;
+          ROUTE.quiz();
+        }
+      });
+
+      $("#quitBtn", root).addEventListener("click", () => {
+        stopTimer();
+        state.answers=[];
+        state.qIndex = 0;
+        state.remaining = null;
+        state.step="tests";
+        ROUTE.tests();
+      });
+
+      $("#nextBtn", root).addEventListener("click", () => {
+        const cur = state.qIndex;
+        if(state.answers[cur] === undefined) return;
+
+        if(cur >= total-1){
+          stopTimer();
+          state.step="result";
+          ROUTE.result();
+        } else {
+          state.qIndex += 1;
+          ROUTE.quiz();
+        }
+      });
+
+      function renderQuestion(){
+        const q = getQuestionAt(t, idx);
+        $("#qText", root).textContent = q.text;
+        $("#hint", root).textContent = q.hint || "";
+
+        // progress
+        const pct = Math.round((idx/total)*100);
+        $("#pbar", root).style.width = pct + "%";
+
+        const opts = $("#opts", root);
+        opts.innerHTML = "";
+
+        const optionSet = getOptionSet(t, idx);
+        optionSet.forEach((o) => {
+          const el = document.createElement("div");
+          el.className = "opt";
+          el.innerHTML = `
+            <div style="display:flex; align-items:center; gap:10px">
+              <div class="mark"></div>
+              <div class="label">${escapeHtml(o.label)}</div>
+            </div>
+            <div class="val">${escapeHtml(o.meta || "")}</div>
+          `;
+          el.addEventListener("click", () => {
+            // deselect others
+            $$(".opt", root).forEach(x => x.classList.remove("selected"));
+            el.classList.add("selected");
+
+            // store answer (overwrite if already chosen for this idx)
+            state.answers[idx] = o.value;
+
+            // enable next
+            const nb = $("#nextBtn", root);
+            nb.disabled = false;
+            nb.textContent = (idx === total-1) ? "پایان و مشاهده نتیجه" : "بعدی";
+          });
+          opts.appendChild(el);
+        });
+
+        // if already answered (e.g. after going back), restore selection
+        if(state.answers[idx] !== undefined){
+          const v = state.answers[idx];
+          const items = $$(".opt", root);
+          const optionVals = optionSet.map(x => x.value);
+          const pos = optionVals.indexOf(v);
+          if(pos >= 0){
+            items[pos].classList.add("selected");
+            const nb = $("#nextBtn", root);
+            nb.disabled = false;
+            nb.textContent = (idx === total-1) ? "پایان و مشاهده نتیجه" : "بعدی";
+          }
+        }
+
+        // back disabled on first question
+        $("#backBtn", root).disabled = (idx===0);
+      }
+    },
+
+    result(){
+      stopTimer();
+      statusText.textContent = "گزارش آماده";
+
+      const t = state.test;
+      const profile = state.profile;
+      const total = getQuestionCount(t);
+
+      const elapsedSec = Math.round((Date.now() - state.startTs)/1000);
+      const stamp = new Date().toLocaleString("fa-IR");
+
+      // compute result
+      const res = computeResult(t, state.answers);
+
+      // Build long report
+      const report = buildLongReport(t, profile, res, total, elapsedSec);
+
+      root.innerHTML = `
+        <div class="panel">
+          <h2>گزارش نهایی</h2>
+          <div class="crumbs">
+            <button class="crumbBtn" data-go="cats">خانه</button>
+            <span>›</span>
+            <button class="crumbBtn" data-go="tests">${escapeHtml(state.category.title)}</button>
+            <span>›</span>
+            <span>${escapeHtml(t.title)}</span>
+          </div>
+
+          <div class="result">
+            <h3>${escapeHtml(t.title)}</h3>
+            <p class="summary">${escapeHtml(report.text)}</p>
+
+            <div class="two">
+              <div class="mini">
+                <h4>مشخصات و زمان</h4>
+                <p>
+                  نام: <b>${escapeHtml(profile.name || "کاربر")}</b><br/>
+                  سن: <b>${escapeHtml(profile.age || "نامشخص")}</b><br/>
+                  تاریخ: <b>${escapeHtml(stamp)}</b><br/>
+                  مدت زمان پاسخ‌دهی: <b>${escapeHtml(fmtTime(elapsedSec))}</b>
+                </p>
+              </div>
+
+              <div class="mini">
+                <h4>جمع‌بندی سریع</h4>
+                <p>${escapeHtml(report.quick)}</p>
+              </div>
+            </div>
+
+            <div class="mini" style="margin-top:12px">
+              <h4>نمودار</h4>
+              <p>نمایش دیداری نتیجه برای مقایسه ساده‌تر.</p>
+              <div style="height:320px">
+                <canvas id="chart"></canvas>
+              </div>
+            </div>
+
+            <div class="btnrow">
+              <button class="btn" id="saveBtn">ذخیره نتیجه (این دستگاه)</button>
+              <button class="btn" id="againBtn">انتخاب آزمون دیگر</button>
+              <button class="btn primary" id="homeBtn">بازگشت به دسته‌بندی‌ها</button>
+            </div>
+            <div class="saveok" id="saveOk">✅ نتیجه ذخیره شد.</div>
+
+            <div class="footnote">
+              ⚠️ توجه: این گزارش آموزشی/خودآگاهی است و جایگزین تشخیص تخصصی نیست. اگر در مورد سلامت روان نگرانی جدی داری، با متخصص صحبت کن.
+            </div>
+          </div>
+        </div>
+      `;
+
+      $("[data-go='cats']", root).addEventListener("click", ()=> ROUTE.categories());
+      $("[data-go='tests']", root).addEventListener("click", ()=> ROUTE.tests());
+
+      $("#againBtn", root).addEventListener("click", ()=> ROUTE.tests());
+      $("#homeBtn", root).addEventListener("click", ()=> ROUTE.categories());
+
+      $("#saveBtn", root).addEventListener("click", () => {
+        const key = "psy_results_v1";
+        const arr = safeJSON(localStorage.getItem(key)) || [];
+        arr.unshift({
+          savedAt: Date.now(),
+          category: state.category.id,
+          testId: t.id,
+          testTitle: t.title,
+          profile: state.profile,
+          result: res,
+          report: report,
+        });
+        localStorage.setItem(key, JSON.stringify(arr.slice(0, 50))); // keep last 50
+        $("#saveOk", root).style.display = "block";
+        setTimeout(()=>$("#saveOk", root).style.display="none", 1800);
+      });
+
+      // render chart
+      renderChart(t, res);
+    }
+  };
+
+  // ---------- Timer ----------
+  function startTimer(){
+    stopTimer();
+    const tbox = $("#timerBox", root);
+    const tval = $("#timerVal", root);
+
+    state.timer = setInterval(()=>{
+      state.remaining -= 1;
+      if(state.remaining < 0) state.remaining = 0;
+
+      if(tval) tval.textContent = fmtTime(state.remaining);
+
+      // visual warning
+      if(tbox){
+        tbox.classList.remove("warn","danger");
+        if(state.remaining <= 60) tbox.classList.add("danger");
+        else if(state.remaining <= 2*60) tbox.classList.add("warn");
+      }
+
+      if(state.remaining === 0){
+        stopTimer();
+        // auto-finish: if unanswered questions remain, we fill with neutral/zero
+        const total = getQuestionCount(state.test);
+        for(let i=0;i<total;i++){
+          if(state.answers[i] === undefined){
+            state.answers[i] = autoFillValue(state.test, i);
+          }
+        }
+        state.step="result";
+        ROUTE.result();
+      }
+    }, 1000);
+  }
+  function stopTimer(){
+    if(state.timer){ clearInterval(state.timer); state.timer=null; }
+  }
+
+  // ---------- Compute ----------
+  
+  function computeResult(test, answers){
+    // ---------- Multiple Choice (MCQ) ----------
+    if(test.kind === "mcq"){
+      let correct = 0;
+      const details = test.questions.map((q, i) => {
+        const user = answers[i];
+        const isCorrect = (user === q.correct);
+        if(isCorrect) correct += 1;
+        return {
+          index: i,
+          text: q.q,
+          choices: q.choices,
+          correct: q.correct,
+          user,
+          isCorrect
+        };
+      });
+      const interp = test.interpret ? test.interpret(correct, test.questions.length) : null;
+      const wrong = details.filter(d => !d.isCorrect);
+      return {type:"mcq", correct, total:test.questions.length, interp, details, wrong};
+    }
+
+    // ---------- RIASEC ----------
+    if(test.kind === "riasec"){
+      const scores = Object.fromEntries(test.dims.map(d=>[d.k, 0]));
+      for(let i=0;i<test.questions.length;i++){
+        const dim = test.questions[i].dim;
+        const v = answers[i] ?? 0;
+        scores[dim] += v;
+      }
+      const ordered = Object.entries(scores).sort((a,b)=>b[1]-a[1]);
+      const top = ordered.slice(0,3).map(x=>x[0]).join("");
+      return {type:"riasec", scores, ordered, top};
+    }
+
+    // ---------- Likert ----------
+    const optMax = getLikertMax(test);
+    const raw = answers.map(v => (v ?? 0)); // raw selected option values
+    const vals = raw.map((vv, i) => {
+      let v2 = vv;
+      if(test.reverseItems && test.reverseItems.includes(i+1)){ // 1-based indices
+        v2 = optMax - v2;
+      }
+      return v2;
+    });
+
+    // Sum scoring
+    if(test.scoring === "sum"){
+      const sum = vals.reduce((a,b)=>a+b,0);
+      const max = vals.length * optMax;
+      const band = test.interpret ? test.interpret(sum, max) : null;
+
+      const itemScores = vals.map((v,i)=>({
+        index: i,
+        value: v,
+        raw: raw[i],
+        text: (test.questions && test.questions[i]) ? test.questions[i] : ""
+      }));
+
+      return {type:"sum", sum, max, band, vals, raw, itemScores, optMax};
+    }
+
+    // Scales scoring
+    if(test.scales){
+      const scoreMap = {};
+      const maxMap = {};
+      const scaleBreakdown = test.scales.map(s => {
+        const items = s.items.map(n => ({
+          qIndex: n-1,
+          value: vals[n-1] ?? 0,
+          raw: raw[n-1] ?? 0,
+          text: (test.questions && test.questions[n-1]) ? test.questions[n-1] : ""
+        }));
+        const sum = items.reduce((a,b)=>a+b.value,0);
+        const max = items.length * optMax;
+        const pct = max ? Math.round((sum/max)*100) : 0;
+
+        scoreMap[s.key] = sum;
+        maxMap[s.key] = max;
+
+        return {key:s.key, label:s.label, hint:s.hint, sum, max, pct, items};
+      });
+
+      return {type:"scales", scoreMap, maxMap, scales:test.scales, vals, raw, optMax, scaleBreakdown};
+    }
+
+    // fallback
+    const sum = vals.reduce((a,b)=>a+b,0);
+    return {type:"sum", sum, max: vals.length*optMax, band: null, vals, raw, itemScores: vals.map((v,i)=>({index:i,value:v,raw:raw[i],text:(test.questions&&test.questions[i])?test.questions[i]:""})), optMax};
+  }
+
+  function buildLongReport(test, profile, res, total, elapsedSec){
+    const name = profile.name || "کاربر";
+    const baseIntro = `سلام ${name} 👋
+این گزارش بر اساس پاسخ‌های تو در آزمون «${test.title}» ساخته شده است.
+تعداد سؤال‌ها: ${total}  |  مدت زمان پاسخ‌دهی: ${fmtTime(elapsedSec)}
+
+`;
+
+    const meaningInfo = getMeaningInfo(test);
+
+    // ---------- MCQ ----------
+    if(res.type === "mcq"){
+      const pct = res.interp?.pct ?? Math.round((res.correct/res.total)*100);
+      const label = res.interp?.label ?? "نتیجه";
+      const advice = res.interp?.advice ?? "برای نتیجه دقیق‌تر، آزمون‌های استاندارد و طولانی‌تر لازم است.";
+
+      const wrongList = res.wrong.slice(0,5).map(d=>{
+        const userText = (typeof d.user === "number") ? d.choices[d.user] : "—";
+        const correctText = d.choices[d.correct];
+        return `- ${d.text}\n  پاسخ تو: ${userText}\n  پاسخ درست: ${correctText}`;
+      }).join("\n\n");
+
+      const extra = `امتیاز: ${res.correct} از ${res.total}  (حدود ${pct}٪)
+
+توضیح درصد:
+- ${pct}٪ یعنی نسبتِ پاسخ‌های درست تو به کل سؤال‌ها در همین آزمون کوتاه.
+- ${meaningInfo.note || "این آزمون آموزشی است و تحت تأثیر خستگی، استرس و زمان قرار می‌گیرد."}
+
+${res.wrong.length ? `مواردی که اشتباه پاسخ دادی:\n${wrongList}\n` : "✅ همه سؤال‌ها درست بود!\n"}
+
+جمع‌بندی:
+${label}
+${advice}
+`;
+      return { quick: `${label} — ${pct}٪`, text: baseIntro + extra };
+    }
+
+    // ---------- RIASEC ----------
+    if(res.type === "riasec"){
+      const top = res.top;
+      const desc = (k)=> test.dims.find(d=>d.k===k)?.hint || "";
+      const orderedLines = res.ordered.map(([k,v])=>`- ${k}: ${v}`).join("\n");
+      const extra = `کد غالب تو: ${top}
+
+جزئیات امتیازها:
+${orderedLines}
+
+تفسیر:
+- حرف اول نشان‌دهنده قوی‌ترین گرایش توست.
+- ترکیب ۲ تا ۳ حرف اول معمولاً راهنمای خوبی برای محیط کاری/رشته/نقش است.
+
+راهنما (معنی حروف غالب):
+${top.split("").map(k=>`- ${k}: ${desc(k)}`).join("\n")}
+
+پیشنهاد عملی:
+- برای هر حرف غالب، ۳ نقش/رشته نزدیک پیدا کن و یک هفته درباره‌ش تحقیق کن.
+- اگر بین دو تیپ نزدیک هستی، نقش‌های ترکیبی معمولاً مناسب‌ترند.
+`;
+      return { quick: `کد غالب: ${top}`, text: baseIntro + extra };
+    }
+
+    // ---------- SUM ----------
+    if(res.type === "sum"){
+      const pct = res.max ? Math.round((res.sum/res.max)*100) : 0;
+
+      // Highlight answers: the items with the highest contribution
+      const highThr = (res.optMax <= 3) ? 2 : 3; // dynamic threshold
+      const topItems = (res.itemScores || [])
+        .slice()
+        .sort((a,b)=>b.value-a.value)
+        .filter(x=>x.value >= highThr)
+        .slice(0,4);
+
+      const topLines = topItems.length
+        ? topItems.map(x=>`- ${cleanupQ(x.text)} (امتیاز: ${x.value})`).join("\n")
+        : "در پاسخ‌های تو، موردی با شدت بالا (در این مقیاس) دیده نشد.";
+
+      const bandText = res.band
+        ? `سطح: ${res.band.label}\n${res.band.advice}`
+        : "سطح: (بدون باند تفسیری اختصاصی برای این آزمون)";
+
+      const meaningLine = meaningInfo.direction === "worse"
+        ? "در این آزمون، امتیاز بالاتر معمولاً یعنی شدت/ریسک بیشتر."
+        : (meaningInfo.direction === "better"
+          ? "در این آزمون، امتیاز بالاتر معمولاً یعنی وضعیت/مهارت بهتر."
+          : "در این آزمون، امتیاز بالاتر یعنی «میزان بیشتر» از آن ویژگی (نه لزوماً خوب یا بد).");
+
+      const tips = buildKeywordTips(topItems.map(x=>x.text));
+
+      const extra = `امتیاز کل: ${res.sum} از ${res.max}  (حدود ${pct}٪)
+
+توضیح درصد:
+- ${pct}٪ یعنی تو حدود ${pct}٪ از حداکثر امتیاز ممکن را گرفته‌ای.
+- ${meaningLine}
+${meaningInfo.note ? `- ${meaningInfo.note}` : ""}
+
+موارد برجسته بر اساس پاسخ‌های تو:
+${topLines}
+
+جمع‌بندی:
+${bandText}
+
+پیشنهادهای کاربردی (بر اساس موارد برجسته):
+${tips}
+
+نکته:
+- «یک بار نتیجه» کافی نیست؛ اگر هفته‌ای یک‌بار تکرار کنی، روند دقیق‌تری می‌بینی.
+`;
+
+      const note = test.extraNote ? `\nیادآوری مهم:\n${test.extraNote}\n` : "";
+      return { quick: res.band ? res.band.label : `${pct}٪`, text: baseIntro + extra + note };
+    }
+
+    // ---------- SCALES ----------
+    const lines = (res.scaleBreakdown || []).slice().sort((a,b)=>b.pct-a.pct);
+    const strong = lines[0];
+    const weak = lines[lines.length-1];
+
+    // For scales: pick 2 lowest items in the weakest dimension (as "areas to work on")
+    const weakItems = (weak?.items || []).slice().sort((a,b)=>a.value-b.value).slice(0,2);
+    const weakItemsText = weakItems.length
+      ? weakItems.map(x=>`- ${cleanupQ(x.text)} (امتیاز: ${x.value})`).join("\n")
+      : "—";
+
+    const extra = `خلاصه:
+- قوی‌ترین بُعد: ${strong.label} (${strong.pct}٪)
+- پایین‌ترین بُعد: ${weak.label} (${weak.pct}٪)
+
+جزئیات امتیازها:
+${lines.map(x=>`- ${x.label}: ${x.sum} از ${x.max} (${x.pct}٪)`).join("\n")}
+
+این درصد یعنی چی؟
+- درصد هر بُعد نشان می‌دهد تو چه سهمی از «حداکثر امتیاز ممکن» آن بُعد را گرفته‌ای.
+- در بعضی آزمون‌ها بالا/پایین بودن بُعد «خوب یا بد» نیست؛ فقط سبک/گرایش تو را نشان می‌دهد.
+
+مواردی که در بُعد پایین‌تر، امتیاز کمتری گرفته‌اند (برای تمرکز روی بهبود):
+${weakItemsText}
+
+پیشنهادهای هدفمند:
+- برای بُعد پایین‌تر: یک تمرین کوچک ۷ روزه تعریف کن (هر روز ۱۰ دقیقه).
+- برای بُعد قوی‌تر: از آن به عنوان نقطه قوت استفاده کن (کار/روابط/هدف‌گذاری).
+
+نکته‌های بُعدها:
+${lines.map(x=>`- ${x.label}: ${x.hint}`).join("\n")}
+`;
+
+    return { quick: `قوی‌ترین: ${strong?.label || "—"}`, text: baseIntro + extra };
+  }
+
+  function cleanupQ(t){
+    return String(t||"").replace(/\s*\(معکوس\)\s*/g, "").trim();
+  }
+
+  function getMeaningInfo(test){
+    const map = {
+      phq9: {direction:"worse", note:"این پرسشنامه علائم افسردگی در ۱۴ روز گذشته را غربالگری می‌کند."},
+      gad7: {direction:"worse", note:"این پرسشنامه علائم اضطراب در ۱۴ روز گذشته را غربالگری می‌کند."},
+      pss10:{direction:"worse", note:"این پرسشنامه ادراک استرس در یک ماه گذشته را می‌سنجد."},
+      procrastination:{direction:"worse", note:"این آزمون میزان اهمال‌کاری/تعلل در شروع و انجام کارها را نشان می‌دهد."},
+      life_satisfaction:{direction:"better", note:"این آزمون برداشت کلی از رضایت و معنا را نشان می‌دهد."},
+      goal_drive:{direction:"better", note:"این آزمون میزان پیگیری و انگیزش برای اهداف را نشان می‌دهد."},
+      communication_skill:{direction:"better", note:"این آزمون مهارت‌های ارتباطی و مدیریت تعارض را نشان می‌دهد."},
+    };
+    return map[test.id] || {direction:"neutral", note:""};
+  }
+
+  function buildKeywordTips(texts){
+    const t = (texts || []).join(" ").toLowerCase();
+    const tips = [];
+    const add = (s)=>{ if(s && !tips.includes(s)) tips.push(s); };
+
+    if(/خواب/.test(t)) add("- روی بهداشت خواب کار کن: ساعت خواب ثابت، کاهش نور موبایل ۶۰ دقیقه قبل خواب، و کافئین کمتر بعدازظهر.");
+    if(/تمرکز|حواس|اعلان|مولتی/.test(t)) add("- برای تمرکز: اعلان‌ها را خاموش کن، کار را به بازه‌های ۲۵ دقیقه‌ای تقسیم کن (Pomodoro).");
+    if(/خستگی|انرژی/.test(t)) add("- خستگی/انرژی: پیاده‌روی سبک، آب کافی، و چک‌کردن کیفیت خواب می‌تواند کمک کند.");
+    if(/نگران|اضطراب|عصبی|ترس/.test(t)) add("- اضطراب: تنفس دیافراگمی ۳ دقیقه‌ای، نوشتن نگرانی‌ها و تعیین «زمان نگرانی» روزانه را امتحان کن.");
+    if(/بی‌ارزش|شکست|گناه|سرزنش/.test(t)) add("- خودسرزنشی: تمرین شفقت به خود (Self-compassion) و گفت‌وگوی حمایتی با یک دوست/مشاور را در نظر بگیر.");
+    if(/اشتهایی|پرخوری|کم‌اشتهایی/.test(t)) add("- اشتها: روتین غذایی منظم و توجه به استرس قبل از غذا خوردن کمک‌کننده است.");
+    if(/آسیب به خود|بهتر بودن نبودن/.test(t)) add("- ⚠️ اگر افکار آسیب به خود داری، این موضوع جدی است. سریع با فرد مورد اعتماد/متخصص یا خدمات حمایتی تماس بگیر.");
+
+    if(tips.length === 0){
+      return "- پیشنهاد عمومی: خواب کافی، حرکت روزانه، و کاهش اعلان‌ها. اگر علائم پایدارند، با متخصص صحبت کن.";
+    }
+    return tips.slice(0,6).join("\n");
+  }
+
+
+  // ---------- Chart ----------
+  function renderChart(test, res){
+    const ctx = $("#chart", root);
+    if(!ctx) return;
+    if(state.chart){ try{state.chart.destroy();}catch(e){} state.chart=null; }
+
+    let cfg = null;
+
+    if(res.type === "mcq"){
+      cfg = {
+        type:"bar",
+        data:{
+          labels:["درصد"],
+          datasets:[{
+            label:"عملکرد",
+            data:[res.interp?.pct ?? Math.round((res.correct/res.total)*100)],
+            backgroundColor:["rgba(139,92,246,.65)"],
+            borderColor:["rgba(139,92,246,.95)"],
+            borderWidth:1
+          }]
+        },
+        options:{
+          responsive:true,
+          maintainAspectRatio:false,
+          scales:{ y:{ beginAtZero:true, max:100 } },
+          plugins:{ legend:{display:false} }
+        }
+      };
+    } else if(res.type === "riasec"){
+      const labels = Object.keys(res.scores);
+      const data = labels.map(k=>res.scores[k]);
+      cfg = {
+        type:"radar",
+        data:{
+          labels,
+          datasets:[{
+            label:"امتیاز",
+            data,
+            fill:true,
+            backgroundColor:"rgba(34,197,94,.18)",
+            borderColor:"rgba(34,197,94,.85)",
+            pointBackgroundColor:"rgba(34,197,94,.95)",
+          }]
+        },
+        options:{
+          responsive:true,
+          maintainAspectRatio:false,
+          scales:{ r:{ beginAtZero:true, ticks:{ display:false } } }
+        }
+      };
+    } else if(res.type === "sum"){
+      const pct = Math.round((res.sum/res.max)*100);
+      cfg = {
+        type:"doughnut",
+        data:{
+          labels:["امتیاز", "باقی‌مانده"],
+          datasets:[{
+            data:[pct, 100-pct],
+            backgroundColor:["rgba(139,92,246,.75)","rgba(255,255,255,.08)"],
+            borderWidth:0
+          }]
+        },
+        options:{
+          responsive:true,
+          maintainAspectRatio:false,
+          plugins:{ legend:{ position:"bottom" } },
+          cutout:"70%"
+        }
+      };
+    } else {
+      // scales
+      const labels = res.scales.map(s=>s.key);
+      const data = labels.map(k => {
+        const v = res.scoreMap[k];
+        const m = res.maxMap[k] || 1;
+        return Math.round((v/m)*100);
+      });
+      cfg = {
+        type:"radar",
+        data:{
+          labels,
+          datasets:[{
+            label:"درصد",
+            data,
+            fill:true,
+            backgroundColor:"rgba(139,92,246,.18)",
+            borderColor:"rgba(139,92,246,.90)",
+            pointBackgroundColor:"rgba(139,92,246,.95)"
+          }]
+        },
+        options:{
+          responsive:true,
+          maintainAspectRatio:false,
+          scales:{ r:{ beginAtZero:true, max:100, ticks:{ stepSize:20 } } }
+        }
+      };
+    }
+
+    state.chart = new Chart(ctx, cfg);
+  }
+
+  // ---------- Helpers ----------
+  function escapeHtml(s){
+    return String(s ?? "")
+      .replaceAll("&","&amp;")
+      .replaceAll("<","&lt;")
+      .replaceAll(">","&gt;")
+      .replaceAll('"',"&quot;")
+      .replaceAll("'","&#039;");
+  }
+  function safeJSON(s){ try{ return JSON.parse(s); } catch(e){ return null; } }
+  function fmtTime(sec){
+    sec = Math.max(0, Math.floor(sec));
+    const m = Math.floor(sec/60);
+    const s = sec % 60;
+    return `${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
+  }
+  function getQuestionCount(test){
+    if(test.kind==="mcq") return test.questions.length;
+    if(test.kind==="riasec") return test.questions.length;
+    return test.questions.length;
+  }
+  function getQuestionAt(test, idx){
+    if(test.kind==="mcq"){
+      return { text: test.questions[idx].q, hint:"یک گزینه را انتخاب کن." };
+    }
+    if(test.kind==="riasec"){
+      return { text: test.questions[idx].q, hint:"گزینه مناسب را انتخاب کن." };
+    }
+    // likert
+    return { text: test.questions[idx], hint:"" };
+  }
+  function getOptionSet(test, idx){
+    if(test.kind==="mcq"){
+      const qq = test.questions[idx];
+      return qq.choices.map((c,i)=>({label:c, value:i, meta:""}));
+    }
+    if(test.kind==="riasec"){
+      const opts = (LIKERT_5);
+      return opts.map(o=>({label:o.label, value:o.v, meta:`امتیاز ${o.v}`}));
+    }
+    // likert
+    const opts = test.customOptions || LIKERT_5;
+    return opts.map(o=>({label:o.label, value:o.v, meta:`امتیاز ${o.v}`}));
+  }
+  function getLikertMax(test){
+    const opts = test.customOptions || LIKERT_5;
+    return Math.max(...opts.map(o=>o.v));
+  }
+  function autoFillValue(test, idx){
+    if(test.kind==="mcq") return 0;
+    if(test.kind==="riasec") return 2; // neutral
+    const opts = test.customOptions || LIKERT_5;
+    // pick middle if exists, else 0
+    const mid = opts.find(o=>o.v===2);
+    return mid ? mid.v : opts[0].v;
+  }
+
+  // initial render
+  ROUTE.categories();
+})();
+</script>
 </body>
 </html>
 
